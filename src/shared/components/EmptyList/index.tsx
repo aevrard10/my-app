@@ -1,20 +1,20 @@
-import { Text, Button } from "@react-navigation/elements";
 import { StyleSheet, View } from "react-native";
-
-export function NotFound() {
+import { Text } from "react-native-paper";
+const EmptyList = () => {
   return (
     <View style={styles.container}>
-      <Text>404</Text>
-      <Button screen="HomeTabs">Retouner à l'accueil</Button>
+      <Text variant="headlineMedium">Aucun élément</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: "center",
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
+    alignContent: "center",
   },
 });
+
+export default EmptyList;

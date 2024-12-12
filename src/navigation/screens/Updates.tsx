@@ -1,10 +1,10 @@
-import { Text } from '@react-navigation/elements';
-import { StyleSheet, View } from 'react-native';
+import { Text } from "@react-navigation/elements";
+import { StyleSheet, View } from "react-native";
 
 export function Updates() {
   return (
     <View style={styles.container}>
-      <Text>Updates Screen</Text>
+      <Text>Mettre à jour l'écran</Text>
     </View>
   );
 }
@@ -12,8 +12,8 @@ export function Updates() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 10,
   },
 });

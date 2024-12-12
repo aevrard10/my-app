@@ -1,0 +1,35 @@
+# SOME NOTES
+# All operations (queries & mutations) should have names (to prevent generated types with "unnamed...")
+# All operations and fragments should have unique names
+overwrite: true
+schema: "./src/shared/graphql/utils/types/schema.graphql"
+# for now we will only generate types for users module
+# documents: './packages/**/!(*.d).{ts,tsx}'
+documents: ["./src/**/!(*.d).{ts,tsx}"]
+generates:
+  "./src/shared/graphql/utils/types/types.generated.ts":
+    plugins:
+      - typescript
+      - typescript-operations
+    config:
+      # value?: T | undefined instead of value?: T | null
+      maybeValue: T | undefined
+      # Do not add "__typename" to the root generated types
+      skipTypeNameForRoot: true
+      # Do not add "__typename" to the generated types
+      skipTypename: true
+      # disable auto add suffix of operation name, like Query, Mutation, Subscription, Fragment.
+      omitOperationSuffix: true
+      # We can make a "convention" to dicide if we add prefix and suffix to our generated types
+      # typesPrefix: G
+      # typesSuffix: Type
+      # Adds a suffix to generated operation (query & mutation) result type names
+      # operationResultSuffix: Haddad
+      # Here we do a mapping to the generated scalars type instead of getting "any"
+      scalars:
+        Date: string
+        JSON: string
+        ISO8601DateTime: string
+        ISO8601Date: string
+      # unknown instead of "any"
+      defaultScalarType: unknown

@@ -1,7 +1,13 @@
 {
+  "baseUrl": ".",
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "moduleResolution": "bundler",
-    "strict": true
-  }
+    "strict": true,
+    "paths": {
+      "@shared/*": ["src/shared/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+
 }
