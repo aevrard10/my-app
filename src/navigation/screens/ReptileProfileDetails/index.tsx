@@ -12,6 +12,7 @@ import {
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "@rn-flix/snackbar";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -42,12 +43,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
   const { mutate } = useAddNotesMutation();
   const queryClient = useQueryClient();
+  const { show } = useSnackbar();
   const addNotes = useCallback(() => {
     mutate(
       { id, notes },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: useReptileQuery.queryKey });
+          show("Notes enregistrées");
         },
       }
     );
