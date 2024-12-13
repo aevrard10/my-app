@@ -1,20 +1,42 @@
-import { Text, Button } from "@react-navigation/elements";
+import { Button } from "@react-navigation/elements";
+import React from "react";
 import { StyleSheet, View } from "react-native";
+import lottieNoFound from "../../assets/not_found.json";
+import Lottie from "@shared/components/Lottie";
 
 export function NotFound() {
   return (
-    <View style={styles.container}>
-      <Text>404</Text>
-      <Button screen="HomeTabs">Retouner à l'accueil</Button>
+    <View>
+      <View style={styles.container}>
+        <View style={styles.lottieContainer}>
+          <Lottie source={lottieNoFound} autoPlay isLoop={false} />
+        </View>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button screen="HomeTabs">Retouner à l'accueil</Button>
+      </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
+  lottieContainer: {
+    width: "50%",
+    height: "50%",
+  },
   container: {
-    flex: 1,
-    justifyContent: "center",
+    display: "flex",
     alignItems: "center",
-    gap: 10,
+  },
+  buttonContainer: {
+    display: "flex",
+    alignItems: "center",
   },
 });
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     gap: 10,
+//   },
+// });

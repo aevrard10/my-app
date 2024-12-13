@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
+import { StyleSheet, View } from "react-native";
 
 const initialValues = {
   name: "",
@@ -31,7 +32,6 @@ const AddReptile = () => {
       isInitialValid={false}
       enableReinitialize
       onSubmit={(values, { resetForm }) => {
-        console.log(values);
         addReptile(
           {
             input: {
@@ -63,7 +63,7 @@ const AddReptile = () => {
       }}
     >
       {(formik) => (
-        <>
+        <View style={styles.formContainer}>
           <TextInput
             label="Name"
             value={formik.values.name}
@@ -83,7 +83,6 @@ const AddReptile = () => {
             value={formik.values.age?.toString()}
             keyboardType="numeric"
             onChangeText={(text) => {
-              // Si le texte est un nombre valide ou vide, mettre à jour l'état
               const number = parseInt(text, 10);
               formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
             }}
@@ -103,13 +102,20 @@ const AddReptile = () => {
             loading={isPending}
             disabled={!formik.isValid}
             onPress={formik.submitForm}
+            mode="contained"
           >
             AJOUTER
           </Button>
-        </>
+        </View>
       )}
     </Formik>
   );
 };
-
+const styles = StyleSheet.create({
+  formContainer: {
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+});
 export default AddReptile;

@@ -12,6 +12,7 @@ import { Reptile } from "@shared/graphql/utils/types/types.generated";
 import useRemoveReptileMutation from "../../hooks/mutations/useRemoveReptile";
 import { useQueryClient } from "@tanstack/react-query";
 import useReptilesQuery from "../../hooks/queries/useReptilesQuery";
+import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 
 const LeftContent = (props: AvatarIconProps) => (
   <Avatar.Icon {...props} icon="snake" />
@@ -19,6 +20,7 @@ const LeftContent = (props: AvatarIconProps) => (
 type CardComponentProps = {
   item?: Reptile;
 };
+
 const CardComponent: FC<CardComponentProps> = (props) => {
   const { item } = props;
   const { navigate } = useNavigation();
@@ -53,7 +55,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
       />
       <Card.Content>
         <Text variant="titleLarge">{item?.species}</Text>
-        <Text variant="bodyMedium">{item?.last_fed}</Text>
+        <Text variant="bodyMedium">{formatDDMMYYYY(item?.last_fed)}</Text>
       </Card.Content>
       <Card.Cover
         source={{
@@ -94,6 +96,3 @@ const styles = StyleSheet.create({
   },
 });
 export default CardComponent;
-function show(arg0: string, arg1: { label: string }) {
-  throw new Error("Function not implemented.");
-}

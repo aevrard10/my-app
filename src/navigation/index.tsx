@@ -18,7 +18,7 @@ const HomeTabs = createBottomTabNavigator({
     Home: {
       screen: Home,
       options: {
-        title: "Animaux",
+        title: "ReptiTrack",
         tabBarIcon: ({ color, size }) => (
           <Icon source={"snake"} size={size} color={color} />
         ),
@@ -49,6 +49,9 @@ const RootStack = createNativeStackNavigator({
       screen: AddReptile,
       options: {
         title: "Ajouter un reptile",
+      },
+      linking: {
+        path: "addReptile",
       },
     },
     ReptileProfileDetails: {

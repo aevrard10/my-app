@@ -1,13 +1,38 @@
 import { StaticScreenProps } from "@react-navigation/native";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Avatar, Button, Chip, TextInput } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Chip,
+  Divider,
+  TextInput,
+  Text,
+} from "react-native-paper";
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 
 type Props = StaticScreenProps<{
   id: string;
 }>;
 
+type TestProps = {
+  title: string;
+  value: string;
+};
+const Test: FC<TestProps> = (props) => {
+  const { title, value } = props;
+  return (
+    <View>
+      <View style={styles.infoContainer}>
+        <View style={styles.textContainer}>
+          <Text variant="labelMedium">{title}</Text>
+          <Text variant="bodyLarge">{value}</Text>
+        </View>
+      </View>
+      {<Divider style={styles.divider} />}
+    </View>
+  );
+};
 const ReptileProfileDetails = ({ route }: Props) => {
   const [text, setText] = useState("");
   const id = route.params.id;
@@ -29,6 +54,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
           </Chip>
         </View>
       </View>
+      <Test title="Âge" value={data?.age || ""} />
+      <Test title="Espèce" value={data?.species || ""} />
       <View style={{ margin: 20 }}>
         <TextInput
           label="Informations"
@@ -36,6 +63,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
           onChange={(e) => setText(e.nativeEvent.text)}
           placeholder="Informations"
         />
+
         <View style={{ marginTop: 10 }}>
           <Button mode="contained" onPress={() => console.log("Save")}>
             Save
@@ -52,6 +80,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
+  },
+  infoContainer: { marginVertical: 8, marginLeft: 16, marginRight: 24 },
+  textContainer: { marginVertical: 8 },
+  divider: {
+    marginHorizontal: 16,
   },
 });
 
