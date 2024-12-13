@@ -1,10 +1,14 @@
 import useMutation from "@shared/graphql/useMutation";
-import {
-  AddReptilesMutation,
-  AddReptilesMutationVariables,
-} from "@shared/graphql/utils/types/types.generated";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { useQueryClient } from "@tanstack/react-query";
 import { gql } from "graphql-request";
+import {
+  LogoutMutation,
+  LogoutMutationVariables,
+} from "@shared/graphql/utils/types/types.generated";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "@shared/contexts/AuthContext";
 const mutation = gql`
   mutation LogoutMutation {
     logout {
@@ -15,15 +19,19 @@ const mutation = gql`
 `;
 const useLogoutMutation = () => {
   const queryClient = useQueryClient();
+  const { navigate } = useNavigation();
+  const { setToken } = useAuth(); // Accéder au setter pour modifier le contexte
 
-  return useMutation({
+  return useMutation<LogoutMutation, LogoutMutationVariables>({
     mutation,
     options: {
       onSuccess: async () => {
         localStorage.removeItem("token");
-
+        AsyncStorage.removeItem("token");
         // Supprimer les données du cache React Query
         queryClient.clear();
+        setToken(null);
+        navigate("Login");
       },
       onError: (error) => {
         console.error("Erreur de déconnexion :", error);

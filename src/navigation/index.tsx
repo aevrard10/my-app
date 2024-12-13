@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { HeaderButton, Text } from "@react-navigation/elements";
+import { HeaderButton } from "@react-navigation/elements";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./screens/Home";
 import ReptileProfileDetails from "./screens/ReptileProfileDetails";
@@ -7,47 +7,47 @@ import { Settings } from "./screens/Settings";
 import { Updates } from "./screens/Updates";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
-import { Icon } from "react-native-paper";
+import { Icon, IconButton } from "react-native-paper";
 import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/hooks/data/mutations/useLogoutMutation";
 
 const Stack = createNativeStackNavigator();
-const HomeTabs = createBottomTabNavigator({
-  screens: {
-    Login: {
-      screen: Login,
-      options: {
-        title: "ReptiTrack",
-        tabBarIcon: ({ color, size }) => (
-          <Icon source={"snake"} size={size} color={color} />
-        ),
-      },
-    },
-    Home: {
-      screen: Home,
-      options: {
-        title: "ReptiTrack",
-        tabBarIcon: ({ color, size }) => (
-          <Icon source={"snake"} size={size} color={color} />
-        ),
-      },
-    },
-    Updates: {
-      screen: Updates,
-      options: {
-        title: "Notifications",
-        tabBarIcon: ({ color, size }) => (
-          <Icon source={"bell"} color={color} size={size} />
-        ),
-      },
-    },
-  },
-});
+const Tab = createBottomTabNavigator();
+const HomeTabs = () => {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={Home}
+        options={{
+          title: "Accueil",
+          tabBarIcon: ({ color, size }) => (
+            <Icon source={"snake"} size={size} color={color} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Updates}
+        options={{
+          title: "Notifications",
+          tabBarIcon: ({ color, size }) => (
+            <Icon source={"bell"} color={color} size={size} />
+          ),
+          headerShown: false,
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
 const MyStack = () => {
   const { token } = useAuth();
   const { mutate } = useLogoutMutation();
+  console.log("token", token);
   return (
     <Stack.Navigator
       screenOptions={{
@@ -58,7 +58,7 @@ const MyStack = () => {
             title={getHeaderTitle(options, route.name)}
             headerRight={() => (
               <HeaderButton onPress={() => mutate()}>
-                <Text>Se déconnecter</Text>
+                <IconButton icon="logout-variant" />
               </HeaderButton>
             )}
           />
@@ -66,11 +66,27 @@ const MyStack = () => {
       }}
     >
       {!token ? (
-        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ title: "ReptiTrack", headerShown: false }}
+        />
       ) : (
         <>
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="AddReptile" component={AddReptile} />
+          <Stack.Screen
+            name="HomeTabs"
+            component={HomeTabs}
+            options={{
+              title: "ReptiTrack",
+            }}
+          />
+          <Stack.Screen
+            name="AddReptile"
+            component={AddReptile}
+            options={{
+              title: "Ajouter un reptile",
+            }}
+          />
           <Stack.Screen
             name="ReptileProfileDetails"
             component={ReptileProfileDetails}
@@ -82,61 +98,5 @@ const MyStack = () => {
     </Stack.Navigator>
   );
 };
-const RootStack = createNativeStackNavigator({
-  screens: {
-    HomeTabs: {
-      screen: HomeTabs,
-      options: {
-        title: "Home",
-        headerShown: false,
-      },
-    },
-    AddReptile: {
-      screen: AddReptile,
-      options: {
-        title: "Ajouter un reptile",
-      },
-      linking: {
-        path: "addReptile",
-      },
-    },
-    ReptileProfileDetails: {
-      screen: ReptileProfileDetails,
-      options: {
-        title: "Profil",
-      },
-      linking: {
-        path: "profile/:id",
-        parse: {
-          id: (value) => value.replace("@", ""),
-        },
-        stringify: {
-          id: (value) => value.replace("@", ""),
-        },
-      },
-    },
-    Settings: {
-      screen: Settings,
-
-      options: ({ navigation }) => ({
-        presentation: "modal",
-        headerRight: () => (
-          <HeaderButton onPress={navigation.goBack}>
-            <Text>Close</Text>
-          </HeaderButton>
-        ),
-      }),
-    },
-    NotFound: {
-      screen: NotFound,
-      options: {
-        title: "404",
-      },
-      linking: {
-        path: "*",
-      },
-    },
-  },
-});
 
 export default MyStack;
