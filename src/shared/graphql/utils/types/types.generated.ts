@@ -42,7 +42,13 @@ export type MutationDeleteReptileArgs = {
 };
 
 export type Query = {
+  reptile?: Maybe<Reptile>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
+};
+
+
+export type QueryReptileArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type Reptile = {
@@ -66,6 +72,13 @@ export type RemoveReptileMutationVariables = Exact<{
 
 
 export type RemoveReptileMutation = { deleteReptile: { success: boolean, message: string } };
+
+export type ReptileQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string } | undefined };
 
 export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 

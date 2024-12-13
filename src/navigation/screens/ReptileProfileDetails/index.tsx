@@ -1,14 +1,17 @@
 import { StaticScreenProps } from "@react-navigation/native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Avatar, Button, Chip, Text, TextInput } from "react-native-paper";
+import { Avatar, Button, Chip, TextInput } from "react-native-paper";
+import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 
 type Props = StaticScreenProps<{
-  user: string;
+  id: string;
 }>;
 
-export function Profile({ route }: Props) {
+const ReptileProfileDetails = ({ route }: Props) => {
   const [text, setText] = useState("");
+  const id = route.params.id;
+  const { data } = useReptileQuery(id);
   return (
     <>
       <View style={styles.container}>
@@ -22,7 +25,7 @@ export function Profile({ route }: Props) {
         </View>
         <View style={{ flexDirection: "row", gap: 10 }}>
           <Chip icon="snake" onPress={() => console.log("Pressed")}>
-            {"Serpent"}
+            {data?.species}
           </Chip>
         </View>
       </View>
@@ -41,7 +44,7 @@ export function Profile({ route }: Props) {
       </View>
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   avatarContainer: { padding: 10 },
@@ -51,3 +54,5 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 });
+
+export default ReptileProfileDetails;

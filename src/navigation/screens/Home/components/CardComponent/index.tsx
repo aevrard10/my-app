@@ -61,7 +61,15 @@ const CardComponent: FC<CardComponentProps> = (props) => {
         }}
       />
       <Card.Actions>
-        <Button onPress={() => navigate("Profile")}>Voir plus</Button>
+        <Button
+          onPress={() =>
+            navigate("ReptileProfileDetails", {
+              id: item?.id,
+            })
+          }
+        >
+          Voir plus
+        </Button>
         <Button onPress={removeReptile}>Supprimer</Button>
       </Card.Actions>
     </Card>

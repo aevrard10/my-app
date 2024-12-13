@@ -6,7 +6,7 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./screens/Home";
-import { Profile } from "./screens/Profile";
+import ReptileProfileDetails from "./screens/ReptileProfileDetails";
 import { Settings } from "./screens/Settings";
 import { Updates } from "./screens/Updates";
 import { NotFound } from "./screens/NotFound";
@@ -51,17 +51,20 @@ const RootStack = createNativeStackNavigator({
         title: "Ajouter un reptile",
       },
     },
-    Profile: {
-      screen: Profile,
-      // linking: {
-      //   path: ":user(@[a-zA-Z0-9-_]+)",
-      //   parse: {
-      //     user: (value) => value.replace(/^@/, ""),
-      //   },
-      //   stringify: {
-      //     user: (value) => `@${value}`,
-      //   },
-      // },
+    ReptileProfileDetails: {
+      screen: ReptileProfileDetails,
+      options: {
+        title: "Profil",
+      },
+      linking: {
+        path: "profile/:id",
+        parse: {
+          id: (value) => value.replace("@", ""),
+        },
+        stringify: {
+          id: (value) => value.replace("@", ""),
+        },
+      },
     },
     Settings: {
       screen: Settings,
