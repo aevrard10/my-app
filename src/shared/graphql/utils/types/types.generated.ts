@@ -26,7 +26,24 @@ export type AddReptileInput = {
   species: Scalars['String']['input'];
 };
 
+export type AuthPayload = {
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
+};
+
 export type DeleteReptileResponse = {
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type LoginInput = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+export type LogoutResponse = {
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -35,6 +52,9 @@ export type Mutation = {
   addNotes: AddNotesResponse;
   addReptile?: Maybe<Reptile>;
   deleteReptile: DeleteReptileResponse;
+  login: AuthPayload;
+  logout: LogoutResponse;
+  register: AuthPayload;
 };
 
 
@@ -53,6 +73,16 @@ export type MutationDeleteReptileArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type MutationLoginArgs = {
+  input: LoginInput;
+};
+
+
+export type MutationRegisterArgs = {
+  input: RegisterInput;
+};
+
 export type Query = {
   reptile?: Maybe<Reptile>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
@@ -63,12 +93,25 @@ export type QueryReptileArgs = {
   id: Scalars['ID']['input'];
 };
 
+export type RegisterInput = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
 export type Reptile = {
   age: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   last_fed: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
   species: Scalars['String']['output'];
+};
+
+export type User = {
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type AddReptilesMutationVariables = Exact<{
@@ -90,12 +133,19 @@ export type ReptileQueryVariables = Exact<{
 }>;
 
 
-export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string } | undefined };
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined } | undefined };
 
 export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ReptilesQuery = { reptiles?: Array<{ id: string, name: string, species: string, age: number, last_fed: string } | undefined> | undefined };
+
+export type LoginMutationVariables = Exact<{
+  input: LoginInput;
+}>;
+
+
+export type LoginMutation = { login: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
 
 export type AddNotesMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -104,3 +154,8 @@ export type AddNotesMutationVariables = Exact<{
 
 
 export type AddNotesMutation = { addNotes: { success: boolean, message: string } };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { logout: { success: boolean, message: string } };

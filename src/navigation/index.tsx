@@ -1,9 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HeaderButton, Text } from "@react-navigation/elements";
-import {
-  createStaticNavigation,
-  StaticParamList,
-} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./screens/Home";
 import ReptileProfileDetails from "./screens/ReptileProfileDetails";
@@ -12,9 +8,23 @@ import { Updates } from "./screens/Updates";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
 import { Icon } from "react-native-paper";
+import Login from "./screens/Login";
+import { Header, getHeaderTitle } from "@react-navigation/elements";
+import { useAuth } from "@shared/contexts/AuthContext";
+import useLogoutMutation from "@shared/hooks/data/mutations/useLogoutMutation";
 
+const Stack = createNativeStackNavigator();
 const HomeTabs = createBottomTabNavigator({
   screens: {
+    Login: {
+      screen: Login,
+      options: {
+        title: "ReptiTrack",
+        tabBarIcon: ({ color, size }) => (
+          <Icon source={"snake"} size={size} color={color} />
+        ),
+      },
+    },
     Home: {
       screen: Home,
       options: {
@@ -35,7 +45,43 @@ const HomeTabs = createBottomTabNavigator({
     },
   },
 });
-
+const MyStack = () => {
+  const { token } = useAuth();
+  const { mutate } = useLogoutMutation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        header: ({ options, route, back }) => (
+          <Header
+            {...options}
+            back={back}
+            title={getHeaderTitle(options, route.name)}
+            headerRight={() => (
+              <HeaderButton onPress={() => mutate()}>
+                <Text>Se déconnecter</Text>
+              </HeaderButton>
+            )}
+          />
+        ),
+      }}
+    >
+      {!token ? (
+        <Stack.Screen name="Login" component={Login} />
+      ) : (
+        <>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="AddReptile" component={AddReptile} />
+          <Stack.Screen
+            name="ReptileProfileDetails"
+            component={ReptileProfileDetails}
+          />
+          <Stack.Screen name="Settings" component={Settings} />
+          <Stack.Screen name="NotFound" component={NotFound} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+};
 const RootStack = createNativeStackNavigator({
   screens: {
     HomeTabs: {
@@ -93,12 +139,4 @@ const RootStack = createNativeStackNavigator({
   },
 });
 
-export const Navigation = createStaticNavigation(RootStack);
-
-type RootStackParamList = StaticParamList<typeof RootStack>;
-
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}
+export default MyStack;
