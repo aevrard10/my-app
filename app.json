@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "reptiTrack",
-    "slug": "repti-track",
+    "slug": "reptiTrack",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,6 +31,11 @@
         }
       ],
       "react-native-edge-to-edge"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ec223ba2-e667-4eb4-866a-f1e2c29196c9"
+      }
+    }
   }
 }
