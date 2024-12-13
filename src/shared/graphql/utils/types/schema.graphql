@@ -22,13 +22,16 @@ type DeleteReptileResponse {
   success: Boolean!
   message: String!
 }
-
+type AddNotesResponse {
+  success: Boolean!
+  message: String!
+}
 type Query {
   reptile(id: ID!): Reptile
   reptiles: [Reptile]
 }
 type Mutation {
   addReptile(input: AddReptileInput!): Reptile
-
+  addNotes(id: ID!, notes: String!): AddNotesResponse!
   deleteReptile(id: ID!): DeleteReptileResponse!
 }

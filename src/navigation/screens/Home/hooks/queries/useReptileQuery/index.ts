@@ -13,6 +13,7 @@ const query = gql`
       species
       age
       last_fed
+      notes
     }
   }
 `;
@@ -25,7 +26,7 @@ const useReptileQuery = Object.assign(
       ReptileQueryVariables,
       ReptileQuery["reptile"]
     >({
-      queryKey,
+      queryKey, //TODO: add id in queryKey
       query,
       variables: { id },
       options: {

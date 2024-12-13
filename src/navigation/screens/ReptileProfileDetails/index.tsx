@@ -1,5 +1,5 @@
 import { StaticScreenProps } from "@react-navigation/native";
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Avatar,
@@ -10,6 +10,8 @@ import {
   Text,
 } from "react-native-paper";
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
+import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -34,9 +36,22 @@ const Test: FC<TestProps> = (props) => {
   );
 };
 const ReptileProfileDetails = ({ route }: Props) => {
-  const [text, setText] = useState("");
   const id = route.params.id;
   const { data } = useReptileQuery(id);
+  const [notes, setNotes] = useState(data?.notes || "");
+
+  const { mutate } = useAddNotesMutation();
+  const queryClient = useQueryClient();
+  const addNotes = useCallback(() => {
+    mutate(
+      { id, notes },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: useReptileQuery.queryKey });
+        },
+      }
+    );
+  }, [id, notes, mutate]);
   return (
     <>
       <View style={styles.container}>
@@ -59,14 +74,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
       <View style={{ margin: 20 }}>
         <TextInput
           label="Informations"
-          value={text}
-          onChange={(e) => setText(e.nativeEvent.text)}
+          value={notes}
+          onChange={(e) => setNotes(e.nativeEvent.text)}
           placeholder="Informations"
         />
 
         <View style={{ marginTop: 10 }}>
-          <Button mode="contained" onPress={() => console.log("Save")}>
-            Save
+          <Button mode="contained" onPress={addNotes}>
+            Enregistrer les notes
           </Button>
         </View>
       </View>

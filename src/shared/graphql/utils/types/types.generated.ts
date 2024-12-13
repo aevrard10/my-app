@@ -14,6 +14,11 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AddNotesResponse = {
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type AddReptileInput = {
   age: Scalars['Int']['input'];
   last_fed: Scalars['String']['input'];
@@ -27,8 +32,15 @@ export type DeleteReptileResponse = {
 };
 
 export type Mutation = {
+  addNotes: AddNotesResponse;
   addReptile?: Maybe<Reptile>;
   deleteReptile: DeleteReptileResponse;
+};
+
+
+export type MutationAddNotesArgs = {
+  id: Scalars['ID']['input'];
+  notes: Scalars['String']['input'];
 };
 
 
@@ -84,3 +96,11 @@ export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ReptilesQuery = { reptiles?: Array<{ id: string, name: string, species: string, age: number, last_fed: string } | undefined> | undefined };
+
+export type AddNotesMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  notes: Scalars['String']['input'];
+}>;
+
+
+export type AddNotesMutation = { addNotes: { success: boolean, message: string } };
