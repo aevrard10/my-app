@@ -135,7 +135,7 @@ export type ReptileQueryVariables = Exact<{
 }>;
 
 
-export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined } | undefined };
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined } | undefined };
 
 export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 

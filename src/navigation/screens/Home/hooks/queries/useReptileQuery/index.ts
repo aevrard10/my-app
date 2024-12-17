@@ -14,6 +14,7 @@ const query = gql`
       age
       last_fed
       notes
+      image_url
     }
   }
 `;
