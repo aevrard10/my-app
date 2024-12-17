@@ -55,12 +55,19 @@ const CardComponent: FC<CardComponentProps> = (props) => {
         left={LeftContent}
       />
       <Card.Content>
-        <Text variant="titleLarge">{item?.species}</Text>
+        <Text
+          style={{
+            flexWrap: "wrap",
+          }}
+          variant="titleLarge"
+        >
+          {item?.species}
+        </Text>
         <Text variant="bodyMedium">{formatDDMMYYYY(item?.last_fed)}</Text>
       </Card.Content>
       <Card.Cover
         source={{
-          uri: "https://lapauseinfo.fr/wp-content/uploads/2024/02/26771140-une-bleu-serpent-naturel-contexte-gratuit-photo-scaled.jpeg",
+          uri: item?.image_url,
         }}
       />
       <Card.Actions>

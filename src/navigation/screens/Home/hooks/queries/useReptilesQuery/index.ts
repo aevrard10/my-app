@@ -13,6 +13,7 @@ const query = gql`
       species
       age
       last_fed
+      image_url
     }
   }
 `;

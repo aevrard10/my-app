@@ -13,7 +13,7 @@ import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 
-const Stack = createNativeStackNavigator({});
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   return (

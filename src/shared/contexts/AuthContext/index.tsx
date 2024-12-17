@@ -19,7 +19,7 @@ const AuthProvider: FC<PropsWithChildren> = (props) => {
   // Récupérer le token au chargement de l'application
   useEffect(() => {
     const fetchToken = async () => {
-      const storedToken = useCurrentTokenQuery.queryFn;
+      const storedToken = await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
       if (storedToken) {
         setToken(storedToken);
       }

@@ -5,13 +5,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {
-  ActivityIndicator,
-  Drawer,
-  FAB,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { ActivityIndicator, FAB, Text, useTheme } from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
 import EmptyList from "../../../shared/components/EmptyList";
@@ -26,11 +20,6 @@ const Home = () => {
   if (isLoading) return <ActivityIndicator />;
   return (
     <>
-      <Drawer.CollapsedItem
-        focusedIcon="inbox"
-        unfocusedIcon="inbox-outline"
-        label="Inbox"
-      />
       <ScrollView>
         <ImageBackground
           blurRadius={2}
