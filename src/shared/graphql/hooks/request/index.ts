@@ -1,3 +1,4 @@
+import queryClient from "@shared/graphql/utils/queryClient";
 import {
   ErrorPolicy,
   Options,
@@ -6,7 +7,9 @@ import {
   Result,
   RequestVariables,
 } from "./types";
-
+import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
+import computeHeaders from "@shared/graphql/utils/computeHeaders";
+import { assign } from "lodash";
 function parseRequestExtendedArgs<TVariables extends RequestVariables>(
   queryOrOptions: string | Options<TVariables>,
   variables?: TVariables,
@@ -20,6 +23,17 @@ function parseRequestExtendedArgs<TVariables extends RequestVariables>(
     requestHeaders,
     errorPolicy,
   };
+}
+async function getToken(): Promise<string | null> {
+  try {
+    const data = await queryClient.ensureQueryData({
+      queryKey: useCurrentTokenQuery.queryKey,
+      queryFn: useCurrentTokenQuery.queryFn,
+    });
+    return data as string;
+  } catch (e) {
+    return null;
+  }
 }
 function getEndpoint() {
   if (!process.env.EXPO_PUBLIC_API_URL)
@@ -49,10 +63,11 @@ const request: Request = async <
     const response = await fetch(getEndpoint(), {
       method: "POST",
       body,
-      headers: {
-        "Content-Type": "application/json",
-        ...requestHeaders,
-      },
+      headers: computeHeaders(
+        requestHeaders?.token !== undefined
+          ? requestHeaders
+          : assign({ token: await getToken() }, requestHeaders)
+      ),
     });
     const result = await response.json();
 

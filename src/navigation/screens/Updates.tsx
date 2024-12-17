@@ -39,7 +39,7 @@ export function Updates() {
                 },
               ]}
             >
-              <Icon size={12} source={"material-community"} />
+              <Icon size={12} source={"snake"} />
             </View>
           </View>
           <View style={styles.container}>

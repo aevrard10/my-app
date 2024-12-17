@@ -1,3 +1,5 @@
+import "react-native-gesture-handler";
+
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
 import MyStack from "./navigation";
@@ -10,20 +12,21 @@ import { SnackbarProvider } from "@rn-flix/snackbar";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthProvider from "@shared/contexts/AuthContext";
 
-// Asset.loadAsync([
-//   ...NavigationAssets,
-//   require("./assets/bell.png"),
-// ]);
-
 SplashScreen.preventAutoHideAsync();
+
 const theme = {
   ...DefaultTheme,
-  // Specify custom property
-  myOwnProperty: true,
-  // Specify custom property in nested object
+  roundness: 8, // Coins arrondis pour un style moderne
   colors: {
     ...DefaultTheme.colors,
-    primary: "#BADA55",
+    primary: "#4CAF50", // Vert pour un lien naturel
+    secondary: "#8BC34A", // Vert clair pour les contrastes
+    background: "#E8F5E9", // Vert pâle pour une ambiance apaisante
+    surface: "#F1F8E9", // Couleur des surfaces (cartes, boutons)
+    accent: "#FF5722", // Couleur pour attirer l'attention (comme un bouton d'action)
+    text: "#263238", // Couleur sombre et contrastée pour le texte
+    placeholder: "#757575", // Couleur pour les champs non remplis
+    error: "#D32F2F", // Rouge pour indiquer les erreurs
   },
 };
 const queryClient = new QueryClient();

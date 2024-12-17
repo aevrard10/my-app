@@ -9,6 +9,7 @@ import {
 } from "@shared/graphql/utils/types/types.generated";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@shared/contexts/AuthContext";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 const mutation = gql`
   mutation LogoutMutation {
     logout {
@@ -26,8 +27,7 @@ const useLogoutMutation = () => {
     mutation,
     options: {
       onSuccess: async () => {
-        localStorage.removeItem("token");
-        AsyncStorage.removeItem("token");
+        AsyncStorage.removeItem(QueriesKeys.USER_TOKEN);
         // Supprimer les données du cache React Query
         queryClient.clear();
         setToken(null);

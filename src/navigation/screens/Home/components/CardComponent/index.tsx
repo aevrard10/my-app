@@ -4,8 +4,9 @@ import {
   Button,
   Avatar,
   AvatarIconProps,
+  Surface,
 } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { FC, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Reptile } from "@shared/graphql/utils/types/types.generated";
@@ -72,7 +73,9 @@ const CardComponent: FC<CardComponentProps> = (props) => {
         >
           Voir plus
         </Button>
-        <Button onPress={removeReptile}>Supprimer</Button>
+        <Button mode="contained" onPress={removeReptile}>
+          Supprimer
+        </Button>
       </Card.Actions>
     </Card>
   );

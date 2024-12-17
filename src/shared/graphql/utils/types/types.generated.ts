@@ -84,6 +84,7 @@ export type MutationRegisterArgs = {
 };
 
 export type Query = {
+  currentUser?: Maybe<User>;
   reptile?: Maybe<Reptile>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
 };
@@ -159,3 +160,8 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LogoutMutation = { logout: { success: boolean, message: string } };
+
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserQuery = { currentUser?: { id: string, username: string } | undefined };

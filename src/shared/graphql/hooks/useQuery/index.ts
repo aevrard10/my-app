@@ -6,14 +6,7 @@ import {
   InitialDataFunction,
 } from "@tanstack/react-query";
 import request from "../request";
-import { Variables } from "../request/types";
-export type GraphQLError = {
-  message: string;
-  details: string;
-  code: number;
-  identifier: string | { identifier: string };
-  source?: string;
-};
+import { GraphQLError, Variables } from "../request/types";
 
 export type UseQueryResult<TData> = UseTanstackQueryResult<
   TData,

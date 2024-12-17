@@ -11,9 +11,9 @@ import { Icon, IconButton } from "react-native-paper";
 import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
-import useLogoutMutation from "@shared/hooks/data/mutations/useLogoutMutation";
+import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator({});
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   return (
@@ -23,8 +23,9 @@ const HomeTabs = () => {
         component={Home}
         options={{
           title: "Accueil",
-          tabBarIcon: ({ color, size }) => (
-            <Icon source={"snake"} size={size} color={color} />
+          tabBarActiveTintColor: "#4CAF50",
+          tabBarIcon: ({ size }) => (
+            <Icon source={"snake"} size={size} color={"#4CAF50"} />
           ),
           headerShown: false,
         }}
@@ -34,8 +35,9 @@ const HomeTabs = () => {
         component={Updates}
         options={{
           title: "Notifications",
-          tabBarIcon: ({ color, size }) => (
-            <Icon source={"bell"} color={color} size={size} />
+          tabBarActiveTintColor: "#4CAF50",
+          tabBarIcon: ({ size }) => (
+            <Icon source={"bell"} color={"#4CAF50"} size={size} />
           ),
           headerShown: false,
         }}

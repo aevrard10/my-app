@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import QueriesKeys from "@shared/declarations/queriesKeys";
+import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 import React, {
   createContext,
   FC,
@@ -17,7 +19,7 @@ const AuthProvider: FC<PropsWithChildren> = (props) => {
   // Récupérer le token au chargement de l'application
   useEffect(() => {
     const fetchToken = async () => {
-      const storedToken = await AsyncStorage.getItem("token");
+      const storedToken = useCurrentTokenQuery.queryFn;
       if (storedToken) {
         setToken(storedToken);
       }
