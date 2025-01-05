@@ -1,5 +1,5 @@
-import { StaticScreenProps } from "@react-navigation/native";
-import { FC, useCallback, useState } from "react";
+import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { FC, useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View, Modal } from "react-native";
 import {
   Avatar,
@@ -84,10 +84,16 @@ const ReptileProfileDetails = ({ route }: Props) => {
   const id = route.params.id;
   const { data } = useReptileQuery(id);
   const [notes, setNotes] = useState(data?.notes || "");
+  const navigation = useNavigation();
 
   const { mutate } = useAddNotesMutation();
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
+
+  useEffect(() => {
+    navigation.setOptions({ title: data?.name ?? "Détails du reptile" });
+  }, [data?.name]);
+
   const addNotes = useCallback(() => {
     mutate(
       { id, notes },

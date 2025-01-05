@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "@rn-flix/snackbar";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthProvider from "@shared/contexts/AuthContext";
+import ErrorBoundary from "@shared/components/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,7 +50,9 @@ const App = () => {
                 SplashScreen.hideAsync();
               }}
             >
-              <MyStack />
+              <ErrorBoundary>
+                <MyStack />
+              </ErrorBoundary>
             </NavigationContainer>
           </QueryClientProvider>
         </PaperProvider>
