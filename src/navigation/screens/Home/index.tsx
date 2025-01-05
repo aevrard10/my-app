@@ -4,22 +4,31 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  Platform,
 } from "react-native";
-import { ActivityIndicator, FAB, Text, useTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  FAB,
+  Portal,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
 import EmptyList from "../../../shared/components/EmptyList";
 import useReptilesQuery from "./hooks/queries/useReptilesQuery";
 import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
+import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
+import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 
 const Home = () => {
   const { navigate } = useNavigation();
-  const { data, isLoading } = useReptilesQuery();
+  const { data, isLoading, refetch } = useReptilesQuery();
   const [, currentUser] = useCurrentUserQuery();
   const { colors } = useTheme();
-  if (isLoading) return <ActivityIndicator />;
+
   return (
-    <>
+    <Portal.Host>
       <ScrollView>
         <ImageBackground
           blurRadius={2}
@@ -29,26 +38,47 @@ const Home = () => {
           style={styles.backgroundImg}
         >
           <View style={styles.container}>
-            <Text
-              style={{
-                color: colors.onPrimary,
-              }}
-              variant="displayLarge"
+            <Animated.View
+              entering={Platform.select({
+                android: SlideInDown,
+                default: FadeInDown,
+              }).delay(50)}
             >
-              {"ReptiTrack"}
-            </Text>
+              <Text
+                style={{
+                  color: colors.onPrimary,
+                }}
+                variant="displayLarge"
+              >
+                {"ReptiTrack"}
+              </Text>
+            </Animated.View>
           </View>
 
           <View style={styles.flatListContainer}>
-            <Text style={styles.myReptileContainer} variant="headlineMedium">
+            {/* <Text style={styles.myReptileContainer} variant="headlineMedium">
               Mes reptiles
-            </Text>
+            </Text> */}
             <FlatList
               scrollEnabled={false}
               contentContainerStyle={styles.contentContainerStyle}
               data={data}
-              renderItem={({ item }) => <CardComponent item={item} />}
-              ListEmptyComponent={<EmptyList />}
+              renderItem={({ item, index }) => (
+                <Animated.View
+                  entering={Platform.select({
+                    android: SlideInDown,
+                    default: FadeInDown,
+                  }).delay(index * 50)}
+                  key={item?.id}
+                >
+                  <CardComponent item={item} />
+                </Animated.View>
+              )}
+              ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
+              onRefresh={Platform.select({
+                web: undefined,
+                default: refetch,
+              })}
               refreshing={isLoading}
             />
           </View>
@@ -62,7 +92,7 @@ const Home = () => {
         style={styles.fab}
         onPress={() => navigate("AddReptile")}
       />
-    </>
+    </Portal.Host>
   );
 };
 

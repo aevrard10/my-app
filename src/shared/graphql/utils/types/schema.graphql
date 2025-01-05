@@ -50,10 +50,17 @@ type AddNotesResponse {
   success: Boolean!
   message: String!
 }
+type ReptileEvent {
+  id: ID!
+  event_date: String!
+  event_name: String!
+  event_time: String!
+}
 type Query {
   reptile(id: ID!): Reptile
   reptiles: [Reptile]
   currentUser: User
+  reptileEvent: [ReptileEvent]
 }
 type LogoutResponse {
   success: Boolean!

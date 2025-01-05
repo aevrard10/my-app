@@ -86,6 +86,7 @@ export type MutationRegisterArgs = {
 export type Query = {
   currentUser?: Maybe<User>;
   reptile?: Maybe<Reptile>;
+  reptileEvent?: Maybe<Array<Maybe<ReptileEvent>>>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
 };
 
@@ -110,11 +111,23 @@ export type Reptile = {
   species: Scalars['String']['output'];
 };
 
+export type ReptileEvent = {
+  event_date: Scalars['String']['output'];
+  event_name: Scalars['String']['output'];
+  event_time: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type User = {
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
 };
+
+export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string } | undefined> | undefined };
 
 export type AddReptilesMutationVariables = Exact<{
   input: AddReptileInput;

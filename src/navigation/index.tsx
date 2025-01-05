@@ -12,6 +12,7 @@ import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
+import Agenda from "./screens/Agenda";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,6 +27,18 @@ const HomeTabs = () => {
           tabBarActiveTintColor: "#4CAF50",
           tabBarIcon: ({ size }) => (
             <Icon source={"snake"} size={size} color={"#4CAF50"} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="Agenda"
+        component={Agenda}
+        options={{
+          title: "Agenda",
+          tabBarActiveTintColor: "#4CAF50",
+          tabBarIcon: ({ size }) => (
+            <Icon source={"calendar"} color={"#4CAF50"} size={size} />
           ),
           headerShown: false,
         }}

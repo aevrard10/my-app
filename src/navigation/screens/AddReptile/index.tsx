@@ -1,4 +1,4 @@
-import { Button, TextInput } from "react-native-paper";
+import { Button, SegmentedButtons, TextInput } from "react-native-paper";
 import useAddReptilesMutation from "../Home/hooks/mutations/useAddReptilesMutation";
 import { Formik } from "formik";
 import useReptilesQuery from "../Home/hooks/queries/useReptilesQuery";
@@ -13,12 +13,14 @@ const initialValues = {
   species: "",
   age: 0,
   last_fed: "",
+  snake: "snake",
 };
 const schema = Yup.object().shape({
   name: Yup.string().required(),
   species: Yup.string().required(),
   age: Yup.number().required(),
   last_fed: Yup.string(),
+  snake: Yup.boolean().required(),
 });
 const AddReptile = () => {
   const { mutate: addReptile, isPending } = useAddReptilesMutation();
@@ -96,6 +98,20 @@ const AddReptile = () => {
             onChangeText={formik.handleChange("last_fed")}
             onBlur={formik.handleBlur("last_fed")}
             error={formik.errors.last_fed}
+          />
+          <SegmentedButtons
+            value={formik.values.snake ? "snake" : "lizard"}
+            onValueChange={formik.handleChange("snake")}
+            buttons={[
+              {
+                value: "snake",
+                label: "Serpent",
+              },
+              {
+                value: "lizard",
+                label: "Varan",
+              },
+            ]}
           />
           <Button
             icon={"plus"}
