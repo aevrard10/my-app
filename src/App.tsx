@@ -23,7 +23,7 @@ const theme = {
     primary: "#4CAF50", // Vert pour un lien naturel
     secondary: "#8BC34A", // Vert clair pour les contrastes
     background: "#E8F5E9", // Vert pâle pour une ambiance apaisante
-    surface: "#F1F8E9", // Couleur des surfaces (cartes, boutons)
+    surface: "#fff", // Couleur des surfaces (cartes, boutons)
     accent: "#FF5722", // Couleur pour attirer l'attention (comme un bouton d'action)
     text: "#263238", // Couleur sombre et contrastée pour le texte
     placeholder: "#757575", // Couleur pour les champs non remplis
