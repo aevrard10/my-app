@@ -50,7 +50,7 @@ const useReptileEventsQuery = Object.assign(
       queryKey,
       query,
       options: {
-        select: (data) => {
+        select: (data: ReptileEventQuery) => {
           // Transform the response into the desired format
           return data?.reptileEvent?.reduce((acc, event) => {
             const formattedDate = formatDate(event.event_date);

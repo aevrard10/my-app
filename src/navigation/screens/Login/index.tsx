@@ -22,8 +22,8 @@ const Login = () => {
   const { mutate, isPending } = useLoginMutation();
   const { show } = useSnackbar();
   const { setToken } = useAuth();
-  const { isXs, isLg, isMd, isSm, isXl } = useBreakpoints();
-  console.log(isXs, isLg, isMd, isSm, isXl);
+  const { isMd } = useBreakpoints();
+
   return (
     <View
       style={{

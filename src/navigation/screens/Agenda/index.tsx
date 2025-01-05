@@ -7,7 +7,7 @@ import useReptileEventsQuery from "./hooks/queries/useReptileEventsQuery";
 
 const Agenda = () => {
   const { data, isLoading } = useReptileEventsQuery();
-  console.log("test", data);
+
   const { colors } = useTheme();
   const customTheme = {
     agendaDayTextColor: colors.primary, // Custom color for agenda day text
