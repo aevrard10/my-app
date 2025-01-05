@@ -55,6 +55,13 @@ type ReptileEvent {
   event_date: String!
   event_name: String!
   event_time: String!
+  notes: String
+}
+input AddReptileEventInput {
+  event_name: String!
+  event_date: String!
+  event_time: String!
+  notes: String
 }
 type Query {
   reptile(id: ID!): Reptile
@@ -73,4 +80,5 @@ type Mutation {
   addNotes(id: ID!, notes: String!): AddNotesResponse!
   deleteReptile(id: ID!): DeleteReptileResponse!
   logout: LogoutResponse!
+  addReptileEvent(input: AddReptileEventInput!): ReptileEvent
 }

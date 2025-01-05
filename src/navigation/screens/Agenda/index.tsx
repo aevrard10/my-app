@@ -14,42 +14,41 @@ import {
 import EmptyList from "@shared/components/EmptyList";
 import useReptileEventsQuery from "./hooks/queries/useReptileEventsQuery";
 import { Formik } from "formik";
-import { TimerPickerModal } from "react-native-timer-picker";
+import { DatePickerInput } from "react-native-paper-dates";
+import { formatTime, formatYYYYMMDD } from "@shared/utils/formatedDate";
+import TimePicker from "@shared/components/TimePicker";
+import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMutation";
+import * as Yup from "yup";
+import { useSnackbar } from "@rn-flix/snackbar";
+import { useQueryClient } from "@tanstack/react-query";
 
+const schema = Yup.object().shape({
+  event_name: Yup.string().required(),
+  event_date: Yup.string().required(),
+  event_time: Yup.string().required(),
+  notes: Yup.string(),
+});
+const initialValues = {
+  event_name: "",
+  event_date: "",
+  event_time: "",
+  notes: "",
+};
 const Agenda = () => {
   const { data, isLoading } = useReptileEventsQuery();
-
+  const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const formatTime = ({
-    hours,
-    minutes,
-    seconds,
-  }: {
-    hours?: number;
-    minutes?: number;
-    seconds?: number;
-  }) => {
-    const timeParts = [];
-
-    if (hours !== undefined) {
-      timeParts.push(hours.toString().padStart(2, "0"));
-    }
-    if (minutes !== undefined) {
-      timeParts.push(minutes.toString().padStart(2, "0"));
-    }
-    if (seconds !== undefined) {
-      timeParts.push(seconds.toString().padStart(2, "0"));
-    }
-
-    return timeParts.join(":");
-  };
+  const { mutate, isPending } = useAddReptileEventMutation();
   const customTheme = {
     agendaDayTextColor: colors.primary, // Custom color for agenda day text
     agendaDayNumColor: colors.primary, // Custom color for agenda day number
     agendaTodayColor: colors.primary, // Custom color for today's agenda
   };
+  const { show } = useSnackbar();
+  const queryClient = useQueryClient();
+
   return (
     <Portal.Host>
       <View style={{ flex: 1, marginHorizontal: 10 }}>
@@ -84,8 +83,40 @@ const Agenda = () => {
         onPress={() => setAddEvent(true)}
       />
       <Formik
-        initialValues={{ eventName: "", eventDate: "", eventTime: "" }}
-        onSubmit={(values) => console.log(values)}
+        isInitialValid={false}
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={(values, { resetForm }) => {
+          mutate(
+            {
+              input: {
+                event_name: values.event_name,
+                event_date: values.event_date,
+                event_time: values.event_time,
+                notes: values.notes,
+              },
+            },
+            {
+              onSuccess: () => {
+                resetForm();
+
+                queryClient.invalidateQueries({
+                  queryKey: useReptileEventsQuery.queryKey,
+                });
+                setAddEvent(false);
+                show("Reptile ajouté avec succès !", {
+                  label: "Ok",
+                });
+              },
+              onError: () => {
+                show("Une erreur est survenue, Veuillez réessayer ...", {
+                  label: "Ok",
+                });
+              },
+            }
+          );
+        }}
+        // validationSchema={schema}
       >
         {(formik) => (
           <Modal
@@ -112,58 +143,70 @@ const Agenda = () => {
               <TextInput
                 style={styles.input}
                 placeholder="Titre"
-                onChange={() => formik.handleChange("eventName")}
-                onBlur={formik.handleBlur("eventName")}
+                value={formik.values.event_name}
+                onChangeText={formik.handleChange("event_name")}
               />
               <Divider style={{ marginHorizontal: 8 }} />
               <TextInput
                 style={styles.input}
                 placeholder="Lieu"
-                onChange={() => formik.handleChange("eventName")}
-                onBlur={formik.handleBlur("eventName")}
+                // onChange={() => formik.handleChange("eventName")}
+                // onBlur={formik.handleBlur("eventName")}
               />
             </View>
             <View style={styles.inputSection}>
-              <TextInput
-                placeholder="Date"
+              <DatePickerInput
+                mode="outlined"
+                locale="fr"
+                label="Date"
+                saveLabel="Confirmer"
                 style={styles.input}
-                onChange={() => formik.handleChange("eventDate")}
-                onBlur={formik.handleBlur("eventDate")}
+                value={inputDate}
+                onChange={(data) => {
+                  setInputDate(data);
+                  console.log(data, formatYYYYMMDD(data));
+                  formik.setFieldValue("event_date", formatYYYYMMDD(data));
+                }}
+                inputMode="start"
               />
+
               <Divider style={{ marginHorizontal: 8 }} />
 
               <TouchableOpacity onPress={() => setShowPicker(true)}>
                 <TextInput
                   style={styles.input}
-                  value={formik.values.eventTime}
-                  placeholder="Heure de l'événement"
+                  value={formik.values.event_time}
+                  placeholder="Heure"
                   onPress={() => setShowPicker(true)}
                 />
               </TouchableOpacity>
-              <TimerPickerModal
-                visible={showPicker}
-                cancelButtonText="Annuler"
-                confirmButtonText="Confirmer"
-                setIsVisible={setShowPicker}
+              <TimePicker
+                showPicker={showPicker}
+                setShowPicker={setShowPicker}
                 onConfirm={(pickedDuration) => {
                   console.log(pickedDuration);
-                  formik.setFieldValue("eventTime", formatTime(pickedDuration));
+                  formik.setFieldValue(
+                    "event_time",
+                    formatTime(pickedDuration)
+                  );
                   setShowPicker(false);
-                }}
-                onCancel={() => setShowPicker(false)}
-                closeOnOverlayPress
-                Audio={Audio}
-                styles={{
-                  theme: "light",
-                }}
-                modalProps={{
-                  overlayOpacity: 0.2,
                 }}
               />
             </View>
+            <View style={styles.inputSection}>
+              <TextInput
+                multiline
+                style={styles.input}
+                placeholder="Notes"
+                onChangeText={formik.handleChange("notes")}
+                onBlur={formik.handleBlur("notes")}
+              />
+            </View>
             <Button
+              loading={isPending}
+              disabled={!formik.isValid}
               icon={"plus"}
-              onPress={() => window.location.reload()}
+              onPress={formik.submitForm}
               mode="contained"
             >
               Ajouter

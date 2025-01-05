@@ -1,15 +1,7 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { FC, useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View, Modal } from "react-native";
-import {
-  Avatar,
-  Button,
-  Chip,
-  Divider,
-  TextInput,
-  Text,
-  Card,
-} from "react-native-paper";
+import { ScrollView, StyleSheet, View, Modal, TextInput } from "react-native";
+import { Avatar, Button, Chip, Divider, Text, Card } from "react-native-paper";
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -145,7 +137,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
       <View style={{ margin: 20 }}>
         <TextInput
-          label="Informations"
+          multiline
+          style={styles.input}
           value={notes}
           onChange={(e) => setNotes(e.nativeEvent.text)}
           placeholder="Informations"
@@ -176,18 +169,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Ajouter un événement</Text>
-            <TextInput
-              label="Description de l'événement"
-              value={eventDescription}
-              onChangeText={setEventDescription}
-              style={styles.input}
-            />
-            <Button mode="contained" onPress={handleAddEvent}>
-              Ajouter
-            </Button>
-            <Button mode="contained" onPress={() => setSelectedDate("")}>
-              Annuler
-            </Button>
+            <View style={styles.inputSection}>
+              <TextInput
+                placeholder="Description de l'événement"
+                value={eventDescription}
+                onChangeText={setEventDescription}
+                style={styles.input}
+              />
+            </View>
+            <View style={styles.button}>
+              <Button mode="contained" onPress={handleAddEvent}>
+                Ajouter
+              </Button>
+              <Button mode="contained" onPress={() => setSelectedDate("")}>
+                Annuler
+              </Button>
+            </View>
           </View>
         </View>
       </Modal>
@@ -196,6 +193,28 @@ const ReptileProfileDetails = ({ route }: Props) => {
 };
 
 const styles = StyleSheet.create({
+  button: {
+    gap: 10,
+  },
+  inputSection: {
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    margin: 10,
+    borderRadius: 10,
+  },
+  input: {
+    padding: 10,
+    borderRadius: 30,
+    borderColor: "#fff",
+    backgroundColor: "#fff",
+  },
   avatarContainer: { padding: 10 },
   container: {
     justifyContent: "center",
@@ -223,9 +242,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    marginBottom: 10,
-  },
-  input: {
     marginBottom: 10,
   },
 });

@@ -19,6 +19,13 @@ export type AddNotesResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type AddReptileEventInput = {
+  event_date: Scalars['String']['input'];
+  event_name: Scalars['String']['input'];
+  event_time: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AddReptileInput = {
   age: Scalars['Int']['input'];
   last_fed: Scalars['String']['input'];
@@ -51,6 +58,7 @@ export type LogoutResponse = {
 export type Mutation = {
   addNotes: AddNotesResponse;
   addReptile?: Maybe<Reptile>;
+  addReptileEvent?: Maybe<ReptileEvent>;
   deleteReptile: DeleteReptileResponse;
   login: AuthPayload;
   logout: LogoutResponse;
@@ -66,6 +74,11 @@ export type MutationAddNotesArgs = {
 
 export type MutationAddReptileArgs = {
   input: AddReptileInput;
+};
+
+
+export type MutationAddReptileEventArgs = {
+  input: AddReptileEventInput;
 };
 
 
@@ -116,6 +129,7 @@ export type ReptileEvent = {
   event_name: Scalars['String']['output'];
   event_time: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
 };
 
 export type User = {
@@ -123,6 +137,13 @@ export type User = {
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
 };
+
+export type AddReptileEventMutationVariables = Exact<{
+  input: AddReptileEventInput;
+}>;
+
+
+export type AddReptileEventMutation = { addReptileEvent?: { event_name: string } | undefined };
 
 export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
 
