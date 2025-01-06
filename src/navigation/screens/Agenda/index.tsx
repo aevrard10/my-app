@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Agenda as RNCAgenda } from "react-native-calendars";
 import React, { useState } from "react";
 import {
@@ -21,6 +21,7 @@ import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMuta
 import * as Yup from "yup";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
+import TextInput from "@shared/components/TextInput";
 
 const schema = Yup.object().shape({
   event_name: Yup.string().required(),
@@ -141,14 +142,12 @@ const Agenda = () => {
             </Appbar.Header>
             <View style={styles.inputSection}>
               <TextInput
-                style={styles.input}
                 placeholder="Titre"
                 value={formik.values.event_name}
                 onChangeText={formik.handleChange("event_name")}
               />
               <Divider style={{ marginHorizontal: 8 }} />
               <TextInput
-                style={styles.input}
                 placeholder="Lieu"
                 // onChange={() => formik.handleChange("eventName")}
                 // onBlur={formik.handleBlur("eventName")}
@@ -160,13 +159,19 @@ const Agenda = () => {
                 locale="fr"
                 label="Date"
                 saveLabel="Confirmer"
-                style={styles.input}
+                style={{
+                  borderWidth: 0,
+                  borderColor: "#fff",
+                  backgroundColor: "#fff",
+                  outlineStyle: "none",
+                }}
                 value={inputDate}
                 onChange={(data) => {
                   setInputDate(data);
                   console.log(data, formatYYYYMMDD(data));
                   formik.setFieldValue("event_date", formatYYYYMMDD(data));
                 }}
+                dense
                 inputMode="start"
               />
 
@@ -239,7 +244,7 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 10,
-    borderRadius: 30,
+    // borderRadius: 30,
     borderColor: "#fff",
     backgroundColor: "#fff",
   },

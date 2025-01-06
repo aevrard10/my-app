@@ -6,10 +6,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, View, TextInput } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
+import TextInput from "@shared/components/TextInput";
 
 const initialValues = {
   name: "",
@@ -72,7 +73,6 @@ const AddReptile = () => {
         <View style={styles.formContainer}>
           <View style={styles.inputSection}>
             <TextInput
-              style={styles.input}
               placeholder="Nom"
               value={formik.values.name}
               onChangeText={formik.handleChange("name")}
@@ -80,7 +80,6 @@ const AddReptile = () => {
             />
             <Divider style={{ marginHorizontal: 8 }} />
             <TextInput
-              style={styles.input}
               placeholder="Espèce"
               onBlur={formik.handleBlur("species")}
               value={formik.values.species}
@@ -90,7 +89,6 @@ const AddReptile = () => {
 
           <View style={styles.inputSection}>
             <TextInput
-              style={styles.input}
               placeholder="Age"
               value={formik.values.age?.toString()}
               keyboardType="numeric"
@@ -103,10 +101,10 @@ const AddReptile = () => {
             />
             <Divider style={{ marginHorizontal: 8 }} />
             <DatePickerInput
+              style={styles.input}
               locale="fr"
               label="Date de naissance"
               saveLabel="Confirmer"
-              style={styles.input}
               value={inputDate}
               onChange={(data) => {
                 setInputDate(data);

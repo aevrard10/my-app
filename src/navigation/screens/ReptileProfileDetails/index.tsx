@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 10,
+    outlineStyle: "none",
     borderRadius: 30,
     borderColor: "#fff",
     backgroundColor: "#fff",
