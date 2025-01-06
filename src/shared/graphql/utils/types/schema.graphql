@@ -84,12 +84,11 @@ input AddReptileInput {
   temperature_range: String
   lighting_requirements: String
   health_status: String
-  acquired_date: String
+  acquired_date: String!
   origin: String
   location: String
   notes: String
   next_vet_visit: String!
-  acquired_date: String!
 }
 type DeleteReptileResponse {
   success: Boolean!

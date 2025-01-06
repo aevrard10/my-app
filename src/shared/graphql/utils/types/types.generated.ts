@@ -27,11 +27,23 @@ export type AddReptileEventInput = {
 };
 
 export type AddReptileInput = {
+  acquired_date: Scalars['String']['input'];
   age: Scalars['Int']['input'];
-  last_fed: Scalars['String']['input'];
+  diet?: InputMaybe<Scalars['String']['input']>;
+  feeding_schedule?: InputMaybe<Scalars['String']['input']>;
+  health_status?: InputMaybe<Scalars['String']['input']>;
+  humidity_level?: InputMaybe<Scalars['Int']['input']>;
+  last_fed?: InputMaybe<Scalars['String']['input']>;
+  lighting_requirements?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  next_vet_visit: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  origin?: InputMaybe<Scalars['String']['input']>;
+  sex?: InputMaybe<Scalars['String']['input']>;
   sort_of_species?: InputMaybe<Scalars['String']['input']>;
   species: Scalars['String']['input'];
+  temperature_range?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AuthPayload = {
@@ -46,6 +58,16 @@ export type DeleteReptileResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type Enclosure = {
+  dimensions: Scalars['String']['output'];
+  humidity?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  lighting?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  temperature?: Maybe<Scalars['String']['output']>;
+  type: Scalars['String']['output'];
+};
+
 export type LoginInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -54,6 +76,14 @@ export type LoginInput = {
 export type LogoutResponse = {
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type MedicalRecord = {
+  date: Scalars['String']['output'];
+  diagnosis?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  treatment?: Maybe<Scalars['String']['output']>;
+  vet_name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
@@ -116,14 +146,32 @@ export type RegisterInput = {
 };
 
 export type Reptile = {
+  acquired_date?: Maybe<Scalars['String']['output']>;
   age: Scalars['Int']['output'];
+  behavior_notes?: Maybe<Scalars['String']['output']>;
+  diet?: Maybe<Scalars['String']['output']>;
+  documents?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  enclosure?: Maybe<Enclosure>;
+  feeding_schedule?: Maybe<Scalars['String']['output']>;
+  gallery?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  handling_notes?: Maybe<Scalars['String']['output']>;
+  health_status?: Maybe<Scalars['String']['output']>;
+  humidity_level?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   image_url?: Maybe<Scalars['String']['output']>;
   last_fed: Scalars['String']['output'];
+  last_vet_visit?: Maybe<Scalars['String']['output']>;
+  lighting_requirements?: Maybe<Scalars['String']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  medical_history?: Maybe<Array<Maybe<MedicalRecord>>>;
   name: Scalars['String']['output'];
+  next_vet_visit?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
+  origin?: Maybe<Scalars['String']['output']>;
+  sex?: Maybe<Scalars['String']['output']>;
   sort_of_species?: Maybe<Scalars['String']['output']>;
   species: Scalars['String']['output'];
+  temperature_range?: Maybe<Scalars['String']['output']>;
 };
 
 export type ReptileEvent = {
@@ -171,7 +219,7 @@ export type ReptileQueryVariables = Exact<{
 }>;
 
 
-export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined, sort_of_species?: string | undefined } | undefined };
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined, sort_of_species?: string | undefined, feeding_schedule?: string | undefined, diet?: string | undefined, humidity_level?: number | undefined, temperature_range?: string | undefined, lighting_requirements?: string | undefined, health_status?: string | undefined, last_vet_visit?: string | undefined, next_vet_visit?: string | undefined, behavior_notes?: string | undefined, handling_notes?: string | undefined, acquired_date?: string | undefined, origin?: string | undefined, location?: string | undefined, medical_history?: Array<{ date: string, diagnosis?: string | undefined, treatment?: string | undefined, vet_name?: string | undefined, notes?: string | undefined } | undefined> | undefined, enclosure?: { id: string, type: string, dimensions: string, temperature?: string | undefined, humidity?: number | undefined, lighting?: string | undefined, notes?: string | undefined } | undefined } | undefined };
 
 export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 

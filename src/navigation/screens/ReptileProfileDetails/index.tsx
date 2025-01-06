@@ -135,13 +135,41 @@ const ReptileProfileDetails = ({ route }: Props) => {
             }
             onPress={() => console.log("Pressed")}
           >
-            {/* todo change icon snake or lizzard or other */}
             {data?.species}
           </Chip>
         </View>
       </View>
       <Test title="Âge" value={data?.age || ""} />
       <Test title="Espèce" value={data?.species || ""} />
+      <Test title="Dernier repas" value={data?.last_fed || ""} />
+      <Test title="Prochain repas" value={data?.next_feed || ""} />
+      <Test value={data?.feeding_schedule || ""} title="Horaire de repas" />
+      <Test value={data?.diet || ""} title="Régime alimentaire" />
+      <Test value={data?.humidity_level || ""} title="Niveau d'humidité" />
+      <Test
+        value={data?.temperature_range || ""}
+        title="Plage de température"
+      />
+      <Test
+        value={data?.lighting_requirements || ""}
+        title="Exigences d'éclairage"
+      />
+      <Test value={data?.health_status || ""} title="État de santé" />
+      <Test
+        value={data?.last_vet_visit || ""}
+        title="Dernière visite chez le vétérinaire"
+      />
+      <Test
+        value={data?.next_vet_visit || ""}
+        title="Prochaine visite chez le vétérinaire"
+      />
+      {/* <Test title="Historique médical" value={data?.medical_history || ""} /> */}
+      <Test title="Notes de comportement" value={data?.behavior_notes || ""} />
+      <Test title="Notes de manipulation" value={data?.handling_notes || ""} />
+      <Test title="Date d'acquisition" value={data?.acquired_date || ""} />
+      <Test title="Origine" value={data?.origin || ""} />
+      <Test title="Emplacement" value={data?.location || ""} />
+      {/* <Test title="Enclos" value={data?.enclosure?.type || ""} /> */}
 
       <View style={{ margin: 20 }}>
         <TextInput
