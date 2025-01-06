@@ -101,7 +101,15 @@ const AddReptile = () => {
             />
             <Divider style={{ marginHorizontal: 8 }} />
             <DatePickerInput
-              style={styles.input}
+              mode="outlined"
+              style={{
+                borderWidth: 0,
+                borderColor: "#fff",
+                backgroundColor: "#fff",
+                borderTopColor: "#fff",
+              }}
+              dense
+              outlineStyle={{ borderWidth: 0 }}
               locale="fr"
               label="Date de naissance"
               saveLabel="Confirmer"
@@ -163,6 +171,7 @@ const styles = StyleSheet.create({
   input: {
     padding: 10,
     borderRadius: 30,
+    borderWidth: 0,
     borderColor: "#fff",
     backgroundColor: "#fff",
   },

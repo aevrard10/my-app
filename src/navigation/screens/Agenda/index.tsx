@@ -159,11 +159,12 @@ const Agenda = () => {
                 locale="fr"
                 label="Date"
                 saveLabel="Confirmer"
+                outlineStyle={{ borderWidth: 0 }}
                 style={{
                   borderWidth: 0,
                   borderColor: "#fff",
                   backgroundColor: "#fff",
-                  outlineStyle: "none",
+                  borderTopColor: "#fff",
                 }}
                 value={inputDate}
                 onChange={(data) => {
