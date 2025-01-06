@@ -12,6 +12,7 @@ const query = gql`
       event_date
       event_name
       event_time
+      notes
     }
   }
 `;
@@ -36,7 +37,7 @@ const formatTime = (time: string): string => {
     minute: "numeric",
     hour12: true,
   };
-  return date.toLocaleTimeString("en-US", options); // Adjust to preferred locale
+  return date.toLocaleTimeString("fr", options); // Adjust to preferred locale
 };
 
 // Modified hook with transformation logic
@@ -55,7 +56,11 @@ const useReptileEventsQuery = Object.assign(
           return data?.reptileEvent?.reduce((acc, event) => {
             const formattedDate = formatDate(event.event_date);
             const formattedTime = formatTime(event.event_time);
-            const item = { name: event.event_name, time: formattedTime };
+            const item = {
+              name: event?.event_name,
+              time: formattedTime,
+              notes: event?.notes,
+            };
 
             if (!acc[formattedDate]) {
               acc[formattedDate] = [];

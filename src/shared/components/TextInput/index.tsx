@@ -15,6 +15,8 @@ const styles = StyleSheet.create({
     outlineStyle: "none",
     borderColor: "#fff",
     backgroundColor: "#fff",
+    borderRadius: 10,
+    fontFamily: "Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif",
   },
 });
 export default TextInput;

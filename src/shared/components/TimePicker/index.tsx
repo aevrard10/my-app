@@ -10,12 +10,10 @@ const TimePicker: FC<TimePickerProps> = (props) => {
       visible={showPicker}
       setIsVisible={setShowPicker}
       onConfirm={onConfirm}
-      modalTitle="Set Alarm"
       cancelButtonText="Annuler"
       confirmButtonText="Confirmer"
       onCancel={() => setShowPicker(false)}
       closeOnOverlayPress
-      Audio={Audio}
       styles={{
         theme: "light",
       }}

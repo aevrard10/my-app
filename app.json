@@ -4,22 +4,27 @@
     "slug": "reptiTrack",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/cobra.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "scheme": "reptitrack",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.reptitrack"
+      "bundleIdentifier": "com.reptitrack",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/cobra.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/cobra.png"
     },
     "plugins": [
       "expo-asset",
@@ -27,7 +32,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/splash-icon.png"
+          "image": "./assets/cobra.png"
         }
       ],
       "react-native-edge-to-edge"

@@ -30,6 +30,7 @@ export type AddReptileInput = {
   age: Scalars['Int']['input'];
   last_fed: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  sort_of_species?: InputMaybe<Scalars['String']['input']>;
   species: Scalars['String']['input'];
 };
 
@@ -121,6 +122,7 @@ export type Reptile = {
   last_fed: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes?: Maybe<Scalars['String']['output']>;
+  sort_of_species?: Maybe<Scalars['String']['output']>;
   species: Scalars['String']['output'];
 };
 
@@ -148,7 +150,7 @@ export type AddReptileEventMutation = { addReptileEvent?: { event_name: string }
 export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string } | undefined> | undefined };
+export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string, notes?: string | undefined } | undefined> | undefined };
 
 export type AddReptilesMutationVariables = Exact<{
   input: AddReptileInput;
@@ -169,7 +171,7 @@ export type ReptileQueryVariables = Exact<{
 }>;
 
 
-export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined } | undefined };
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined, sort_of_species?: string | undefined } | undefined };
 
 export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
 

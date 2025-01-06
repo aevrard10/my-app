@@ -1,4 +1,4 @@
-import { Card, Button, Dialog, Portal } from "react-native-paper";
+import { Card, Button, Dialog, Portal, Text } from "react-native-paper";
 import { StyleSheet } from "react-native";
 import { FC, useCallback, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -73,7 +73,9 @@ const CardComponent: FC<CardComponentProps> = (props) => {
           <Dialog.Title>Suppression</Dialog.Title>
           <Dialog.Content>
             <Dialog.Content>
-              Êtes-vous sûr de vouloir supprimer ce reptile ?
+              <Text variant="bodyMedium">
+                Êtes-vous sûr de vouloir supprimer ce reptile ?
+              </Text>
             </Dialog.Content>
           </Dialog.Content>
           <Dialog.Actions>

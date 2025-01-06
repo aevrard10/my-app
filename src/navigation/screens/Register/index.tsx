@@ -65,7 +65,6 @@ const Register = () => {
             <Formik
               initialValues={initialValues}
               validationSchema={schema}
-              isInitialValid={false}
               enableReinitialize
               onSubmit={(values, { resetForm }) => {
                 mutate(

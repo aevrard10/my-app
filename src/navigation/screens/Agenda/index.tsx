@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Agenda as RNCAgenda } from "react-native-calendars";
 import React, { useState } from "react";
 import {
@@ -8,6 +8,7 @@ import {
   FAB,
   Modal,
   Portal,
+  Surface,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -18,17 +19,11 @@ import { DatePickerInput } from "react-native-paper-dates";
 import { formatTime, formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TimePicker from "@shared/components/TimePicker";
 import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMutation";
-import * as Yup from "yup";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
 import TextInput from "@shared/components/TextInput";
+import AgendaItem from "./components/AgendaItem";
 
-const schema = Yup.object().shape({
-  event_name: Yup.string().required(),
-  event_date: Yup.string().required(),
-  event_time: Yup.string().required(),
-  notes: Yup.string(),
-});
 const initialValues = {
   event_name: "",
   event_date: "",
@@ -36,11 +31,13 @@ const initialValues = {
   notes: "",
 };
 const Agenda = () => {
-  const { data, isLoading } = useReptileEventsQuery();
+  const { data, isLoading, refetch } = useReptileEventsQuery();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [showEventInfo, setShowEventInfo] = useState<boolean>(false);
+  const [event, setEvent] = useState<any>();
   const { mutate, isPending } = useAddReptileEventMutation();
   const customTheme = {
     agendaDayTextColor: colors.primary, // Custom color for agenda day text
@@ -56,22 +53,20 @@ const Agenda = () => {
         <RNCAgenda
           displayLoadingIndicator={isLoading}
           items={data}
+          onRefresh={refetch}
+          refreshing={isLoading}
           showWeekNumbers
           renderEmptyData={EmptyList}
           theme={customTheme}
           renderItem={(item) => (
-            <View
-              style={{
-                marginVertical: 10,
-                marginTop: 30,
-                backgroundColor: "white",
-                marginHorizontal: 10,
-                padding: 10,
+            <TouchableOpacity
+              onPress={() => {
+                setShowEventInfo(true);
+                setEvent(item);
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-              <Text>{item.time}</Text>
-            </View>
+              <AgendaItem item={item} />
+            </TouchableOpacity>
           )}
         />
       </View>
@@ -84,7 +79,6 @@ const Agenda = () => {
         onPress={() => setAddEvent(true)}
       />
       <Formik
-        isInitialValid={false}
         enableReinitialize
         initialValues={initialValues}
         onSubmit={(values, { resetForm }) => {
@@ -140,52 +134,81 @@ const Agenda = () => {
               <Appbar.BackAction onPress={() => setAddEvent(false)} />
               <Appbar.Content title="Nouvel événement" />
             </Appbar.Header>
-            <View style={styles.inputSection}>
-              <TextInput
-                placeholder="Titre"
-                value={formik.values.event_name}
-                onChangeText={formik.handleChange("event_name")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Lieu"
-                // onChange={() => formik.handleChange("eventName")}
-                // onBlur={formik.handleBlur("eventName")}
-              />
-            </View>
-            <View style={styles.inputSection}>
-              <DatePickerInput
-                mode="outlined"
-                locale="fr"
-                label="Date"
-                saveLabel="Confirmer"
-                outlineStyle={{ borderWidth: 0 }}
-                style={{
-                  borderWidth: 0,
-                  borderColor: "#fff",
-                  backgroundColor: "#fff",
-                  borderTopColor: "#fff",
-                }}
-                value={inputDate}
-                onChange={(data) => {
-                  setInputDate(data);
-                  console.log(data, formatYYYYMMDD(data));
-                  formik.setFieldValue("event_date", formatYYYYMMDD(data));
-                }}
-                dense
-                inputMode="start"
-              />
-
-              <Divider style={{ marginHorizontal: 8 }} />
-
-              <TouchableOpacity onPress={() => setShowPicker(true)}>
+            <ScrollView>
+              <Surface style={styles.inputSection}>
                 <TextInput
-                  style={styles.input}
-                  value={formik.values.event_time}
-                  placeholder="Heure"
-                  onPress={() => setShowPicker(true)}
+                  placeholder="Titre"
+                  value={formik.values.event_name}
+                  onChangeText={formik.handleChange("event_name")}
                 />
-              </TouchableOpacity>
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Lieu"
+                  // onChange={() => formik.handleChange("eventName")}
+                  // onBlur={formik.handleBlur("eventName")}
+                />
+              </Surface>
+              <Surface style={styles.inputSection}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 10,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignContent: "center",
+                    alignSelf: "center",
+                  }}
+                >
+                  <TouchableOpacity onPress={() => setShowPicker(true)}>
+                    <TextInput
+                      style={styles.input}
+                      value={formik.values.event_time}
+                      placeholder="Heure"
+                      onPress={() => setShowPicker(true)}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.verticleLine} />
+                  <DatePickerInput
+                    mode="outlined"
+                    locale="fr"
+                    label="Date"
+                    saveLabel="Confirmer"
+                    outlineStyle={{ borderWidth: 0 }}
+                    style={{
+                      borderWidth: 0,
+                      borderColor: "#fff",
+                      backgroundColor: "#fff",
+                      borderTopColor: "#fff",
+                    }}
+                    value={inputDate}
+                    onChange={(data) => {
+                      setInputDate(data);
+                      console.log(data, formatYYYYMMDD(data));
+                      formik.setFieldValue("event_date", formatYYYYMMDD(data));
+                    }}
+                    dense
+                    inputMode="start"
+                  />
+                </View>
+              </Surface>
+              <Surface style={styles.inputSection}>
+                <TextInput
+                  multiline
+                  style={styles.input}
+                  placeholder="Notes"
+                  onChangeText={formik.handleChange("notes")}
+                  onBlur={formik.handleBlur("notes")}
+                />
+              </Surface>
+              <Button
+                loading={isPending}
+                disabled={!formik.isValid}
+                icon={"plus"}
+                onPress={formik.submitForm}
+                mode="contained"
+              >
+                Ajouter
+              </Button>
               <TimePicker
                 showPicker={showPicker}
                 setShowPicker={setShowPicker}
@@ -198,32 +221,51 @@ const Agenda = () => {
                   setShowPicker(false);
                 }}
               />
-            </View>
-            <View style={styles.inputSection}>
-              <TextInput
-                multiline
-                style={styles.input}
-                placeholder="Notes"
-                onChangeText={formik.handleChange("notes")}
-                onBlur={formik.handleBlur("notes")}
-              />
-            </View>
-            <Button
-              loading={isPending}
-              disabled={!formik.isValid}
-              icon={"plus"}
-              onPress={formik.submitForm}
-              mode="contained"
-            >
-              Ajouter
-            </Button>
+            </ScrollView>
           </Modal>
         )}
       </Formik>
+      <Portal>
+        <Modal
+          visible={showEventInfo}
+          onDismiss={() => setShowEventInfo(false)}
+          contentContainerStyle={{
+            backgroundColor: "white",
+            marginHorizontal: 20,
+            padding: 20,
+            gap: 10,
+          }}
+        >
+          <Appbar.Header
+            style={[
+              {
+                backgroundColor: "#fff",
+              },
+            ]}
+          >
+            <Appbar.BackAction onPress={() => setShowEventInfo(false)} />
+            <Appbar.Content title={event?.name} />
+          </Appbar.Header>
+          <View>
+            <Text>{event?.time}</Text>
+            <Text>Event Date</Text>
+            <Text>Event Time</Text>
+            <Text>event?.notes</Text>
+          </View>
+        </Modal>
+      </Portal>
     </Portal.Host>
   );
 };
 const styles = StyleSheet.create({
+  verticleLine: {
+    height: "70%",
+    justifyContent: "center",
+    alignSelf: "center",
+    alignItems: "center",
+    width: 1,
+    backgroundColor: "rgb(202, 196, 208)",
+  },
   fab: {
     position: "absolute",
     margin: 16,
@@ -232,14 +274,7 @@ const styles = StyleSheet.create({
   },
   inputSection: {
     backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+
     margin: 10,
     borderRadius: 10,
   },
@@ -251,3 +286,4 @@ const styles = StyleSheet.create({
   },
 });
 export default Agenda;
+// TODO: refactor this component

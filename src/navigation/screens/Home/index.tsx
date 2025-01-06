@@ -15,7 +15,6 @@ import {
 } from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
-import EmptyList from "../../../shared/components/EmptyList";
 import useReptilesQuery from "./hooks/queries/useReptilesQuery";
 import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
@@ -29,60 +28,59 @@ const Home = () => {
 
   return (
     <Portal.Host>
-      <ScrollView>
+      <ScrollView style={{ flexGrow: 1 }}>
         <ImageBackground
           blurRadius={2}
           source={{
             uri: "https://lapauseinfo.fr/wp-content/uploads/2024/02/26771140-une-bleu-serpent-naturel-contexte-gratuit-photo-scaled.jpeg",
           }}
           style={styles.backgroundImg}
-        >
-          <View style={styles.container}>
-            <Animated.View
-              entering={Platform.select({
-                android: SlideInDown,
-                default: FadeInDown,
-              }).delay(50)}
+        />
+        <View style={styles.container}>
+          <Animated.View
+            entering={Platform.select({
+              android: SlideInDown,
+              default: FadeInDown,
+            }).delay(50)}
+          >
+            <Text
+              style={{
+                color: colors.onPrimary,
+              }}
+              variant="displayLarge"
             >
-              <Text
-                style={{
-                  color: colors.onPrimary,
-                }}
-                variant="displayLarge"
-              >
-                {"ReptiTrack"}
-              </Text>
-            </Animated.View>
-          </View>
+              {"ReptiTrack"}
+            </Text>
+          </Animated.View>
+        </View>
 
-          <View style={styles.flatListContainer}>
-            {/* <Text style={styles.myReptileContainer} variant="headlineMedium">
+        <View style={styles.flatListContainer}>
+          {/* <Text style={styles.myReptileContainer} variant="headlineMedium">
               Mes reptiles
             </Text> */}
-            <FlatList
-              scrollEnabled={false}
-              contentContainerStyle={styles.contentContainerStyle}
-              data={data}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  entering={Platform.select({
-                    android: SlideInDown,
-                    default: FadeInDown,
-                  }).delay(index * 50)}
-                  key={item?.id}
-                >
-                  <CardComponent item={item} />
-                </Animated.View>
-              )}
-              ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
-              onRefresh={Platform.select({
-                web: undefined,
-                default: refetch,
-              })}
-              refreshing={isLoading}
-            />
-          </View>
-        </ImageBackground>
+          <FlatList
+            scrollEnabled={false}
+            contentContainerStyle={styles.contentContainerStyle}
+            data={data}
+            renderItem={({ item, index }) => (
+              <Animated.View
+                entering={Platform.select({
+                  android: SlideInDown,
+                  default: FadeInDown,
+                }).delay(index * 50)}
+                key={item?.id}
+              >
+                <CardComponent item={item} />
+              </Animated.View>
+            )}
+            ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
+            onRefresh={Platform.select({
+              web: undefined,
+              default: refetch,
+            })}
+            refreshing={isLoading}
+          />
+        </View>
       </ScrollView>
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}
@@ -108,6 +106,7 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   container: {
+    position: "absolute",
     justifyContent: "center",
     alignItems: "center",
     gap: 10,

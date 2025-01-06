@@ -127,7 +127,15 @@ const ReptileProfileDetails = ({ route }: Props) => {
           />
         </View>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <Chip icon="snake" onPress={() => console.log("Pressed")}>
+          <Chip
+            icon={
+              data?.sort_of_species === "snake"
+                ? "snake"
+                : require("../../../../assets/lizard.png")
+            }
+            onPress={() => console.log("Pressed")}
+          >
+            {/* todo change icon snake or lizzard or other */}
             {data?.species}
           </Chip>
         </View>

@@ -1,4 +1,4 @@
-import { Button, Divider, SegmentedButtons } from "react-native-paper";
+import { Button, Divider, SegmentedButtons, Surface } from "react-native-paper";
 import useAddReptilesMutation from "../Home/hooks/mutations/useAddReptilesMutation";
 import { Formik } from "formik";
 import useReptilesQuery from "../Home/hooks/queries/useReptilesQuery";
@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
@@ -15,9 +15,21 @@ import TextInput from "@shared/components/TextInput";
 const initialValues = {
   name: "",
   species: "",
-  age: 0,
+  age: null,
   last_fed: "",
   snake: "snake",
+  sex: "",
+  feeding_schedule: "",
+  diet: "",
+  humidity_level: null,
+  temperature_range: "",
+  lighting_requirements: "",
+  health_status: "",
+  acquired_date: "",
+  origin: "",
+  location: "",
+  next_vet_visit: "",
+  acquired_date: "",
 };
 const schema = Yup.object().shape({
   name: Yup.string().required(),
@@ -25,6 +37,17 @@ const schema = Yup.object().shape({
   age: Yup.number().required(),
   last_fed: Yup.string(),
   snake: Yup.string().oneOf(["snake", "lizard"]),
+  feeding_schedule: Yup.string(),
+  diet: Yup.string(),
+  humidity_level: Yup.number(),
+  temperature_range: Yup.string(),
+  lighting_requirements: Yup.string(),
+  health_status: Yup.string(),
+  acquired_date: Yup.string(),
+  origin: Yup.string(),
+  location: Yup.string(),
+  sex: Yup.string().oneOf(["male", "female"]),
+  next_vet_visit: Yup.string().required(),
 });
 const AddReptile = () => {
   const { mutate: addReptile, isPending } = useAddReptilesMutation();
@@ -32,141 +55,294 @@ const AddReptile = () => {
   const { show } = useSnackbar();
   const { goBack } = useNavigation();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
+  const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
+    undefined
+  );
+  const [inputDateNextVet, setInputDateNextVet] = useState<Date | undefined>(
+    undefined
+  );
+
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={schema}
-      isInitialValid={false}
-      enableReinitialize
-      onSubmit={(values, { resetForm }) => {
-        addReptile(
-          {
-            input: {
-              name: values.name,
-              species: values.species,
-              age: values.age,
-              last_fed: values.last_fed,
-            },
-          },
-          {
-            onSuccess: () => {
-              resetForm();
-
-              queryClient.invalidateQueries({
-                queryKey: useReptilesQuery.queryKey,
-              });
-              goBack();
-              show("Reptile ajouté avec succès !", {
-                label: "Ok",
-              });
-            },
-            onError: () => {
-              show("Une erreur est survenue, Veuillez réessayer ...", {
-                label: "Ok",
-              });
-            },
-          }
-        );
-      }}
-    >
-      {(formik) => (
-        <View style={styles.formContainer}>
-          <View style={styles.inputSection}>
-            <TextInput
-              placeholder="Nom"
-              value={formik.values.name}
-              onChangeText={formik.handleChange("name")}
-              onBlur={formik.handleBlur("name")}
-            />
-            <Divider style={{ marginHorizontal: 8 }} />
-            <TextInput
-              placeholder="Espèce"
-              onBlur={formik.handleBlur("species")}
-              value={formik.values.species}
-              onChangeText={formik.handleChange("species")}
-            />
-          </View>
-
-          <View style={styles.inputSection}>
-            <TextInput
-              placeholder="Age"
-              value={formik.values.age?.toString()}
-              keyboardType="numeric"
-              onChangeText={(text) => {
-                const number = parseInt(text, 10);
-                formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-              }}
-              onBlur={formik.handleBlur("age")}
-              inputMode="numeric"
-            />
-            <Divider style={{ marginHorizontal: 8 }} />
-            <DatePickerInput
-              mode="outlined"
-              style={{
-                borderWidth: 0,
-                borderColor: "#fff",
-                backgroundColor: "#fff",
-                borderTopColor: "#fff",
-              }}
-              dense
-              outlineStyle={{ borderWidth: 0 }}
-              locale="fr"
-              label="Date de naissance"
-              saveLabel="Confirmer"
-              value={inputDate}
-              onChange={(data) => {
-                setInputDate(data);
-                formik.setFieldValue("last_fed", formatYYYYMMDD(data));
-              }}
-              inputMode="start"
-            />
-          </View>
-          <SegmentedButtons
-            value={formik.values.snake ? "snake" : "lizard"}
-            onValueChange={formik.handleChange("snake")}
-            buttons={[
-              {
-                value: "snake",
-                label: "Serpent",
+    <ScrollView>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={schema}
+        enableReinitialize
+        onSubmit={(values, { resetForm }) => {
+          addReptile(
+            {
+              input: {
+                name: values.name,
+                species: values.species,
+                age: values.age,
+                last_fed: values.last_fed,
+                sort_of_species: values.snake,
+                sex: values.sex,
+                feeding_schedule: values.feeding_schedule,
+                diet: values.diet,
+                humidity_level: values.humidity_level,
+                temperature_range: values.temperature_range,
+                lighting_requirements: values.lighting_requirements,
+                health_status: values.health_status,
+                acquired_date: values.acquired_date,
+                origin: values.origin,
+                location: values.location,
+                next_vet_visit: values.next_vet_visit,
               },
-              {
-                value: "lizard",
-                label: "Varan",
+            },
+            {
+              onSuccess: () => {
+                resetForm();
+
+                queryClient.invalidateQueries({
+                  queryKey: useReptilesQuery.queryKey,
+                });
+                goBack();
+                show("Reptile ajouté avec succès !", {
+                  label: "Ok",
+                });
               },
-            ]}
-          />
-          <Button
-            icon={"plus"}
-            loading={isPending}
-            disabled={!formik.isValid}
-            onPress={formik.submitForm}
-            mode="contained"
-          >
-            AJOUTER
-          </Button>
-        </View>
-      )}
-    </Formik>
+              onError: () => {
+                show("Une erreur est survenue, Veuillez réessayer ...", {
+                  label: "Ok",
+                });
+              },
+            }
+          );
+        }}
+      >
+        {(formik) => (
+          <View style={styles.formContainer}>
+            <Surface style={styles.inputSection}>
+              <TextInput
+                placeholder="Nom"
+                value={formik.values.name}
+                onChangeText={formik.handleChange("name")}
+                onBlur={formik.handleBlur("name")}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Espèce"
+                onBlur={formik.handleBlur("species")}
+                value={formik.values.species}
+                onChangeText={formik.handleChange("species")}
+              />
+            </Surface>
+            <Surface style={styles.inputSection}>
+              <TextInput
+                placeholder="Origine"
+                value={formik.values.origin}
+                onChangeText={formik.handleChange("origin")}
+                onBlur={formik.handleBlur("origin")}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Emplacement"
+                value={formik.values.location}
+                onChangeText={formik.handleChange("location")}
+                onBlur={formik.handleBlur("location")}
+              />
+            </Surface>
+            <Surface style={[styles.inputSection]}>
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <TextInput
+                  placeholder="Age"
+                  value={formik.values.age?.toString()}
+                  keyboardType="numeric"
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                  }}
+                  onBlur={formik.handleBlur("age")}
+                  inputMode="numeric"
+                />
+                <View style={styles.verticleLine} />
+                <DatePickerInput
+                  mode="outlined"
+                  style={styles.pickerInput}
+                  dense
+                  outlineStyle={styles.outlineStyle}
+                  locale="fr"
+                  label="Date d'acquisition"
+                  saveLabel="Confirmer"
+                  withDateFormatInLabel={false}
+                  value={inputDateAcquired}
+                  onChange={(data) => {
+                    setInputDateAcquired(data);
+                    formik.setFieldValue("acquired_date", formatYYYYMMDD(data));
+                  }}
+                  inputMode="start"
+                />
+              </View>
+            </Surface>
+
+            <Surface style={styles.inputSection}>
+              <TextInput
+                placeholder="Régime alimentaire"
+                value={formik.values.diet}
+                onChangeText={formik.handleChange("diet")}
+                onBlur={formik.handleBlur("diet")}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Fréquence de repas"
+                value={formik.values.feeding_schedule}
+                onChangeText={formik.handleChange("feeding_schedule")}
+                onBlur={formik.handleBlur("feeding_schedule")}
+              />
+
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="État de santé"
+                value={formik.values.health_status}
+                onChangeText={formik.handleChange("health_status")}
+                onBlur={formik.handleBlur("health_status")}
+              />
+
+              <Divider style={{ marginHorizontal: 8 }} />
+              <DatePickerInput
+                mode="outlined"
+                style={styles.pickerInput}
+                dense
+                outlineStyle={styles.outlineStyle}
+                locale="fr"
+                label="Prochain rendez-vous chez le vétérinaire"
+                saveLabel="Confirmer"
+                withDateFormatInLabel={false}
+                value={inputDateNextVet}
+                onChange={(data) => {
+                  setInputDateNextVet(data);
+                  formik.setFieldValue("next_vet_visit", formatYYYYMMDD(data));
+                }}
+                inputMode="start"
+              />
+
+              <Divider style={{ marginHorizontal: 8 }} />
+              <DatePickerInput
+                mode="outlined"
+                style={styles.pickerInput}
+                dense
+                outlineStyle={styles.outlineStyle}
+                locale="fr"
+                label="Dernier repas"
+                saveLabel="Confirmer"
+                withDateFormatInLabel={false}
+                value={inputDate}
+                onChange={(data) => {
+                  setInputDate(data);
+                  formik.setFieldValue("last_fed", formatYYYYMMDD(data));
+                }}
+                inputMode="start"
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+            </Surface>
+            <Surface style={styles.inputSection}>
+              <TextInput
+                placeholder="Niveau d'humidité"
+                value={formik.values.humidity_level}
+                onChangeText={(text) => {
+                  const number = parseInt(text, 10);
+                  formik.setFieldValue(
+                    "humidity_level",
+                    isNaN(number) ? "" : number
+                  ); // Ne pas permettre un non-nombre
+                }}
+                onBlur={formik.handleBlur("humidity_level")}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Plage de température"
+                value={formik.values.temperature_range}
+                onChangeText={formik.handleChange("temperature_range")}
+                onBlur={formik.handleBlur("temperature_range")}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Exigences d'éclairage"
+                value={formik.values.lighting_requirements}
+                onChangeText={formik.handleChange("lighting_requirements")}
+                onBlur={formik.handleBlur("lighting_requirements")}
+              />
+            </Surface>
+
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <SegmentedButtons
+                value={formik.values.snake}
+                onValueChange={formik.handleChange("snake")}
+                style={{ flex: 1 }}
+                buttons={[
+                  {
+                    value: "snake",
+                    label: "Serpent",
+                  },
+                  {
+                    value: "lizard",
+                    label: "Varan",
+                  },
+                ]}
+              />
+              <SegmentedButtons
+                style={{ flex: 1 }}
+                value={formik.values.sex}
+                onValueChange={formik.handleChange("sex")}
+                buttons={[
+                  {
+                    value: "female",
+                    label: "Femelle",
+                  },
+                  {
+                    value: "male",
+                    label: "Mâle",
+                  },
+                ]}
+              />
+            </View>
+
+            <Button
+              icon={"plus"}
+              loading={isPending}
+              disabled={!formik.isValid}
+              onPress={formik.submitForm}
+              mode="contained"
+            >
+              AJOUTER
+            </Button>
+          </View>
+        )}
+      </Formik>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
+  outlineStyle: {
+    borderWidth: 0,
+  },
+  pickerInput: {
+    borderWidth: 0,
+    borderColor: "#fff",
+    backgroundColor: "#fff",
+    borderTopColor: "#fff",
+    // backgroundColor: "red",
+    position: "relative",
+  },
   formContainer: {
     gap: 10,
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   inputSection: {
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    // overflow: "hidden",
     margin: 10,
     borderRadius: 10,
+    backgroundColor: "#fff",
+  },
+  verticleLine: {
+    height: "70%",
+    justifyContent: "center",
+    alignSelf: "center",
+    alignItems: "center",
+    width: 1,
+    backgroundColor: "rgb(202, 196, 208)",
   },
   input: {
     padding: 10,
