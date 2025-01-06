@@ -1,45 +1,39 @@
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet, TextInput, Image } from "react-native";
 import * as Yup from "yup";
-import useLoginMutation from "./hooks/data/mutations/useLoginMutation";
 import { Formik } from "formik";
 import { useSnackbar } from "@rn-flix/snackbar";
-import { Button, Avatar, Text, Surface, TextInput } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "@shared/contexts/AuthContext";
+import { Button, Avatar, Surface } from "react-native-paper";
 import useBreakpoints from "@shared/hooks/useBreakpoints";
-import QueriesKeys from "@shared/declarations/queriesKeys";
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import useRegisterMutation from "./hooks/mutations/useRegisterMutation";
 
 const initialValues = {
   email: "",
   password: "",
+  username: "",
 };
 
 const schema = Yup.object().shape({
   email: Yup.string().required(),
   password: Yup.string().required(),
+  username: Yup.string().required(),
 });
-const Login = () => {
-  const { mutate, isPending } = useLoginMutation();
+const Register = () => {
+  const { mutate, isPending } = useRegisterMutation();
   const { show } = useSnackbar();
-  const { setToken } = useAuth();
   const { isMd } = useBreakpoints();
-  const { navigate } = useNavigation();
-  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <View
       style={{
         justifyContent: "center",
         alignItems: "center",
-        width: "100%",
-        height: "100%",
+        flex: 1,
       }}
     >
       <Surface
         style={{
           width: "90%",
-          // overflow: "hidden",
+          overflow: "hidden",
           backgroundColor: "white",
         }}
       >
@@ -77,6 +71,7 @@ const Login = () => {
                 mutate(
                   {
                     input: {
+                      username: values.username,
                       email: values.email,
                       password: values.password,
                     },
@@ -84,17 +79,11 @@ const Login = () => {
                   {
                     onSuccess: async (data) => {
                       resetForm();
-                      await AsyncStorage.setItem(
-                        QueriesKeys.USER_TOKEN,
-                        data?.login?.token
-                      );
-                      setToken(data?.login?.token); // Met à jour le contexte
-                      show("Connexion réussi", {
+                      show("Inscription réussi", {
                         label: "Ok",
                       });
                     },
-                    onError: (e) => {
-                      console.log(e);
+                    onError: () => {
                       show("Une erreur est survenue, Veuillez réessayer ...", {
                         label: "Ok",
                       });
@@ -106,32 +95,25 @@ const Login = () => {
               {(formik) => (
                 <View style={styles.formContainer}>
                   <TextInput
-                    mode="outlined"
-                    outlineStyle={{ borderWidth: 0 }}
-                    keyboardType="email-address"
+                    style={styles.input}
+                    placeholder="Nom d'utilisateur"
+                    value={formik.values.username}
+                    onChangeText={formik.handleChange("username")}
+                    onBlur={formik.handleBlur("username")}
+                  />
+                  <TextInput
                     style={styles.input}
                     placeholder="Email"
                     value={formik.values.email}
                     onChangeText={formik.handleChange("email")}
                     onBlur={formik.handleBlur("email")}
-                    error={formik.errors.email}
                   />
                   <TextInput
-                    mode="outlined"
-                    outlineStyle={{ borderWidth: 0 }}
                     style={styles.input}
-                    secureTextEntry={!showPassword}
                     placeholder="Mot de passe"
                     value={formik.values.password}
                     onChangeText={formik.handleChange("password")}
                     onBlur={formik.handleBlur("password")}
-                    error={formik.errors.password}
-                    right={
-                      <TextInput.Icon
-                        icon={!showPassword ? "eye-off" : "eye"}
-                        onPress={() => setShowPassword(!showPassword)}
-                      />
-                    }
                   />
 
                   <Button
@@ -140,9 +122,6 @@ const Login = () => {
                     onPress={formik.submitForm}
                     mode="contained"
                   >
-                    Connexion
-                  </Button>
-                  <Button onPress={() => navigate("Register")} mode="contained">
                     S'inscrire
                   </Button>
                 </View>
@@ -155,9 +134,17 @@ const Login = () => {
   );
 };
 const styles = StyleSheet.create({
+  svgCurve: {
+    position: "absolute",
+    width: "100%",
+  },
   input: {
     height: 60,
     margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 30,
+    borderColor: "#fff",
     backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: {
@@ -182,14 +169,16 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   header: {
+    flex: 1,
     marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   formContainer: {
+    // flex: 2,
     paddingHorizontal: 16,
     paddingVertical: 20,
     gap: 10,
   },
 });
-export default Login;
+export default Register;

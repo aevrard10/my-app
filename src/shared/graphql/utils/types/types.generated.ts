@@ -183,6 +183,13 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { login: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
 
+export type RegisterMutationVariables = Exact<{
+  input: RegisterInput;
+}>;
+
+
+export type RegisterMutation = { register: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
+
 export type AddNotesMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   notes: Scalars['String']['input'];

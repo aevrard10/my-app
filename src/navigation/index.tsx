@@ -13,6 +13,7 @@ import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 import Agenda from "./screens/Agenda";
+import Register from "./screens/Register";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -81,11 +82,18 @@ const MyStack = () => {
       }}
     >
       {!token ? (
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{ title: "ReptiTrack", headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ title: "ReptiTrack", headerShown: false }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{ title: "ReptiTrack", headerShown: false }}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen
