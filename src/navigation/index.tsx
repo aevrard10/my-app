@@ -86,12 +86,12 @@ const MyStack = () => {
           <Stack.Screen
             name="Login"
             component={Login}
-            options={{ title: "ReptiTrack", headerShown: false }}
+            options={{ title: "Connexion", headerShown: false }}
           />
           <Stack.Screen
             name="Register"
             component={Register}
-            options={{ title: "ReptiTrack", headerShown: false }}
+            options={{ title: "Inscription" }}
           />
         </>
       ) : (
