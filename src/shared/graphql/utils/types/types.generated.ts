@@ -77,6 +77,7 @@ export type Enclosure = {
 
 export type LoginInput = {
   email: Scalars['String']['input'];
+  expo_token?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
 };
 
@@ -211,6 +212,7 @@ export type ReptileEvent = {
 
 export type User = {
   email: Scalars['String']['output'];
+  expo_token?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
 };

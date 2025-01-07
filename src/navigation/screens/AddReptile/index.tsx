@@ -29,7 +29,6 @@ const initialValues = {
   origin: "",
   location: "",
   next_vet_visit: "",
-  acquired_date: "",
 };
 const schema = Yup.object().shape({
   name: Yup.string().required(),

@@ -1,4 +1,10 @@
-import { View, StyleSheet, Image, KeyboardAvoidingView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import * as Yup from "yup";
 import useLoginMutation from "./hooks/data/mutations/useLoginMutation";
 import { Formik } from "formik";
@@ -9,8 +15,62 @@ import { useAuth } from "@shared/contexts/AuthContext";
 import useBreakpoints from "@shared/hooks/useBreakpoints";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import Constants from "expo-constants";
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === "web") {
+    return;
+  }
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
 
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      handleRegistrationError(
+        "Permission not granted to get push token for push notification!"
+      );
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError("Project ID not found");
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError("Must use physical device for push notifications");
+  }
+}
 const initialValues = {
   email: "",
   password: "",
@@ -27,6 +87,14 @@ const Login = () => {
   const { isMd } = useBreakpoints();
   const { navigate } = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
+  const [expoPushToken, setExpoPushToken] = useState("");
+
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then((token) => setExpoPushToken(token ?? ""))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  }, []);
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View
@@ -74,11 +142,21 @@ const Login = () => {
                 validationSchema={schema}
                 enableReinitialize
                 onSubmit={(values, { resetForm }) => {
+                  if (!expoPushToken) {
+                    show(
+                      "Le token Expo n'a pas encore été récupéré. Veuillez réessayer.",
+                      {
+                        label: "Ok",
+                      }
+                    );
+                    return;
+                  }
                   mutate(
                     {
                       input: {
                         email: values.email,
                         password: values.password,
+                        expo_token: expoPushToken, // expoPushToken,
                       },
                     },
                     {
