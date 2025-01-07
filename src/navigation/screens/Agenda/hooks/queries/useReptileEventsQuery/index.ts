@@ -60,6 +60,7 @@ const useReptileEventsQuery = Object.assign(
               name: event?.event_name,
               time: formattedTime,
               notes: event?.notes,
+              date: formattedDate,
             };
 
             if (!acc[formattedDate]) {

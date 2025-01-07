@@ -23,6 +23,7 @@ import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
 import TextInput from "@shared/components/TextInput";
 import AgendaItem from "./components/AgendaItem";
+import TextInfo from "../ReptileProfileDetails/components/TextInfo";
 
 const initialValues = {
   event_name: "",
@@ -247,10 +248,10 @@ const Agenda = () => {
           <Appbar.Content title={event?.name} />
         </Appbar.Header>
         <View>
-          <Text>{event?.time}</Text>
-          <Text>Event Date</Text>
-          <Text>Event Time</Text>
-          <Text>event?.notes</Text>
+          <TextInfo title="Nom" value={event?.name} />
+          <TextInfo title="Date" value={event?.date} />
+          <TextInfo title="Heure" value={event?.time} />
+          <TextInfo title="Notes" value={event?.notes} />
         </View>
       </Modal>
     </>
