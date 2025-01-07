@@ -1,5 +1,11 @@
 import React, { FC } from "react";
-import { TextInput, View, StyleSheet, TextInputProps } from "react-native";
+import {
+  TextInput,
+  View,
+  StyleSheet,
+  TextInputProps,
+  ScrollView,
+} from "react-native";
 import {
   Modal,
   Button,
@@ -7,6 +13,7 @@ import {
   Surface,
   Divider,
   Portal,
+  Appbar,
 } from "react-native-paper";
 import { ErrorMessage, Formik } from "formik";
 import { DatePickerInput } from "react-native-paper-dates";
@@ -36,76 +43,87 @@ const WeightModal: FC<WeightModalProps> = (props) => {
     new Date()
   );
   return (
-    <Modal
-      visible={visible}
-      contentContainerStyle={{
-        flex: 1,
-      }}
+    <Formik
+      initialValues={initialValues}
+      enableReinitialize
+      onSubmit={onSubmit}
+      // validationSchema={schema}
     >
-      <Formik
-        initialValues={initialValues}
-        enableReinitialize
-        onSubmit={onSubmit}
-        // validationSchema={schema}
-      >
-        {(formik) => (
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Ajouter une mesure</Text>
-              <Surface style={styles.inputSection}>
-                <TextInput
-                  placeholder="Poids"
-                  value={formik.values.weight}
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                  }}
-                  style={styles.input}
-                />
-                <Divider style={{ marginHorizontal: 8 }} />
+      {(formik) => (
+        <Modal
+          visible={visible}
+          onDismiss={onPress}
+          contentContainerStyle={{
+            backgroundColor: "white",
+            marginHorizontal: 20,
+            padding: 20,
+            gap: 10,
+          }}
+        >
+          <Appbar.Header
+            style={[
+              {
+                backgroundColor: "#fff",
+              },
+            ]}
+          >
+            <Appbar.BackAction onPress={onPress} />
+            <Appbar.Content title="Ajouter une mesure" />
+          </Appbar.Header>
+          <ScrollView>
+            <Surface style={styles.inputSection}>
+              <TextInput
+                placeholder="Poids"
+                value={formik.values.weight}
+                onChangeText={(text) => {
+                  const number = parseInt(text, 10);
+                  formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                }}
+                style={styles.input}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
 
-                <TextInput
-                  placeholder="Taille"
-                  value={formik.values.size}
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                  }}
-                  style={styles.input}
-                />
-                <Divider style={{ marginHorizontal: 8 }} />
+              <TextInput
+                placeholder="Taille"
+                value={formik.values.size}
+                onChangeText={(text) => {
+                  const number = parseInt(text, 10);
+                  formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                }}
+                style={styles.input}
+              />
+              <Divider style={{ marginHorizontal: 8 }} />
 
-                <DatePickerInput
-                  mode="outlined"
-                  style={styles.pickerInput}
-                  dense
-                  outlineStyle={styles.outlineStyle}
-                  locale="fr"
-                  label="Date"
-                  saveLabel="Confirmer"
-                  withDateFormatInLabel={false}
-                  value={inputDate}
-                  onChange={(data) => {
-                    console.log(formatYYYYMMDD(data));
-                    setInputDate(data);
-                    formik.setFieldValue("date", formatYYYYMMDD(data));
-                  }}
-                  inputMode="start"
-                />
-              </Surface>
-              <View style={styles.button}>
-                <Button mode="contained" onPress={formik.submitForm}>
-                  Ajouter
-                </Button>
-                <Button mode="contained" onPress={onPress}>
-                  Annuler
-                </Button>
-              </View>
+              <DatePickerInput
+                mode="outlined"
+                style={styles.pickerInput}
+                dense
+                outlineStyle={styles.outlineStyle}
+                locale="fr"
+                label="Date"
+                saveLabel="Confirmer"
+                withDateFormatInLabel={false}
+                value={inputDate}
+                onChange={(data) => {
+                  console.log(formatYYYYMMDD(data));
+                  setInputDate(data);
+                  formik.setFieldValue("date", formatYYYYMMDD(data));
+                }}
+                inputMode="start"
+              />
+            </Surface>
+            <View style={styles.button}>
+              <Button mode="contained" onPress={formik.submitForm}>
+                Ajouter
+              </Button>
+              <Button mode="contained" onPress={onPress}>
+                Annuler
+              </Button>
             </View>
-          </View>
-        )}
-      </Formik>
-    </Modal>
+          </ScrollView>
+        </Modal>
+      )}
+    </Formik>
   );
 };
 

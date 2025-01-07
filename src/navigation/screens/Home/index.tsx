@@ -85,7 +85,7 @@ const Home = () => {
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}
         variant="primary"
-        color={colors.primaryContainer}
+        color="#fff"
         icon="plus"
         style={styles.fab}
         onPress={() => navigate("AddReptile")}

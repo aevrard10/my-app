@@ -1,7 +1,7 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View, TextInput } from "react-native";
-import { Button, FAB, Portal } from "react-native-paper";
+import { Button, FAB, Portal, useTheme } from "react-native-paper";
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -66,8 +66,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
       show("Veuillez remplir tous les champs.");
     }
   };
+  const { colors } = useTheme();
   return (
-    <Portal>
+    <>
       <ScrollView>
         <ReptilePicture data={data} />
         <TextInfo title="Âge" value={data?.age || ""} />
@@ -143,6 +144,20 @@ const ReptileProfileDetails = ({ route }: Props) => {
           }}
         />
       </ScrollView>
+
+      <FAB
+        style={{
+          position: "absolute",
+          margin: 16,
+          right: 0,
+          bottom: 0,
+        }}
+        theme={{ colors: { primaryContainer: colors.primary } }}
+        variant="primary"
+        color="#fff"
+        icon="weight-kilogram"
+        onPress={() => setShowWeightModal(true)}
+      />
       <WeightModal
         onSubmit={(values) => {
           console.log(values);
@@ -180,17 +195,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         addPress={handleAddEvent}
         cancelPress={() => setSelectedDate("")}
       />
-      <FAB
-        style={{
-          position: "absolute",
-          margin: 16,
-          right: 0,
-          bottom: 0,
-        }}
-        icon="weight-kilogram"
-        onPress={() => setShowWeightModal(true)}
-      />
-    </Portal>
+    </>
   );
 };
 

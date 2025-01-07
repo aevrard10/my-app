@@ -48,7 +48,7 @@ const Agenda = () => {
   const queryClient = useQueryClient();
 
   return (
-    <Portal.Host>
+    <>
       <View style={{ flex: 1, marginHorizontal: 10 }}>
         <RNCAgenda
           displayLoadingIndicator={isLoading}
@@ -75,6 +75,7 @@ const Agenda = () => {
         variant="primary"
         color={colors.primaryContainer}
         icon="plus"
+        color="#fff"
         style={styles.fab}
         onPress={() => setAddEvent(true)}
       />
@@ -225,36 +226,34 @@ const Agenda = () => {
           </Modal>
         )}
       </Formik>
-      <Portal>
-        <Modal
-          visible={showEventInfo}
-          onDismiss={() => setShowEventInfo(false)}
-          contentContainerStyle={{
-            backgroundColor: "white",
-            marginHorizontal: 20,
-            padding: 20,
-            gap: 10,
-          }}
+      <Modal
+        visible={showEventInfo}
+        onDismiss={() => setShowEventInfo(false)}
+        contentContainerStyle={{
+          backgroundColor: "white",
+          marginHorizontal: 20,
+          padding: 20,
+          gap: 10,
+        }}
+      >
+        <Appbar.Header
+          style={[
+            {
+              backgroundColor: "#fff",
+            },
+          ]}
         >
-          <Appbar.Header
-            style={[
-              {
-                backgroundColor: "#fff",
-              },
-            ]}
-          >
-            <Appbar.BackAction onPress={() => setShowEventInfo(false)} />
-            <Appbar.Content title={event?.name} />
-          </Appbar.Header>
-          <View>
-            <Text>{event?.time}</Text>
-            <Text>Event Date</Text>
-            <Text>Event Time</Text>
-            <Text>event?.notes</Text>
-          </View>
-        </Modal>
-      </Portal>
-    </Portal.Host>
+          <Appbar.BackAction onPress={() => setShowEventInfo(false)} />
+          <Appbar.Content title={event?.name} />
+        </Appbar.Header>
+        <View>
+          <Text>{event?.time}</Text>
+          <Text>Event Date</Text>
+          <Text>Event Time</Text>
+          <Text>event?.notes</Text>
+        </View>
+      </Modal>
+    </>
   );
 };
 const styles = StyleSheet.create({

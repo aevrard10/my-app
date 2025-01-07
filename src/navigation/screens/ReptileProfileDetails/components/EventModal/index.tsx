@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { TextInput, View, Text, StyleSheet } from "react-native";
-import { Button, Modal, Portal } from "react-native-paper";
+import { Appbar, Button, Modal, Portal, Surface } from "react-native-paper";
 
 type EventModalProps = {
   visible: boolean;
@@ -14,30 +14,39 @@ const EventModal: FC<EventModalProps> = (props) => {
   return (
     <Modal
       visible={visible}
+      onDismiss={cancelPress}
       contentContainerStyle={{
-        flex: 1,
+        backgroundColor: "white",
+        marginHorizontal: 20,
+        padding: 20,
+        gap: 10,
       }}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Ajouter un événement</Text>
-          <View style={styles.inputSection}>
-            <TextInput
-              placeholder="Description de l'événement"
-              value={value}
-              onChangeText={onChangeText}
-              style={styles.input}
-            />
-          </View>
-          <View style={styles.button}>
-            <Button mode="contained" onPress={addPress}>
-              Ajouter
-            </Button>
-            <Button mode="contained" onPress={cancelPress}>
-              Annuler
-            </Button>
-          </View>
-        </View>
+      <Appbar.Header
+        style={[
+          {
+            backgroundColor: "#fff",
+          },
+        ]}
+      >
+        <Appbar.BackAction onPress={cancelPress} />
+        <Appbar.Content title="Ajouter une événement" />
+      </Appbar.Header>
+      <Surface style={styles.inputSection}>
+        <TextInput
+          placeholder="Description de l'événement"
+          value={value}
+          onChangeText={onChangeText}
+          style={styles.input}
+        />
+      </Surface>
+      <View style={styles.button}>
+        <Button mode="contained" onPress={addPress}>
+          Ajouter
+        </Button>
+        <Button mode="contained" onPress={cancelPress}>
+          Annuler
+        </Button>
       </View>
     </Modal>
   );
