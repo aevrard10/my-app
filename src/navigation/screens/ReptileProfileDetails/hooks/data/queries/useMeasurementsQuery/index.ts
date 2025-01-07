@@ -29,11 +29,7 @@ const useMeasurementsQuery = Object.assign(
       query,
       variables: { reptileId: id },
       options: {
-        select: (data) =>
-          data?.measurements?.map((m) => ({
-            date: m.date,
-            value: m.weight,
-          })),
+        select: (data) => data?.measurements || [],
       },
     });
   },

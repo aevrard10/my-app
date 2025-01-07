@@ -5,9 +5,10 @@ import { Text, Divider } from "react-native-paper";
 type TextProps = {
   title: string;
   value: string;
+  noDivider?: boolean;
 };
 const TextInfo: FC<TextProps> = (props) => {
-  const { title, value } = props;
+  const { title, value, noDivider } = props;
   return (
     <View>
       <View style={styles.infoContainer}>
@@ -16,7 +17,7 @@ const TextInfo: FC<TextProps> = (props) => {
           <Text variant="bodyLarge">{value}</Text>
         </View>
       </View>
-      <Divider style={styles.divider} />
+      {noDivider ? null : <Divider style={styles.divider} />}
     </View>
   );
 };

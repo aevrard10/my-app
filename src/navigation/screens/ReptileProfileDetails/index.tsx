@@ -24,6 +24,7 @@ import useAddMeasurementMutation from "./hooks/data/mutations/useAddMeasurements
 import TemperatureChart from "./components/TemperatureChart";
 import HumidityChart from "./components/HumidityChart";
 import TextInput from "@shared/components/TextInput";
+import SizeChart from "./components/SizeChart";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -90,7 +91,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
             value={data?.acquired_date || ""}
           />
           <TextInfo title="Origine" value={data?.origin || ""} />
-          <TextInfo title="Emplacement" value={data?.location || ""} />
+          <TextInfo
+            title="Emplacement"
+            value={data?.location || ""}
+            noDivider
+          />
         </Surface>
         <Surface style={styles.inputSection}>
           <TextInfo title="Dernier repas" value={data?.last_fed || ""} />
@@ -99,12 +104,17 @@ const ReptileProfileDetails = ({ route }: Props) => {
             value={data?.feeding_schedule || ""}
             title="Horaire de repas"
           />
-          <TextInfo value={data?.diet || ""} title="Régime alimentaire" />
+          <TextInfo
+            value={data?.diet || ""}
+            title="Régime alimentaire"
+            noDivider
+          />
         </Surface>
         <Surface style={styles.inputSection}>
           <TextInfo
             value={data?.lighting_requirements || ""}
             title="Exigences d'éclairage"
+            noDivider
           />
         </Surface>
         <Surface style={styles.inputSection}>
@@ -116,6 +126,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
           <TextInfo
             value={data?.next_vet_visit || ""}
             title="Prochaine visite chez le vétérinaire"
+            noDivider
           />
         </Surface>
         {/* <TextInfo title="Historique médical" value={data?.medical_history || ""} /> */}
@@ -127,6 +138,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
           <TextInfo
             title="Notes de manipulation"
             value={data?.handling_notes || ""}
+            noDivider
           />
         </Surface>
 
@@ -180,8 +192,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
             humidity={data?.humidity_level || ""}
           />
         </View>
-        <GraphicChart data={measurements} isPending={isPending} />
-
+        <View style={{ gap: 10 }}>
+          <GraphicChart
+            data={measurements?.map((m) => ({
+              date: m.date,
+              value: m.weight,
+            }))}
+            isPending={isPending}
+          />
+          <SizeChart
+            data={measurements?.map((m) => ({
+              date: m.date,
+              value: m.size,
+            }))}
+            isPending={isPending}
+          />
+        </View>
         <EventCalendar
           onDayPress={(day) => setSelectedDate(day.dateString)}
           markedDates={{
