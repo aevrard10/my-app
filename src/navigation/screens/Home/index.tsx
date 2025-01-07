@@ -5,30 +5,29 @@ import {
   StyleSheet,
   View,
   Platform,
+  RefreshControl,
 } from "react-native";
-import {
-  ActivityIndicator,
-  FAB,
-  Portal,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { FAB, Portal, Text, useTheme } from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
 import useReptilesQuery from "./hooks/queries/useReptilesQuery";
-import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 
 const Home = () => {
   const { navigate } = useNavigation();
-  const { data, isLoading, refetch } = useReptilesQuery();
-  const [, currentUser] = useCurrentUserQuery();
+  const { data, isPending: isLoading, refetch } = useReptilesQuery();
   const { colors } = useTheme();
 
   return (
     <Portal.Host>
       <ScrollView style={{ flexGrow: 1 }}>
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={refetch}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
         <ImageBackground
           blurRadius={2}
           source={{
