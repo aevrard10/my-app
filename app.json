@@ -35,7 +35,16 @@
           "image": "./assets/cobra.png"
         }
       ],
-      "react-native-edge-to-edge"
+      "react-native-edge-to-edge",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/cobra.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": true
+        }
+      ]
     ],
     "extra": {
       "eas": {
