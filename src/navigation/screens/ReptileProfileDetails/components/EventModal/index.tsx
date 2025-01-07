@@ -14,7 +14,7 @@ const EventModal: FC<EventModalProps> = (props) => {
   return (
     <Modal
       visible={visible}
-      style={{
+      contentContainerStyle={{
         flex: 1,
       }}
     >
