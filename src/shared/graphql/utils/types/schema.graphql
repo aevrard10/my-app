@@ -132,12 +132,23 @@ type Measurement {
   weight: Float!
   size: Float!
 }
+type Notification {
+  id: Int!
+  user_id: Int!
+  message: String!
+  sent: Boolean!
+  read: Boolean
+  created_at: String!
+  sent_at: String
+}
 type Query {
   reptile(id: ID!): Reptile
   reptiles: [Reptile]
   currentUser: User
   reptileEvent: [ReptileEvent]
   measurements(reptile_id: ID!): [Measurement!]!
+  getNotifications: [Notification!]!
+  getUnreadNotificationsCount(user_id: Int!): Int!
 }
 type Mutation {
   register(input: RegisterInput!): AuthPayload!
@@ -148,4 +159,6 @@ type Mutation {
   logout: LogoutResponse!
   addReptileEvent(input: AddReptileEventInput!): ReptileEvent
   addMeasurement(input: AddMeasurementInput!): Measurement
+  markNotificationAsRead(id: Int!): Notification!
+  markAllNotificationsAsRead(user_id: Int!): [Notification!]!
 }

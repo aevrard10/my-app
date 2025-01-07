@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@shared/contexts/AuthContext";
 import QueriesKeys from "@shared/declarations/queriesKeys";
+import ScreenNames from "@shared/declarations/screenNames";
 const mutation = gql`
   mutation LogoutMutation {
     logout {
@@ -31,7 +32,7 @@ const useLogoutMutation = () => {
         // Supprimer les données du cache React Query
         queryClient.clear();
         setToken(null);
-        navigate("Login");
+        navigate(ScreenNames.LOGIN);
       },
       onError: (error) => {
         console.error("Erreur de déconnexion :", error);

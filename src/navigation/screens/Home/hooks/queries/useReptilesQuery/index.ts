@@ -4,6 +4,7 @@ import {
   ReptilesQuery,
   ReptilesQueryVariables,
 } from "@shared/graphql/utils/types/types.generated";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 const query = gql`
   query ReptilesQuery {
@@ -17,7 +18,7 @@ const query = gql`
     }
   }
 `;
-const queryKey = ["reptiles"];
+const queryKey = [QueriesKeys.REPTILES];
 
 const useReptilesQuery = Object.assign(
   () => {

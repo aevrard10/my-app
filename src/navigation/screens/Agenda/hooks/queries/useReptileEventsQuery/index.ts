@@ -4,6 +4,7 @@ import {
   ReptileEventQuery,
   ReptileEventQueryVariables,
 } from "@shared/graphql/utils/types/types.generated";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 const query = gql`
   query ReptileEventQuery {
@@ -16,7 +17,7 @@ const query = gql`
     }
   }
 `;
-const queryKey = ["reptileEvents"];
+const queryKey = [QueriesKeys.REPTILES_EVENTS];
 
 // Helper functions to format date and time
 const formatDate = (timestamp: string): string => {

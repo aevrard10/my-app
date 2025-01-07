@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import useReptilesQuery from "./hooks/queries/useReptilesQuery";
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
+import ScreenNames from "@shared/declarations/screenNames";
 
 const Home = () => {
   const { navigate } = useNavigation();
@@ -87,7 +88,7 @@ const Home = () => {
         color="#fff"
         icon="plus"
         style={styles.fab}
-        onPress={() => navigate("AddReptile")}
+        onPress={() => navigate(ScreenNames.ADD_REPTILE)}
       />
     </Portal.Host>
   );

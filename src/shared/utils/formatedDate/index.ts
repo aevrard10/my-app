@@ -52,3 +52,51 @@ export const formatTime = ({
 
   return timeParts.join(":");
 };
+/** @example
+ * // 1) À l'instant    ( en dessous de 1min exclus )
+ * // 2) Hier 09:12     ( hier, peu importe le différentiel )
+ * // 3) Il y a 1 min   ( de 1min inclus à 60min exclus )
+ * // 4) Il y a 1 h     ( de 1h inclus à 4h exclus )
+ * // 5) lun. 01:30     ( de 4h inclus à 7j exclus )
+ * // 6) 13/02/2022     ( au delà de 7j inclus )
+ * @param date
+ */
+export function notificationsMultiFormat(date: DateFormatInput) {
+  if (!date) {
+    return "";
+  }
+
+  const diffSeconds = dayjs().diff(date, "seconds");
+
+  if (diffSeconds < 60) {
+    return "À l'instant";
+  }
+
+  const formattedDate = dayjs(date).format("DD/MM/YYYY");
+  const HHmm = dayjs(date).format("HH:mm");
+  if (formattedDate === dayjs().subtract(1, "day").format("DD/MM/YYYY")) {
+    return "Hier " + HHmm;
+  }
+
+  const diffMinutes = dayjs().diff(date, "minutes");
+  if (diffMinutes < 60) {
+    return "Il y a " + diffMinutes + " min";
+  }
+
+  const diffHours = dayjs().diff(date, "hours");
+  if (diffHours < 4) {
+    return "Il y a " + diffHours + " h";
+  }
+
+  const diffDays = dayjs().diff(date, "days");
+  if (diffDays < 1) {
+    return HHmm;
+  }
+
+  const ddd = dayjs(date).format("ddd");
+  if (diffDays < 7) {
+    return ddd + " " + HHmm;
+  }
+
+  return formattedDate;
+}

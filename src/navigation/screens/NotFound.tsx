@@ -3,6 +3,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import lottieNoFound from "../../assets/not_found.json";
 import Lottie from "@shared/components/Lottie";
+import ScreenNames from "@shared/declarations/screenNames";
 
 export function NotFound() {
   return (
@@ -13,7 +14,7 @@ export function NotFound() {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Button screen="HomeTabs">Retouner à l'accueil</Button>
+        <Button screen={ScreenNames.HOME_TABS}>Retouner à l'accueil</Button>
       </View>
     </View>
   );

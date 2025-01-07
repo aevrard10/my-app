@@ -7,6 +7,7 @@ import useRemoveReptileMutation from "../../hooks/mutations/useRemoveReptile";
 import { useQueryClient } from "@tanstack/react-query";
 import useReptilesQuery from "../../hooks/queries/useReptilesQuery";
 import { capitalize } from "lodash";
+import ScreenNames from "@shared/declarations/screenNames";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -53,7 +54,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
       <Card.Actions>
         <Button
           onPress={() =>
-            navigate("ReptileProfileDetails", {
+            navigate(ScreenNames.REPTILE_PROFILE_DETAILS, {
               id: item?.id,
             })
           }

@@ -4,6 +4,7 @@ import {
   ReptileQuery,
   ReptileQueryVariables,
 } from "@shared/graphql/utils/types/types.generated";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 const query = gql`
   query ReptileQuery($id: ID!) {
@@ -48,7 +49,7 @@ const query = gql`
     }
   }
 `;
-const queryKey = ["reptile"];
+const queryKey = [QueriesKeys.REPTILE];
 
 const useReptileQuery = Object.assign(
   (id: string) => {

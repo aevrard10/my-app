@@ -1,3 +1,5 @@
+import { notificationsMultiFormat } from "@shared/utils/formatedDate";
+import React, { FC, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Icon,
@@ -6,19 +8,53 @@ import {
   useTheme,
   Text,
 } from "react-native-paper";
-
-export function Updates() {
-  const { colors } = useTheme();
-  const onPress = () => {
-    console.log("Pressed");
+import useMarkNotificationAsReadMutationMutation from "../../hooks/mutations/useMarkNotificationAsReadMutation";
+import { useQueryClient } from "@tanstack/react-query";
+import useGetNotificationsQuery from "../../hooks/queries/GetNotificationsQuery";
+type NotifItemProps = {
+  item: {
+    message: string;
+    read: boolean;
+    created_at: string;
+    id: string;
   };
+};
+
+const NotifItem: FC<NotifItemProps> = (props) => {
+  const { item } = props;
+  const { colors } = useTheme();
+  const { mutate } = useMarkNotificationAsReadMutationMutation(item?.id);
+  const queryClient = useQueryClient();
+  const markNotificationAsRead = useCallback(() => {
+    console.log("item", item?.id);
+
+    mutate(
+      {
+        id: item?.id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: useGetNotificationsQuery.queryKey,
+          });
+        },
+        onError: (e) => {
+          console.log("Error", e);
+        },
+      }
+    );
+  }, [item?.id]);
+  const created_at = item?.created_at * 1000;
   return (
-    <TouchableRipple onPress={onPress} style={styles.touchableRipple}>
+    <TouchableRipple
+      onPress={markNotificationAsRead}
+      style={styles.touchableRipple}
+    >
       <Surface
         style={[
           styles.surface,
           {
-            backgroundColor: colors.secondaryContainer,
+            backgroundColor: item?.read ? "#fff" : colors.secondaryContainer,
           },
         ]}
       >
@@ -35,11 +71,13 @@ export function Updates() {
               style={[
                 styles.secondImageContainer,
                 {
-                  backgroundColor: colors.secondary,
+                  backgroundColor: item?.read
+                    ? colors.secondary
+                    : colors.primary,
                 },
               ]}
             >
-              <Icon size={12} source={"snake"} />
+              <Icon size={12} source={"calendar"} color="#fff" />
             </View>
           </View>
           <View style={styles.container}>
@@ -50,7 +88,7 @@ export function Updates() {
                   color: colors.secondary,
                 }}
               >
-                {"title"}
+                {"Agenda"}
               </Text>
               <Text
                 variant="bodyLarge"
@@ -59,7 +97,7 @@ export function Updates() {
                 }}
               >
                 {" ⸱ "}
-                {"date"}
+                {notificationsMultiFormat(created_at)}
               </Text>
             </View>
             <Text
@@ -68,14 +106,14 @@ export function Updates() {
                 color: colors.onSurfaceVariant,
               }}
             >
-              {"content"}
+              {item?.message}
             </Text>
           </View>
         </View>
       </Surface>
     </TouchableRipple>
   );
-}
+};
 
 const styles = StyleSheet.create({
   touchableRipple: {
@@ -126,3 +164,5 @@ const styles = StyleSheet.create({
     width: 12,
   },
 });
+
+export default NotifItem;

@@ -3,8 +3,6 @@ import { HeaderButton } from "@react-navigation/elements";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./screens/Home";
 import ReptileProfileDetails from "./screens/ReptileProfileDetails";
-import { Settings } from "./screens/Settings";
-import { Updates } from "./screens/Updates";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
 import { Icon, IconButton } from "react-native-paper";
@@ -14,6 +12,8 @@ import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 import Agenda from "./screens/Agenda";
 import Register from "./screens/Register";
+import Notifications from "./screens/Notifications";
+import ScreenNames from "@shared/declarations/screenNames";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,7 +21,7 @@ const HomeTabs = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Home"
+        name={ScreenNames.HOME}
         component={Home}
         options={{
           title: "Accueil",
@@ -33,7 +33,7 @@ const HomeTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Agenda"
+        name={ScreenNames.AGENDA}
         component={Agenda}
         options={{
           title: "Agenda",
@@ -45,8 +45,8 @@ const HomeTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={Updates}
+        name={ScreenNames.NOTIFICATIONS}
+        component={Notifications}
         options={{
           title: "Notifications",
           tabBarActiveTintColor: "#4CAF50",
@@ -84,12 +84,12 @@ const MyStack = () => {
       {!token ? (
         <>
           <Stack.Screen
-            name="Login"
+            name={ScreenNames.LOGIN}
             component={Login}
             options={{ title: "Connexion", headerShown: false }}
           />
           <Stack.Screen
-            name="Register"
+            name={ScreenNames.REGISTER}
             component={Register}
             options={{ title: "Inscription" }}
           />
@@ -97,25 +97,24 @@ const MyStack = () => {
       ) : (
         <>
           <Stack.Screen
-            name="HomeTabs"
+            name={ScreenNames.HOME_TABS}
             component={HomeTabs}
             options={{
               title: "ReptiTrack",
             }}
           />
           <Stack.Screen
-            name="AddReptile"
+            name={ScreenNames.ADD_REPTILE}
             component={AddReptile}
             options={{
               title: "Ajouter un reptile",
             }}
           />
           <Stack.Screen
-            name="ReptileProfileDetails"
+            name={ScreenNames.REPTILE_PROFILE_DETAILS}
             component={ReptileProfileDetails}
           />
-          <Stack.Screen name="Settings" component={Settings} />
-          <Stack.Screen name="NotFound" component={NotFound} />
+          <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />
         </>
       )}
     </Stack.Navigator>

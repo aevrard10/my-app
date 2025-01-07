@@ -110,6 +110,8 @@ export type Mutation = {
   deleteReptile: DeleteReptileResponse;
   login: AuthPayload;
   logout: LogoutResponse;
+  markAllNotificationsAsRead: Array<Notification>;
+  markNotificationAsRead: Notification;
   register: AuthPayload;
 };
 
@@ -145,16 +147,43 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationMarkAllNotificationsAsReadArgs = {
+  user_id: Scalars['Int']['input'];
+};
+
+
+export type MutationMarkNotificationAsReadArgs = {
+  notification_id: Scalars['Int']['input'];
+};
+
+
 export type MutationRegisterArgs = {
   input: RegisterInput;
 };
 
+export type Notification = {
+  created_at: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+  read: Scalars['Boolean']['output'];
+  sent: Scalars['Boolean']['output'];
+  sent_at?: Maybe<Scalars['String']['output']>;
+  user_id: Scalars['Int']['output'];
+};
+
 export type Query = {
   currentUser?: Maybe<User>;
+  getNotifications: Array<Notification>;
+  getUnreadNotificationsCount: Scalars['Int']['output'];
   measurements: Array<Measurement>;
   reptile?: Maybe<Reptile>;
   reptileEvent?: Maybe<Array<Maybe<ReptileEvent>>>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
+};
+
+
+export type QueryGetUnreadNotificationsCountArgs = {
+  user_id: Scalars['Int']['input'];
 };
 
 
@@ -261,6 +290,18 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { login: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
+
+export type MarkNotificationAsReadMutationVariables = Exact<{
+  notification_id: Scalars['Int']['input'];
+}>;
+
+
+export type MarkNotificationAsReadMutation = { markNotificationAsRead: { read: boolean } };
+
+export type GetNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetNotificationsQuery = { getNotifications: Array<{ id: number, user_id: number, message: string, sent: boolean, read: boolean, created_at: string, sent_at?: string | undefined }> };
 
 export type RegisterMutationVariables = Exact<{
   input: RegisterInput;

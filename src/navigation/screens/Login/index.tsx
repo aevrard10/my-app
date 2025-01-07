@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
+import ScreenNames from "@shared/declarations/screenNames";
 function handleRegistrationError(errorMessage: string) {
   alert(errorMessage);
   throw new Error(errorMessage);
@@ -224,7 +225,7 @@ const Login = () => {
                       Connexion
                     </Button>
                     <Button
-                      onPress={() => navigate("Register")}
+                      onPress={() => navigate(ScreenNames.REGISTER)}
                       mode="contained"
                     >
                       S'inscrire

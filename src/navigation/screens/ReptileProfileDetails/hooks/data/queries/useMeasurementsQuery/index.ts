@@ -4,6 +4,7 @@ import {
   MeasurementsQuery,
   MeasurementsQueryVariables,
 } from "@shared/graphql/utils/types/types.generated";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 const query = gql`
   query MeasurementsQuery($reptileId: ID!) {
@@ -16,7 +17,7 @@ const query = gql`
     }
   }
 `;
-const queryKey = ["measurements"];
+const queryKey = [QueriesKeys.MESUAREMENTS];
 
 const useMeasurementsQuery = Object.assign(
   (id: string) => {
