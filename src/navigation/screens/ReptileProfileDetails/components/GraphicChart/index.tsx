@@ -1,10 +1,10 @@
 import { FC } from "react";
-import { Platform, View, Text } from "react-native";
+import { Platform, View, Text, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Card } from "react-native-paper";
 
 type GraphicChartProps = {
-  Data: any;
+  data: any;
   isPending: boolean;
 };
 const GraphicChart: FC<GraphicChartProps> = (props) => {
@@ -13,27 +13,39 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
     return <ActivityIndicator animating={true} />;
   }
   return (
-    <View
+    <Card
       style={[
         {
-          paddingVertical: 100,
+          paddingVertical: 20,
         },
         Platform.select({
           web: {
             justifyContent: "center",
-            alignItems: "center",
-            alignContent: "center",
-            alignSelf: "center",
+            marginHorizontal: 20,
+            overflow: "hidden",
           },
-          default: {},
+          default: {
+            marginHorizontal: 20,
+            overflow: "hidden",
+          },
         }),
       ]}
     >
+      <Text
+        style={{
+          fontSize: 14,
+          color: "black",
+          fontWeight: "bold",
+          textAlign: "center",
+        }}
+      >
+        Poids du reptile
+      </Text>
       <LineChart
         areaChart
         data={data}
         rotateLabel
-        width={300}
+        width={Dimensions.get("window").width - 40}
         hideDataPoints
         spacing={10}
         color="#00ff83"
@@ -101,7 +113,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
           },
         }}
       />
-    </View>
+    </Card>
   );
 };
 

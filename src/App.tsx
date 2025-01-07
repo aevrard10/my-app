@@ -28,6 +28,7 @@ const theme = {
     text: "#263238", // Couleur sombre et contrastée pour le texte
     placeholder: "#757575", // Couleur pour les champs non remplis
     error: "#D32F2F", // Rouge pour indiquer les erreurs
+    secondaryContainer: "#E8F5E9", // Vert clair pour les éléments secondaires
   },
 };
 const queryClient = new QueryClient();

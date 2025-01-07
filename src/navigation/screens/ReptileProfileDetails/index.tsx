@@ -1,7 +1,14 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View, TextInput } from "react-native";
-import { Button, FAB, Portal, useTheme } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  Button,
+  Divider,
+  FAB,
+  Surface,
+  useTheme,
+  Text,
+} from "react-native-paper";
 import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,6 +21,9 @@ import GraphicChart from "./components/GraphicChart";
 import ReptilePicture from "./components/ReptilePicture";
 import EventCalendar from "./components/EventCalendar";
 import useAddMeasurementMutation from "./hooks/data/mutations/useAddMeasurementsMutation";
+import TemperatureChart from "./components/TemperatureChart";
+import HumidityChart from "./components/HumidityChart";
+import TextInput from "@shared/components/TextInput";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -71,51 +81,55 @@ const ReptileProfileDetails = ({ route }: Props) => {
     <>
       <ScrollView>
         <ReptilePicture data={data} />
-        <TextInfo title="Âge" value={data?.age || ""} />
-        <TextInfo title="Espèce" value={data?.species || ""} />
-        <TextInfo title="Dernier repas" value={data?.last_fed || ""} />
-        <TextInfo title="Prochain repas" value={data?.next_feed || ""} />
-        <TextInfo
-          value={data?.feeding_schedule || ""}
-          title="Horaire de repas"
-        />
-        <TextInfo value={data?.diet || ""} title="Régime alimentaire" />
-        <TextInfo
-          value={data?.humidity_level || ""}
-          title="Niveau d'humidité"
-        />
-        <TextInfo
-          value={data?.temperature_range || ""}
-          title="Plage de température"
-        />
-        <TextInfo
-          value={data?.lighting_requirements || ""}
-          title="Exigences d'éclairage"
-        />
-        <TextInfo value={data?.health_status || ""} title="État de santé" />
-        <TextInfo
-          value={data?.last_vet_visit || ""}
-          title="Dernière visite chez le vétérinaire"
-        />
-        <TextInfo
-          value={data?.next_vet_visit || ""}
-          title="Prochaine visite chez le vétérinaire"
-        />
+
+        <Surface style={styles.inputSection}>
+          <TextInfo title="Âge" value={data?.age + " ans" || "-"} />
+          <TextInfo title="Espèce" value={data?.species || ""} />
+          <TextInfo
+            title="Date d'acquisition"
+            value={data?.acquired_date || ""}
+          />
+          <TextInfo title="Origine" value={data?.origin || ""} />
+          <TextInfo title="Emplacement" value={data?.location || ""} />
+        </Surface>
+        <Surface style={styles.inputSection}>
+          <TextInfo title="Dernier repas" value={data?.last_fed || ""} />
+          <TextInfo title="Prochain repas" value={data?.next_feed || ""} />
+          <TextInfo
+            value={data?.feeding_schedule || ""}
+            title="Horaire de repas"
+          />
+          <TextInfo value={data?.diet || ""} title="Régime alimentaire" />
+        </Surface>
+        <Surface style={styles.inputSection}>
+          <TextInfo
+            value={data?.lighting_requirements || ""}
+            title="Exigences d'éclairage"
+          />
+        </Surface>
+        <Surface style={styles.inputSection}>
+          <TextInfo value={data?.health_status || ""} title="État de santé" />
+          <TextInfo
+            value={data?.last_vet_visit || ""}
+            title="Dernière visite chez le vétérinaire"
+          />
+          <TextInfo
+            value={data?.next_vet_visit || ""}
+            title="Prochaine visite chez le vétérinaire"
+          />
+        </Surface>
         {/* <TextInfo title="Historique médical" value={data?.medical_history || ""} /> */}
-        <TextInfo
-          title="Notes de comportement"
-          value={data?.behavior_notes || ""}
-        />
-        <TextInfo
-          title="Notes de manipulation"
-          value={data?.handling_notes || ""}
-        />
-        <TextInfo
-          title="Date d'acquisition"
-          value={data?.acquired_date || ""}
-        />
-        <TextInfo title="Origine" value={data?.origin || ""} />
-        <TextInfo title="Emplacement" value={data?.location || ""} />
+        <Surface style={styles.inputSection}>
+          <TextInfo
+            title="Notes de comportement"
+            value={data?.behavior_notes || ""}
+          />
+          <TextInfo
+            title="Notes de manipulation"
+            value={data?.handling_notes || ""}
+          />
+        </Surface>
+
         {/* <TextInfo title="Enclos" value={data?.enclosure?.type || ""} /> */}
         <View style={{ margin: 20 }}>
           <TextInput
@@ -132,7 +146,42 @@ const ReptileProfileDetails = ({ route }: Props) => {
             </Button>
           </View>
         </View>
+        <View style={{ flexDirection: "row" }}>
+          <TemperatureChart
+            data={[
+              {
+                value: data?.temperature_range || "",
+                color:
+                  data?.temperature_range > 30
+                    ? data?.temperature_range > 30
+                      ? "#FF7F97"
+                      : "#3BE9DE"
+                    : "#3BE9DE",
+                gradientCenterColor: "#006DFF",
+                focused: true,
+              },
+            ]}
+            temperature={data?.temperature_range || ""}
+          />
+          <HumidityChart
+            data={[
+              {
+                value: data?.temperature_range || "",
+                color:
+                  data?.humidity_level > 30
+                    ? data?.humidity_level > 30
+                      ? "#FF7F97"
+                      : "#3BE9DE"
+                    : "#3BE9DE",
+                gradientCenterColor: "#006DFF",
+                focused: true,
+              },
+            ]}
+            humidity={data?.humidity_level || ""}
+          />
+        </View>
         <GraphicChart data={measurements} isPending={isPending} />
+
         <EventCalendar
           onDayPress={(day) => setSelectedDate(day.dateString)}
           markedDates={{
@@ -205,6 +254,12 @@ const styles = StyleSheet.create({
     outlineStyle: "none",
     borderRadius: 30,
     borderColor: "#fff",
+    backgroundColor: "#fff",
+  },
+  inputSection: {
+    // overflow: "hidden",
+    margin: 10,
+    borderRadius: 10,
     backgroundColor: "#fff",
   },
 });
