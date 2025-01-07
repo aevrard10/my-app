@@ -111,15 +111,31 @@ input AddReptileEventInput {
   event_time: String!
   notes: String
 }
+
+type LogoutResponse {
+  success: Boolean!
+  message: String!
+}
+input AddMeasurementInput {
+  reptile_id: ID!
+  date: String!
+  weight: Float!
+  size: Float!
+}
+
+type Measurement {
+  id: ID!
+  reptile_id: ID!
+  date: String!
+  weight: Float!
+  size: Float!
+}
 type Query {
   reptile(id: ID!): Reptile
   reptiles: [Reptile]
   currentUser: User
   reptileEvent: [ReptileEvent]
-}
-type LogoutResponse {
-  success: Boolean!
-  message: String!
+  measurements(reptile_id: ID!): [Measurement!]!
 }
 type Mutation {
   register(input: RegisterInput!): AuthPayload!
@@ -129,4 +145,5 @@ type Mutation {
   deleteReptile(id: ID!): DeleteReptileResponse!
   logout: LogoutResponse!
   addReptileEvent(input: AddReptileEventInput!): ReptileEvent
+  addMeasurement(input: AddMeasurementInput!): Measurement
 }

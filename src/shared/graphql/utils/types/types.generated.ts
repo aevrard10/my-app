@@ -14,6 +14,13 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AddMeasurementInput = {
+  date: Scalars['String']['input'];
+  reptile_id: Scalars['ID']['input'];
+  size: Scalars['Float']['input'];
+  weight: Scalars['Float']['input'];
+};
+
 export type AddNotesResponse = {
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
@@ -78,6 +85,14 @@ export type LogoutResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type Measurement = {
+  date: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  reptile_id: Scalars['ID']['output'];
+  size: Scalars['Float']['output'];
+  weight: Scalars['Float']['output'];
+};
+
 export type MedicalRecord = {
   date: Scalars['String']['output'];
   diagnosis?: Maybe<Scalars['String']['output']>;
@@ -87,6 +102,7 @@ export type MedicalRecord = {
 };
 
 export type Mutation = {
+  addMeasurement?: Maybe<Measurement>;
   addNotes: AddNotesResponse;
   addReptile?: Maybe<Reptile>;
   addReptileEvent?: Maybe<ReptileEvent>;
@@ -94,6 +110,11 @@ export type Mutation = {
   login: AuthPayload;
   logout: LogoutResponse;
   register: AuthPayload;
+};
+
+
+export type MutationAddMeasurementArgs = {
+  input: AddMeasurementInput;
 };
 
 
@@ -129,9 +150,15 @@ export type MutationRegisterArgs = {
 
 export type Query = {
   currentUser?: Maybe<User>;
+  measurements: Array<Measurement>;
   reptile?: Maybe<Reptile>;
   reptileEvent?: Maybe<Array<Maybe<ReptileEvent>>>;
   reptiles?: Maybe<Array<Maybe<Reptile>>>;
+};
+
+
+export type QueryMeasurementsArgs = {
+  reptile_id: Scalars['ID']['input'];
 };
 
 
@@ -240,6 +267,13 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { register: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
 
+export type AddMeasurementMutationVariables = Exact<{
+  input: AddMeasurementInput;
+}>;
+
+
+export type AddMeasurementMutation = { addMeasurement?: { id: string } | undefined };
+
 export type AddNotesMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   notes: Scalars['String']['input'];
@@ -247,6 +281,13 @@ export type AddNotesMutationVariables = Exact<{
 
 
 export type AddNotesMutation = { addNotes: { success: boolean, message: string } };
+
+export type MeasurementsQueryVariables = Exact<{
+  reptileId: Scalars['ID']['input'];
+}>;
+
+
+export type MeasurementsQuery = { measurements: Array<{ id: string, reptile_id: string, date: string, weight: number, size: number }> };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
