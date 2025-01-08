@@ -51,7 +51,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
       { id, notes },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: useReptileQuery.queryKey });
+          queryClient.invalidateQueries({
+            queryKey: useReptileQuery.queryKey(id),
+          });
           show("Notes enregistrées");
         },
       }

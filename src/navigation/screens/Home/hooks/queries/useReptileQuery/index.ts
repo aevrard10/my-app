@@ -49,7 +49,7 @@ const query = gql`
     }
   }
 `;
-const queryKey = [QueriesKeys.REPTILE];
+const queryKey = (id: string) => [QueriesKeys.REPTILE, id];
 
 const useReptileQuery = Object.assign(
   (id: string) => {
@@ -58,7 +58,7 @@ const useReptileQuery = Object.assign(
       ReptileQueryVariables,
       ReptileQuery["reptile"]
     >({
-      queryKey, //TODO: add id in queryKey
+      queryKey: queryKey(id), //TODO: add id in queryKey
       query,
       variables: { id },
       options: {

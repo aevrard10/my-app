@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { Alert, Button, Platform, StyleSheet, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Avatar, Chip } from "react-native-paper";
+import { Avatar, Chip, TouchableRipple } from "react-native-paper";
 import { ReptileQuery } from "@shared/graphql/utils/types/types.generated";
 
 import handleImageUpload from "@shared/utils/handleImageUpload";
@@ -47,16 +47,17 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-        <Avatar.Image
-          size={150}
-          source={
-            data?.image_url || imageUri
-              ? { uri: imageUri ? imageUri : data?.image_url }
-              : require("../../../../../../assets/cobra.png")
-          }
-        />
+        <TouchableRipple onPress={pickImage} style={{ borderRadius: 100 }}>
+          <Avatar.Image
+            size={150}
+            source={
+              data?.image_url || imageUri
+                ? { uri: imageUri ? imageUri : data?.image_url }
+                : require("../../../../../../assets/cobra.png")
+            }
+          />
+        </TouchableRipple>
       </View>
-      <Button title="Changer l'image" onPress={pickImage} />
       <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
         <Chip
           icon={
