@@ -1,4 +1,12 @@
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Modal,
+} from "react-native";
 import { Agenda as RNCAgenda } from "react-native-calendars";
 import React, { useState } from "react";
 import {
@@ -6,10 +14,8 @@ import {
   Button,
   Divider,
   FAB,
-  Modal,
-  Portal,
+  // Modal,
   Surface,
-  Text,
   useTheme,
 } from "react-native-paper";
 import EmptyList from "@shared/components/EmptyList";
@@ -136,93 +142,102 @@ const Agenda = () => {
               <Appbar.BackAction onPress={() => setAddEvent(false)} />
               <Appbar.Content title="Nouvel événement" />
             </Appbar.Header>
+
             <ScrollView>
-              <Surface style={styles.inputSection}>
-                <TextInput
-                  placeholder="Titre"
-                  value={formik.values.event_name}
-                  onChangeText={formik.handleChange("event_name")}
-                />
-                <Divider style={{ marginHorizontal: 8 }} />
-                <TextInput
-                  placeholder="Lieu"
-                  // onChange={() => formik.handleChange("eventName")}
-                  // onBlur={formik.handleBlur("eventName")}
-                />
-              </Surface>
-              <Surface style={styles.inputSection}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 10,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    alignContent: "center",
-                    alignSelf: "center",
-                  }}
-                >
-                  <TouchableOpacity onPress={() => setShowPicker(true)}>
-                    <TextInput
-                      style={styles.input}
-                      value={formik.values.event_time}
-                      placeholder="Heure"
-                      onPress={() => setShowPicker(true)}
-                    />
-                  </TouchableOpacity>
-                  <View style={styles.verticleLine} />
-                  <DatePickerInput
-                    mode="outlined"
-                    locale="fr"
-                    label="Date"
-                    saveLabel="Confirmer"
-                    outlineStyle={{ borderWidth: 0 }}
-                    style={{
-                      borderWidth: 0,
-                      borderColor: "#fff",
-                      backgroundColor: "#fff",
-                      borderTopColor: "#fff",
-                    }}
-                    value={inputDate}
-                    onChange={(data) => {
-                      setInputDate(data);
-                      console.log(data, formatYYYYMMDD(data));
-                      formik.setFieldValue("event_date", formatYYYYMMDD(data));
-                    }}
-                    dense
-                    inputMode="start"
-                  />
-                </View>
-              </Surface>
-              <Surface style={styles.inputSection}>
-                <TextInput
-                  multiline
-                  style={styles.input}
-                  placeholder="Notes"
-                  onChangeText={formik.handleChange("notes")}
-                  onBlur={formik.handleBlur("notes")}
-                />
-              </Surface>
-              <Button
-                loading={isPending}
-                disabled={!formik.isValid}
-                icon={"plus"}
-                onPress={formik.submitForm}
-                mode="contained"
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
               >
-                Ajouter
-              </Button>
-              <TimePicker
-                showPicker={showPicker}
-                setShowPicker={setShowPicker}
-                onConfirm={(pickedDuration) => {
-                  console.log(pickedDuration);
-                  formik.setFieldValue(
-                    "event_time",
-                    formatTime(pickedDuration)
-                  );
-                  setShowPicker(false);
-                }}
-              />
+                <Surface style={styles.inputSection}>
+                  <TextInput
+                    placeholder="Titre"
+                    value={formik.values.event_name}
+                    onChangeText={formik.handleChange("event_name")}
+                  />
+                  <Divider style={{ marginHorizontal: 8 }} />
+                  <TextInput
+                    placeholder="Lieu"
+                    // onChange={() => formik.handleChange("eventName")}
+                    // onBlur={formik.handleBlur("eventName")}
+                  />
+                </Surface>
+                <Surface style={styles.inputSection}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      alignContent: "center",
+                      alignSelf: "center",
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => setShowPicker(true)}>
+                      <TextInput
+                        style={styles.input}
+                        value={formik.values.event_time}
+                        placeholder="Heure"
+                        onPress={() => setShowPicker(true)}
+                      />
+                    </TouchableOpacity>
+                    <View style={styles.verticleLine} />
+                    <DatePickerInput
+                      mode="outlined"
+                      locale="fr"
+                      label="Date"
+                      saveLabel="Confirmer"
+                      outlineStyle={{ borderWidth: 0 }}
+                      style={{
+                        borderWidth: 0,
+                        borderColor: "#fff",
+                        backgroundColor: "#fff",
+                        borderTopColor: "#fff",
+                      }}
+                      value={inputDate}
+                      onChange={(data) => {
+                        setInputDate(data);
+                        console.log(data, formatYYYYMMDD(data));
+                        formik.setFieldValue(
+                          "event_date",
+                          formatYYYYMMDD(data)
+                        );
+                      }}
+                      dense
+                      inputMode="start"
+                    />
+                  </View>
+                </Surface>
+                <Surface style={styles.inputSection}>
+                  <TextInput
+                    multiline
+                    style={styles.input}
+                    placeholder="Notes"
+                    onChangeText={formik.handleChange("notes")}
+                    onBlur={formik.handleBlur("notes")}
+                  />
+                </Surface>
+                <Button
+                  loading={isPending}
+                  disabled={!formik.isValid}
+                  icon={"plus"}
+                  onPress={formik.submitForm}
+                  mode="contained"
+                >
+                  Ajouter
+                </Button>
+                <TimePicker
+                  showPicker={showPicker}
+                  setShowPicker={setShowPicker}
+                  onConfirm={(pickedDuration) => {
+                    console.log(pickedDuration);
+                    formik.setFieldValue(
+                      "event_time",
+                      formatTime(pickedDuration)
+                    );
+                    setShowPicker(false);
+                  }}
+                />
+              </KeyboardAvoidingView>
             </ScrollView>
           </Modal>
         )}
@@ -247,12 +262,14 @@ const Agenda = () => {
           <Appbar.BackAction onPress={() => setShowEventInfo(false)} />
           <Appbar.Content title={event?.name} />
         </Appbar.Header>
-        <View>
-          <TextInfo title="Nom" value={event?.name} />
-          <TextInfo title="Date" value={event?.date} />
-          <TextInfo title="Heure" value={event?.time} />
-          <TextInfo title="Notes" value={event?.notes} />
-        </View>
+        <ScrollView>
+          <View>
+            <TextInfo title="Nom" value={event?.name} />
+            <TextInfo title="Date" value={event?.date} />
+            <TextInfo title="Heure" value={event?.time} />
+            <TextInfo title="Notes" value={event?.notes} />
+          </View>
+        </ScrollView>
       </Modal>
     </>
   );

@@ -41,7 +41,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
     );
   }, [item, mutate]);
   return (
-    <Card style={styles.card}>
+    <Card style={styles.card} elevation={5}>
       <Card.Cover
         source={{
           uri: item?.image_url,

@@ -5,7 +5,7 @@ import { Home } from "./screens/Home";
 import ReptileProfileDetails from "./screens/ReptileProfileDetails";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
-import { Icon, IconButton } from "react-native-paper";
+import { Appbar, Icon, IconButton } from "react-native-paper";
 import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
@@ -14,7 +14,7 @@ import Agenda from "./screens/Agenda";
 import Register from "./screens/Register";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
-
+import { Image } from "react-native";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -25,7 +25,7 @@ const HomeTabs = () => {
         component={Home}
         options={{
           title: "Accueil",
-          tabBarActiveTintColor: "#4CAF50",
+          tabBarActiveTintColor: "#8BC34A",
           tabBarIcon: ({ size }) => (
             <Icon source={"snake"} size={size} color={"#4CAF50"} />
           ),
@@ -37,7 +37,7 @@ const HomeTabs = () => {
         component={Agenda}
         options={{
           title: "Agenda",
-          tabBarActiveTintColor: "#4CAF50",
+          tabBarActiveTintColor: "#8BC34A",
           tabBarIcon: ({ size }) => (
             <Icon source={"calendar"} color={"#4CAF50"} size={size} />
           ),
@@ -49,7 +49,7 @@ const HomeTabs = () => {
         component={Notifications}
         options={{
           title: "Notifications",
-          tabBarActiveTintColor: "#4CAF50",
+          tabBarActiveTintColor: "#8BC34A",
           tabBarIcon: ({ size }) => (
             <Icon source={"bell"} color={"#4CAF50"} size={size} />
           ),
@@ -68,15 +68,33 @@ const MyStack = () => {
     <Stack.Navigator
       screenOptions={{
         header: ({ options, route, back }) => (
+          // <Appbar.Header
+          //   style={[
+          //     {
+          //       backgroundColor: "#fff",
+          //     },
+          //   ]}
+          // >
+          //   <Appbar.BackAction onPress={() => console.log("")} />
+          //   <Appbar.Content title={getHeaderTitle(options, route.name)} />
+          // </Appbar.Header>
           <Header
             {...options}
             back={back}
             title={getHeaderTitle(options, route.name)}
+            headerStyle={{
+              backgroundColor: "#4CAF50",
+            }}
             headerRight={() => (
               <HeaderButton onPress={() => mutate()}>
-                <IconButton icon="logout-variant" />
+                <IconButton icon="logout-variant" iconColor="#fff" />
               </HeaderButton>
             )}
+            headerBackButtonDisplayMode="minimal"
+            headerTintColor="#fff"
+            headerLeftContainerStyle={{
+              marginLeft: 10,
+            }}
           />
         ),
       }}
@@ -99,8 +117,11 @@ const MyStack = () => {
           <Stack.Screen
             name={ScreenNames.HOME_TABS}
             component={HomeTabs}
+            // options: {
+            //   headerTitle: (props) => <LogoTitle {...props} />,
+            // },
             options={{
-              title: "ReptiTrack",
+              title: "",
             }}
           />
           <Stack.Screen
@@ -108,6 +129,8 @@ const MyStack = () => {
             component={AddReptile}
             options={{
               title: "Ajouter un reptile",
+              presentation: "modal",
+              keyboardHandlingEnabled: true,
             }}
           />
           <Stack.Screen

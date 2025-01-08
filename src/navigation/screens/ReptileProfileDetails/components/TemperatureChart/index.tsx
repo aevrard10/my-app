@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { View, Text, Platform } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
+import { Surface } from "react-native-paper";
 
 type TemperatureChartProps = {
   data: {
@@ -19,7 +20,7 @@ const TemperatureChart: FC<TemperatureChartProps> = (props) => {
         flex: 1,
       }}
     >
-      <View
+      <Surface
         style={{
           margin: 10,
           padding: 16,
@@ -60,7 +61,7 @@ const TemperatureChart: FC<TemperatureChartProps> = (props) => {
             }}
           />
         </View>
-      </View>
+      </Surface>
     </View>
   );
 };

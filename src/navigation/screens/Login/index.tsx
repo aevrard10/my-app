@@ -143,14 +143,10 @@ const Login = () => {
                 validationSchema={schema}
                 enableReinitialize
                 onSubmit={(values, { resetForm }) => {
-                  if (!expoPushToken) {
-                    show(
-                      "Le token Expo n'a pas encore été récupéré. Veuillez réessayer.",
-                      {
-                        label: "Ok",
-                      }
+                  if (!expoPushToken && Platform.OS !== "web") {
+                    console.log(
+                      "Le token Expo n'a pas encore été récupéré. Veuillez réessayer."
                     );
-                    return;
                   }
                   mutate(
                     {

@@ -13,7 +13,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
-import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import React, { useState } from "react";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
@@ -103,7 +110,7 @@ const AddReptile = () => {
     }
   };
   return (
-    <ScrollView>
+    <ScrollView keyboardShouldPersistTaps="handled">
       <View style={styles.container}>
         <View style={styles.avatarContainer}>
           <TouchableRipple
@@ -181,202 +188,214 @@ const AddReptile = () => {
         }}
       >
         {(formik) => (
-          <View style={styles.formContainer}>
-            <Surface style={styles.inputSection}>
-              <TextInput
-                placeholder="Nom"
-                value={formik.values.name}
-                onChangeText={formik.handleChange("name")}
-                onBlur={formik.handleBlur("name")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Espèce"
-                onBlur={formik.handleBlur("species")}
-                value={formik.values.species}
-                onChangeText={formik.handleChange("species")}
-              />
-            </Surface>
-            <Surface style={styles.inputSection}>
-              <TextInput
-                placeholder="Origine"
-                value={formik.values.origin}
-                onChangeText={formik.handleChange("origin")}
-                onBlur={formik.handleBlur("origin")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Emplacement"
-                value={formik.values.location}
-                onChangeText={formik.handleChange("location")}
-                onBlur={formik.handleBlur("location")}
-              />
-            </Surface>
-            <Surface style={[styles.inputSection]}>
-              <View style={{ flexDirection: "row", gap: 10 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.formContainer}>
+              <Surface style={styles.inputSection}>
                 <TextInput
-                  placeholder="Age"
-                  value={formik.values.age?.toString()}
-                  keyboardType="numeric"
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                  }}
-                  onBlur={formik.handleBlur("age")}
-                  inputMode="numeric"
+                  placeholder="Nom"
+                  value={formik.values.name}
+                  onChangeText={formik.handleChange("name")}
+                  onBlur={formik.handleBlur("name")}
                 />
-                <View style={styles.verticleLine} />
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Espèce"
+                  onBlur={formik.handleBlur("species")}
+                  value={formik.values.species}
+                  onChangeText={formik.handleChange("species")}
+                />
+              </Surface>
+              <Surface style={styles.inputSection}>
+                <TextInput
+                  placeholder="Origine"
+                  value={formik.values.origin}
+                  onChangeText={formik.handleChange("origin")}
+                  onBlur={formik.handleBlur("origin")}
+                />
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Emplacement"
+                  value={formik.values.location}
+                  onChangeText={formik.handleChange("location")}
+                  onBlur={formik.handleBlur("location")}
+                />
+              </Surface>
+              <Surface style={[styles.inputSection]}>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <TextInput
+                    placeholder="Age"
+                    value={formik.values.age?.toString()}
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      const number = parseInt(text, 10);
+                      formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                    }}
+                    onBlur={formik.handleBlur("age")}
+                    inputMode="numeric"
+                  />
+                  <View style={styles.verticleLine} />
+                  <DatePickerInput
+                    placeholderTextColor="gray" // Assurez-vous que la couleur est visible
+                    mode="outlined"
+                    style={styles.pickerInput}
+                    dense
+                    outlineStyle={styles.outlineStyle}
+                    locale="fr"
+                    label="Date d'acquisition"
+                    saveLabel="Confirmer"
+                    withDateFormatInLabel={false}
+                    value={inputDateAcquired}
+                    onChange={(data) => {
+                      setInputDateAcquired(data);
+                      formik.setFieldValue(
+                        "acquired_date",
+                        formatYYYYMMDD(data)
+                      );
+                    }}
+                    inputMode="start"
+                  />
+                </View>
+              </Surface>
+
+              <Surface style={styles.inputSection}>
+                <TextInput
+                  placeholder="Régime alimentaire"
+                  value={formik.values.diet}
+                  onChangeText={formik.handleChange("diet")}
+                  onBlur={formik.handleBlur("diet")}
+                />
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Fréquence de repas"
+                  value={formik.values.feeding_schedule}
+                  onChangeText={formik.handleChange("feeding_schedule")}
+                  onBlur={formik.handleBlur("feeding_schedule")}
+                />
+
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="État de santé"
+                  value={formik.values.health_status}
+                  onChangeText={formik.handleChange("health_status")}
+                  onBlur={formik.handleBlur("health_status")}
+                />
+
+                <Divider style={{ marginHorizontal: 8 }} />
                 <DatePickerInput
                   mode="outlined"
                   style={styles.pickerInput}
                   dense
                   outlineStyle={styles.outlineStyle}
                   locale="fr"
-                  label="Date d'acquisition"
+                  label="Prochain rendez-vous chez le vétérinaire"
                   saveLabel="Confirmer"
                   withDateFormatInLabel={false}
-                  value={inputDateAcquired}
+                  value={inputDateNextVet}
                   onChange={(data) => {
-                    setInputDateAcquired(data);
-                    formik.setFieldValue("acquired_date", formatYYYYMMDD(data));
+                    setInputDateNextVet(data);
+                    formik.setFieldValue(
+                      "next_vet_visit",
+                      formatYYYYMMDD(data)
+                    );
                   }}
                   inputMode="start"
                 />
+
+                <Divider style={{ marginHorizontal: 8 }} />
+                <DatePickerInput
+                  mode="outlined"
+                  style={styles.pickerInput}
+                  dense
+                  outlineStyle={styles.outlineStyle}
+                  locale="fr"
+                  label="Dernier repas"
+                  saveLabel="Confirmer"
+                  withDateFormatInLabel={false}
+                  value={inputDate}
+                  onChange={(data) => {
+                    setInputDate(data);
+                    formik.setFieldValue("last_fed", formatYYYYMMDD(data));
+                  }}
+                  inputMode="start"
+                />
+                <Divider style={{ marginHorizontal: 8 }} />
+              </Surface>
+              <Surface style={styles.inputSection}>
+                <TextInput
+                  placeholder="Niveau d'humidité"
+                  value={formik.values.humidity_level}
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue(
+                      "humidity_level",
+                      isNaN(number) ? "" : number
+                    ); // Ne pas permettre un non-nombre
+                  }}
+                  onBlur={formik.handleBlur("humidity_level")}
+                />
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Plage de température"
+                  value={formik.values.temperature_range}
+                  onChangeText={formik.handleChange("temperature_range")}
+                  onBlur={formik.handleBlur("temperature_range")}
+                />
+                <Divider style={{ marginHorizontal: 8 }} />
+                <TextInput
+                  placeholder="Exigences d'éclairage"
+                  value={formik.values.lighting_requirements}
+                  onChangeText={formik.handleChange("lighting_requirements")}
+                  onBlur={formik.handleBlur("lighting_requirements")}
+                />
+              </Surface>
+
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <SegmentedButtons
+                  value={formik.values.snake}
+                  onValueChange={formik.handleChange("snake")}
+                  style={{ flex: 1 }}
+                  buttons={[
+                    {
+                      value: "snake",
+                      label: "Serpent",
+                    },
+                    {
+                      value: "lizard",
+                      label: "Varan",
+                    },
+                  ]}
+                />
+                <SegmentedButtons
+                  style={{ flex: 1 }}
+                  value={formik.values.sex}
+                  onValueChange={formik.handleChange("sex")}
+                  buttons={[
+                    {
+                      value: "female",
+                      label: "Femelle",
+                    },
+                    {
+                      value: "male",
+                      label: "Mâle",
+                    },
+                  ]}
+                />
               </View>
-            </Surface>
 
-            <Surface style={styles.inputSection}>
-              <TextInput
-                placeholder="Régime alimentaire"
-                value={formik.values.diet}
-                onChangeText={formik.handleChange("diet")}
-                onBlur={formik.handleBlur("diet")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Fréquence de repas"
-                value={formik.values.feeding_schedule}
-                onChangeText={formik.handleChange("feeding_schedule")}
-                onBlur={formik.handleBlur("feeding_schedule")}
-              />
-
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="État de santé"
-                value={formik.values.health_status}
-                onChangeText={formik.handleChange("health_status")}
-                onBlur={formik.handleBlur("health_status")}
-              />
-
-              <Divider style={{ marginHorizontal: 8 }} />
-              <DatePickerInput
-                mode="outlined"
-                style={styles.pickerInput}
-                dense
-                outlineStyle={styles.outlineStyle}
-                locale="fr"
-                label="Prochain rendez-vous chez le vétérinaire"
-                saveLabel="Confirmer"
-                withDateFormatInLabel={false}
-                value={inputDateNextVet}
-                onChange={(data) => {
-                  setInputDateNextVet(data);
-                  formik.setFieldValue("next_vet_visit", formatYYYYMMDD(data));
-                }}
-                inputMode="start"
-              />
-
-              <Divider style={{ marginHorizontal: 8 }} />
-              <DatePickerInput
-                mode="outlined"
-                style={styles.pickerInput}
-                dense
-                outlineStyle={styles.outlineStyle}
-                locale="fr"
-                label="Dernier repas"
-                saveLabel="Confirmer"
-                withDateFormatInLabel={false}
-                value={inputDate}
-                onChange={(data) => {
-                  setInputDate(data);
-                  formik.setFieldValue("last_fed", formatYYYYMMDD(data));
-                }}
-                inputMode="start"
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-            </Surface>
-            <Surface style={styles.inputSection}>
-              <TextInput
-                placeholder="Niveau d'humidité"
-                value={formik.values.humidity_level}
-                onChangeText={(text) => {
-                  const number = parseInt(text, 10);
-                  formik.setFieldValue(
-                    "humidity_level",
-                    isNaN(number) ? "" : number
-                  ); // Ne pas permettre un non-nombre
-                }}
-                onBlur={formik.handleBlur("humidity_level")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Plage de température"
-                value={formik.values.temperature_range}
-                onChangeText={formik.handleChange("temperature_range")}
-                onBlur={formik.handleBlur("temperature_range")}
-              />
-              <Divider style={{ marginHorizontal: 8 }} />
-              <TextInput
-                placeholder="Exigences d'éclairage"
-                value={formik.values.lighting_requirements}
-                onChangeText={formik.handleChange("lighting_requirements")}
-                onBlur={formik.handleBlur("lighting_requirements")}
-              />
-            </Surface>
-
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <SegmentedButtons
-                value={formik.values.snake}
-                onValueChange={formik.handleChange("snake")}
-                style={{ flex: 1 }}
-                buttons={[
-                  {
-                    value: "snake",
-                    label: "Serpent",
-                  },
-                  {
-                    value: "lizard",
-                    label: "Varan",
-                  },
-                ]}
-              />
-              <SegmentedButtons
-                style={{ flex: 1 }}
-                value={formik.values.sex}
-                onValueChange={formik.handleChange("sex")}
-                buttons={[
-                  {
-                    value: "female",
-                    label: "Femelle",
-                  },
-                  {
-                    value: "male",
-                    label: "Mâle",
-                  },
-                ]}
-              />
+              <Button
+                icon={"plus"}
+                loading={isPending}
+                disabled={!formik.isValid}
+                onPress={formik.submitForm}
+                mode="contained"
+              >
+                AJOUTER
+              </Button>
             </View>
-
-            <Button
-              icon={"plus"}
-              loading={isPending}
-              disabled={!formik.isValid}
-              onPress={formik.submitForm}
-              mode="contained"
-            >
-              AJOUTER
-            </Button>
-          </View>
+          </KeyboardAvoidingView>
         )}
       </Formik>
     </ScrollView>

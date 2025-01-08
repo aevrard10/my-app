@@ -164,14 +164,19 @@ const ReptileProfileDetails = ({ route }: Props) => {
           <TemperatureChart
             data={[
               {
-                value: data?.temperature_range || "",
+                value: data?.temperature_range || "0",
                 color:
                   data?.temperature_range > 30
                     ? data?.temperature_range > 30
                       ? "#FF7F97"
                       : "#3BE9DE"
                     : "#3BE9DE",
-                gradientCenterColor: "#006DFF",
+                gradientCenterColor:
+                  data?.temperature_range > 30
+                    ? data?.temperature_range > 30
+                      ? "#FF7F97"
+                      : "#006DFF"
+                    : "#006DFF",
                 focused: true,
               },
             ]}

@@ -1,27 +1,89 @@
 import {
   FlatList,
-  ImageBackground,
   ScrollView,
   StyleSheet,
   View,
   Platform,
   RefreshControl,
 } from "react-native";
-import { FAB, Portal, Text, useTheme } from "react-native-paper";
+import {
+  Avatar,
+  Chip,
+  FAB,
+  Icon,
+  Portal,
+  Searchbar,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
 import useReptilesQuery from "./hooks/queries/useReptilesQuery";
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import ScreenNames from "@shared/declarations/screenNames";
+import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
+import useBreakpoints from "@shared/hooks/useBreakpoints";
+import useSearchFilter from "@shared/hooks/useSearchFilter";
+import { useState } from "react";
+import React from "react";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const { data, isPending: isLoading, refetch } = useReptilesQuery();
   const { colors } = useTheme();
-
+  const [, user] = useCurrentUserQuery();
+  const { isXl } = useBreakpoints();
+  const [searchText, setSearchText] = useState("");
+  const navigation = useNavigation();
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: "Search",
+        onChangeText: (text) => {
+          // Do something
+        },
+      },
+    });
+  }, [navigation]);
+  const [filteredData] = useSearchFilter(
+    data,
+    searchText,
+    ["name", "species"],
+    undefined,
+    3
+  );
   return (
     <Portal.Host>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginHorizontal: 16,
+          marginTop: 16,
+        }}
+      >
+        <Avatar.Icon size={40} icon="turtle" />
+        <Text style={{ paddingLeft: 8 }} variant="titleMedium">
+          Bonjour, @{user?.username} !
+        </Text>
+      </View>
+      <View
+        style={{
+          justifyContent: "center",
+          margin: 16,
+        }}
+      >
+        <Searchbar
+          elevation={2}
+          mode="bar"
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder="Rechercher un reptile"
+          clearButtonMode="always"
+        />
+      </View>
+
       <ScrollView style={{ flexGrow: 1 }}>
         <RefreshControl
           refreshing={isLoading}
@@ -29,39 +91,11 @@ const Home = () => {
           colors={[colors.primary]}
           tintColor={colors.primary}
         />
-        <ImageBackground
-          blurRadius={2}
-          source={{
-            uri: "https://lapauseinfo.fr/wp-content/uploads/2024/02/26771140-une-bleu-serpent-naturel-contexte-gratuit-photo-scaled.jpeg",
-          }}
-          style={styles.backgroundImg}
-        />
-        <View style={styles.container}>
-          <Animated.View
-            entering={Platform.select({
-              android: SlideInDown,
-              default: FadeInDown,
-            }).delay(50)}
-          >
-            <Text
-              style={{
-                color: colors.onPrimary,
-              }}
-              variant="displayLarge"
-            >
-              {"ReptiTrack"}
-            </Text>
-          </Animated.View>
-        </View>
-
         <View style={styles.flatListContainer}>
-          {/* <Text style={styles.myReptileContainer} variant="headlineMedium">
-              Mes reptiles
-            </Text> */}
           <FlatList
             scrollEnabled={false}
-            contentContainerStyle={styles.contentContainerStyle}
-            data={data}
+            contentContainerStyle={[styles.contentContainerStyle]}
+            data={filteredData}
             renderItem={({ item, index }) => (
               <Animated.View
                 entering={Platform.select({
@@ -95,24 +129,6 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
-  myReptileContainer: {
-    marginTop: 20,
-  },
-  backgroundImg: {
-    width: "100%",
-    height: 200,
-  },
-  card: {
-    margin: 20,
-  },
-  container: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    width: "100%",
-    height: 200,
-  },
   fab: {
     position: "absolute",
     margin: 16,
@@ -126,9 +142,10 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
-    alignItems: "flex-start",
+    // alignItems: "flex-start",
     width: "100%",
+    alignItems: "flex-start",
+    justifyContent: "center",
   },
 });
 

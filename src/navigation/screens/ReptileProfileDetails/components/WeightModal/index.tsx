@@ -1,13 +1,7 @@
 import React, { FC } from "react";
+import { TextInput, View, StyleSheet, ScrollView, Modal } from "react-native";
 import {
-  TextInput,
-  View,
-  StyleSheet,
-  TextInputProps,
-  ScrollView,
-} from "react-native";
-import {
-  Modal,
+  // Modal,
   Button,
   Text,
   Surface,
@@ -148,6 +142,7 @@ const styles = StyleSheet.create({
   },
   button: {
     gap: 10,
+    marginHorizontal: 40,
   },
   inputSection: {
     backgroundColor: "#fff",
