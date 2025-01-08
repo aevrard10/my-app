@@ -32,7 +32,7 @@ const initialValues = {
   notes: "",
 };
 const Agenda = () => {
-  const { data, isLoading, refetch } = useReptileEventsQuery();
+  const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);

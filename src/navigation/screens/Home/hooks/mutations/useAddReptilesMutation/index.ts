@@ -7,6 +7,7 @@ import { gql } from "graphql-request";
 const mutation = gql`
   mutation addReptilesMutation($input: AddReptileInput!) {
     addReptile(input: $input) {
+      id
       name
     }
   }

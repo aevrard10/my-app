@@ -2,6 +2,8 @@
 Indicates exactly one field must be supplied and this field must not be `null`.
 """
 directive @oneOf on INPUT_OBJECT
+scalar Upload
+
 type User {
   id: ID!
   username: String!

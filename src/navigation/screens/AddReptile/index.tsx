@@ -1,4 +1,11 @@
-import { Button, Divider, SegmentedButtons, Surface } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Divider,
+  SegmentedButtons,
+  Surface,
+  TouchableRipple,
+} from "react-native-paper";
 import useAddReptilesMutation from "../Home/hooks/mutations/useAddReptilesMutation";
 import { Formik } from "formik";
 import useReptilesQuery from "../Home/hooks/queries/useReptilesQuery";
@@ -6,11 +13,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TextInput from "@shared/components/TextInput";
+import * as ImagePicker from "expo-image-picker";
+import handleImageUpload from "@shared/utils/handleImageUpload";
 
 const initialValues = {
   name: "",
@@ -48,6 +57,7 @@ const schema = Yup.object().shape({
   sex: Yup.string().oneOf(["male", "female"]),
   next_vet_visit: Yup.string().required(),
 });
+
 const AddReptile = () => {
   const { mutate: addReptile, isPending } = useAddReptilesMutation();
   const queryClient = useQueryClient();
@@ -60,9 +70,61 @@ const AddReptile = () => {
   const [inputDateNextVet, setInputDateNextVet] = useState<Date | undefined>(
     undefined
   );
+  const [imageUri, setImageUri] = useState<string | null>();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
+  const pickImage = async () => {
+    try {
+      if (Platform.OS === "web") {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = async (event: any) => {
+          const file = event.target.files[0];
+          if (file) {
+            setImageUri(URL.createObjectURL(file)); // Prévisualisation
+            setImageUrl(file);
+          }
+        };
+        input.click();
+      } else {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets?.[0]?.uri) {
+          setImageUri(result.assets[0].uri); // Prévisualisation
+        }
+      }
+    } catch (error) {
+      Alert.alert("Erreur", "Impossible de sélectionner l'image.");
+    }
+  };
   return (
     <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.avatarContainer}>
+          <TouchableRipple
+            style={{
+              borderRadius: 100,
+              overflow: "hidden",
+            }}
+            onPress={pickImage}
+          >
+            <Avatar.Image
+              size={150}
+              source={
+                imageUri
+                  ? { uri: imageUri }
+                  : require("../../../assets/twoReptile/reptile2.png")
+              }
+            />
+          </TouchableRipple>
+        </View>
+      </View>
+
       <Formik
         initialValues={initialValues}
         validationSchema={schema}
@@ -90,9 +152,17 @@ const AddReptile = () => {
               },
             },
             {
-              onSuccess: () => {
-                resetForm();
-
+              onSuccess: async (data) => {
+                if (imageUrl || imageUri) {
+                  if (Platform.OS === "web") {
+                    await handleImageUpload(imageUrl, data?.addReptile?.id); // Upload the image to backend
+                  }
+                  if (Platform.OS !== "web") {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    await handleImageUpload(blob, data?.addReptile?.id); // Envoi au backend
+                  }
+                }
                 queryClient.invalidateQueries({
                   queryKey: useReptilesQuery.queryKey,
                 });
@@ -101,7 +171,7 @@ const AddReptile = () => {
                   label: "Ok",
                 });
               },
-              onError: () => {
+              onError: (e) => {
                 show("Une erreur est survenue, Veuillez réessayer ...", {
                   label: "Ok",
                 });
@@ -313,6 +383,12 @@ const AddReptile = () => {
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
+  avatarContainer: { padding: 10 },
   outlineStyle: {
     borderWidth: 0,
   },

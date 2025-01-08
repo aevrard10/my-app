@@ -12,6 +12,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  Upload: { input: unknown; output: unknown; }
 };
 
 export type AddMeasurementInput = {
@@ -153,7 +154,7 @@ export type MutationMarkAllNotificationsAsReadArgs = {
 
 
 export type MutationMarkNotificationAsReadArgs = {
-  notification_id: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -165,7 +166,7 @@ export type Notification = {
   created_at: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   message: Scalars['String']['output'];
-  read: Scalars['Boolean']['output'];
+  read?: Maybe<Scalars['Boolean']['output']>;
   sent: Scalars['Boolean']['output'];
   sent_at?: Maybe<Scalars['String']['output']>;
   user_id: Scalars['Int']['output'];
@@ -263,7 +264,7 @@ export type AddReptilesMutationVariables = Exact<{
 }>;
 
 
-export type AddReptilesMutation = { addReptile?: { name: string } | undefined };
+export type AddReptilesMutation = { addReptile?: { id: string, name: string } | undefined };
 
 export type RemoveReptileMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -292,16 +293,16 @@ export type LoginMutationVariables = Exact<{
 export type LoginMutation = { login: { success: boolean, message: string, token?: string | undefined, user?: { id: string, username: string, email: string } | undefined } };
 
 export type MarkNotificationAsReadMutationVariables = Exact<{
-  notification_id: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 }>;
 
 
-export type MarkNotificationAsReadMutation = { markNotificationAsRead: { read: boolean } };
+export type MarkNotificationAsReadMutation = { markNotificationAsRead: { read?: boolean | undefined } };
 
 export type GetNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetNotificationsQuery = { getNotifications: Array<{ id: number, user_id: number, message: string, sent: boolean, read: boolean, created_at: string, sent_at?: string | undefined }> };
+export type GetNotificationsQuery = { getNotifications: Array<{ id: number, user_id: number, message: string, sent: boolean, read?: boolean | undefined, created_at: string, sent_at?: string | undefined }> };
 
 export type RegisterMutationVariables = Exact<{
   input: RegisterInput;
