@@ -41,10 +41,13 @@ const CardComponent: FC<CardComponentProps> = (props) => {
     );
   }, [item, mutate]);
   return (
-    <Card style={styles.card} elevation={5}>
+    <Card style={styles.card}>
       <Card.Cover
         source={{
           uri: item?.image_url,
+        }}
+        style={{
+          backgroundColor: "#4CAF50",
         }}
       />
       <Card.Title
@@ -91,6 +94,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
 const styles = StyleSheet.create({
   card: {
     margin: 20,
+    backgroundColor: "#fff",
   },
 });
 export default CardComponent;
