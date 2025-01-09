@@ -1,5 +1,5 @@
-import { Card, Button, Dialog, Portal, Text } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import { Card, Button, Dialog, Portal, Text, Avatar } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
 import { FC, useCallback, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Reptile } from "@shared/graphql/utils/types/types.generated";
@@ -42,6 +42,28 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   }, [item, mutate]);
   return (
     <Card style={styles.card}>
+      {item.sex && (
+        <View
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            overflow: "hidden",
+          }}
+        >
+          <Avatar.Icon
+            size={40}
+            style={{
+              borderRadius: 0,
+              backgroundColor: item?.sex === "male" ? "#6c998d" : "#a17884",
+              borderTopLeftRadius: 24,
+              borderBottomRightRadius: 24,
+            }}
+            icon={item?.sex === "male" ? "gender-male" : "gender-female"}
+            color={"#fff"}
+          />
+          "
+        </View>
+      )}
       <Card.Cover
         source={{
           uri: item?.image_url,

@@ -7,14 +7,12 @@ import {
   RefreshControl,
 } from "react-native";
 import {
-  Avatar,
-  Chip,
   FAB,
-  Icon,
   Portal,
   Searchbar,
-  Text,
   useTheme,
+  Avatar,
+  Text,
 } from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
@@ -22,30 +20,19 @@ import useReptilesQuery from "./hooks/queries/useReptilesQuery";
 import Animated, { FadeInDown, SlideInDown } from "react-native-reanimated";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import ScreenNames from "@shared/declarations/screenNames";
-import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
-import useBreakpoints from "@shared/hooks/useBreakpoints";
+
 import useSearchFilter from "@shared/hooks/useSearchFilter";
 import { useState } from "react";
 import React from "react";
+import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 
-const Home = () => {
+const Reptiles = () => {
   const { navigate } = useNavigation();
   const { data, isPending: isLoading, refetch } = useReptilesQuery();
   const { colors } = useTheme();
-  const [, user] = useCurrentUserQuery();
-  const { isXl } = useBreakpoints();
+
   const [searchText, setSearchText] = useState("");
-  const navigation = useNavigation();
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerSearchBarOptions: {
-        placeholder: "Search",
-        onChangeText: (text) => {
-          // Do something
-        },
-      },
-    });
-  }, [navigation]);
+  const [, user] = useCurrentUserQuery();
   const [filteredData] = useSearchFilter(
     data,
     searchText,
@@ -68,6 +55,7 @@ const Home = () => {
           Bonjour, @{user?.username} !
         </Text>
       </View>
+
       <View
         style={{
           justifyContent: "center",
@@ -149,4 +137,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { Home };
+export { Reptiles };

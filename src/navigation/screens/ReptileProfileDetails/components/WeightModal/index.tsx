@@ -8,6 +8,7 @@ import {
   Divider,
   Portal,
   Appbar,
+  SegmentedButtons,
 } from "react-native-paper";
 import { ErrorMessage, Formik } from "formik";
 import { DatePickerInput } from "react-native-paper-dates";
@@ -23,6 +24,8 @@ const initialValues = {
   weight: 0,
   size: 0,
   date: "",
+  size_mesure: "cm",
+  weight_mesure: "g",
 };
 
 const schema = {
@@ -66,26 +69,77 @@ const WeightModal: FC<WeightModalProps> = (props) => {
           </Appbar.Header>
           <ScrollView>
             <Surface style={styles.inputSection}>
-              <TextInput
-                placeholder="Poids"
-                value={formik.values.weight}
-                onChangeText={(text) => {
-                  const number = parseInt(text, 10);
-                  formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginVertical: 10,
                 }}
-                style={styles.input}
-              />
+              >
+                <TextInput
+                  placeholder="Poids"
+                  value={formik.values.weight}
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                  }}
+                  style={styles.input}
+                />
+                <SegmentedButtons
+                  onValueChange={(value) => {
+                    formik.setFieldValue("weight_mesure", value);
+                  }}
+                  value={formik.values.weight_mesure}
+                  buttons={[
+                    {
+                      value: "g",
+                      label: "g",
+                    },
+                    {
+                      value: "kg",
+                      label: "kg",
+                    },
+                  ]}
+                />
+              </View>
               <Divider style={{ marginHorizontal: 8 }} />
-
-              <TextInput
-                placeholder="Taille"
-                value={formik.values.size}
-                onChangeText={(text) => {
-                  const number = parseInt(text, 10);
-                  formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginVertical: 10,
                 }}
-                style={styles.input}
-              />
+              >
+                <TextInput
+                  placeholder="Taille"
+                  value={formik.values.size}
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                  }}
+                  style={styles.input}
+                />
+                <SegmentedButtons
+                  onValueChange={(value) => {
+                    formik.setFieldValue("size_mesure", value);
+                  }}
+                  value={formik.values.size_mesure}
+                  buttons={[
+                    {
+                      value: "cm",
+                      label: "cm",
+                    },
+                    {
+                      value: "m",
+                      label: "m",
+                    },
+                    {
+                      value: "mm",
+                      label: "mm",
+                    },
+                  ]}
+                />
+              </View>
               <Divider style={{ marginHorizontal: 8 }} />
 
               <DatePickerInput

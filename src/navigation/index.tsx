@@ -15,6 +15,8 @@ import Register from "./screens/Register";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
 import { Image } from "react-native";
+import { Reptiles } from "./screens/Reptiles";
+import Feed from "./screens/Feed";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -22,12 +24,24 @@ const HomeTabs = () => {
     <Tab.Navigator>
       <Tab.Screen
         name={ScreenNames.HOME}
-        component={Home}
+        component={Reptiles}
         options={{
           title: "Accueil",
           tabBarActiveTintColor: "#8BC34A",
           tabBarIcon: ({ size }) => (
-            <Icon source={"snake"} size={size} color={"#4CAF50"} />
+            <Icon source={"home"} size={size} color={"#4CAF50"} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name={ScreenNames.FEED}
+        component={Feed}
+        options={{
+          title: "Aliments",
+          tabBarActiveTintColor: "#8BC34A",
+          tabBarIcon: ({ size }) => (
+            <Icon source={"food-fork-drink"} color={"#4CAF50"} size={size} />
           ),
           headerShown: false,
         }}
@@ -44,6 +58,7 @@ const HomeTabs = () => {
           headerShown: false,
         }}
       />
+
       <Tab.Screen
         name={ScreenNames.NOTIFICATIONS}
         component={Notifications}

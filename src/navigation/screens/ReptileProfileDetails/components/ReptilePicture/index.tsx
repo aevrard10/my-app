@@ -4,7 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Avatar, Chip, TouchableRipple } from "react-native-paper";
 import { ReptileQuery } from "@shared/graphql/utils/types/types.generated";
 
-import handleImageUpload from "@shared/utils/handleImageUpload";
+import handleImageUpload from "@shared/utils/handleImageUpload/index.web";
 
 type ReptilePictureProps = {
   data: ReptileQuery["reptile"];

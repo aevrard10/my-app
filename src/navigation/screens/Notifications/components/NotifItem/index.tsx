@@ -96,7 +96,6 @@ const NotifItem: FC<NotifItemProps> = (props) => {
                   color: colors.outline,
                 }}
               >
-                {" ⸱ "}
                 {notificationsMultiFormat(created_at)}
               </Text>
             </View>

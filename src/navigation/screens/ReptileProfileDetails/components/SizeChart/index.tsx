@@ -17,6 +17,7 @@ const SizeChart: FC<SizeChartProps> = (props) => {
       style={[
         {
           paddingVertical: 20,
+          marginBottom: 20,
         },
         Platform.select({
           web: {
@@ -105,7 +106,7 @@ const SizeChart: FC<SizeChartProps> = (props) => {
                   }}
                 >
                   <Text style={{ fontWeight: "bold", textAlign: "center" }}>
-                    {items[0].value + "cm"}
+                    {items[0].value + " " + items[0].size_mesure}
                   </Text>
                 </View>
               </View>

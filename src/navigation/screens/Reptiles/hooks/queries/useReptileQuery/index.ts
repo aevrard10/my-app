@@ -21,31 +21,13 @@ const query = gql`
       diet
       humidity_level
       temperature_range
-      lighting_requirements
       health_status
       last_vet_visit
       next_vet_visit
-      medical_history {
-        date
-        diagnosis
-        treatment
-        vet_name
-        notes
-      }
-      behavior_notes
-      handling_notes
+
       acquired_date
       origin
       location
-      enclosure {
-        id
-        type
-        dimensions
-        temperature
-        humidity
-        lighting
-        notes
-      }
     }
   }
 `;

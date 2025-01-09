@@ -15,6 +15,7 @@ const query = gql`
       age
       last_fed
       image_url
+      sex
     }
   }
 `;

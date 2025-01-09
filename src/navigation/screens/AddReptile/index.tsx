@@ -6,9 +6,7 @@ import {
   Surface,
   TouchableRipple,
 } from "react-native-paper";
-import useAddReptilesMutation from "../Home/hooks/mutations/useAddReptilesMutation";
 import { Formik } from "formik";
-import useReptilesQuery from "../Home/hooks/queries/useReptilesQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import * as Yup from "yup";
@@ -26,7 +24,9 @@ import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TextInput from "@shared/components/TextInput";
 import * as ImagePicker from "expo-image-picker";
-import handleImageUpload from "@shared/utils/handleImageUpload";
+import handleImageUpload from "@shared/utils/handleImageUpload/index.web";
+import useAddReptilesMutation from "../Reptiles/hooks/mutations/useAddReptilesMutation";
+import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
 
 const initialValues = {
   name: "",
@@ -39,7 +39,6 @@ const initialValues = {
   diet: "",
   humidity_level: null,
   temperature_range: "",
-  lighting_requirements: "",
   health_status: "",
   acquired_date: "",
   origin: "",
@@ -56,7 +55,6 @@ const schema = Yup.object().shape({
   diet: Yup.string(),
   humidity_level: Yup.number(),
   temperature_range: Yup.string(),
-  lighting_requirements: Yup.string(),
   health_status: Yup.string(),
   acquired_date: Yup.string(),
   origin: Yup.string(),
@@ -150,7 +148,6 @@ const AddReptile = () => {
                 diet: values.diet,
                 humidity_level: values.humidity_level,
                 temperature_range: values.temperature_range,
-                lighting_requirements: values.lighting_requirements,
                 health_status: values.health_status,
                 acquired_date: values.acquired_date,
                 origin: values.origin,
@@ -343,13 +340,6 @@ const AddReptile = () => {
                   onChangeText={formik.handleChange("temperature_range")}
                   onBlur={formik.handleBlur("temperature_range")}
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
-                <TextInput
-                  placeholder="Exigences d'éclairage"
-                  value={formik.values.lighting_requirements}
-                  onChangeText={formik.handleChange("lighting_requirements")}
-                  onBlur={formik.handleBlur("lighting_requirements")}
-                />
               </Surface>
 
               <View style={{ flexDirection: "row", gap: 10 }}>
@@ -375,11 +365,11 @@ const AddReptile = () => {
                   buttons={[
                     {
                       value: "female",
-                      label: "Femelle",
+                      icon: "gender-female",
                     },
                     {
                       value: "male",
-                      label: "Mâle",
+                      icon: "gender-male",
                     },
                   ]}
                 />

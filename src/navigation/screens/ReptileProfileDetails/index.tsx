@@ -9,7 +9,6 @@ import {
   useTheme,
   Text,
 } from "react-native-paper";
-import useReptileQuery from "../Home/hooks/queries/useReptileQuery";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
@@ -25,6 +24,7 @@ import TemperatureChart from "./components/TemperatureChart";
 import HumidityChart from "./components/HumidityChart";
 import TextInput from "@shared/components/TextInput";
 import SizeChart from "./components/SizeChart";
+import useReptileQuery from "../Reptiles/hooks/queries/useReptileQuery";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -84,7 +84,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
     <>
       <ScrollView>
         <ReptilePicture data={data} />
-
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate("EditReptile", { id })}
+        >
+          Nourrissage
+        </Button>
         <Surface style={styles.inputSection}>
           <TextInfo title="Âge" value={data?.age + " ans" || "-"} />
           <TextInfo title="Espèce" value={data?.species || ""} />
@@ -112,13 +117,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             noDivider
           />
         </Surface>
-        <Surface style={styles.inputSection}>
-          <TextInfo
-            value={data?.lighting_requirements || ""}
-            title="Exigences d'éclairage"
-            noDivider
-          />
-        </Surface>
+
         <Surface style={styles.inputSection}>
           <TextInfo value={data?.health_status || ""} title="État de santé" />
           <TextInfo
@@ -131,20 +130,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             noDivider
           />
         </Surface>
-        {/* <TextInfo title="Historique médical" value={data?.medical_history || ""} /> */}
-        <Surface style={styles.inputSection}>
-          <TextInfo
-            title="Notes de comportement"
-            value={data?.behavior_notes || ""}
-          />
-          <TextInfo
-            title="Notes de manipulation"
-            value={data?.handling_notes || ""}
-            noDivider
-          />
-        </Surface>
 
-        {/* <TextInfo title="Enclos" value={data?.enclosure?.type || ""} /> */}
         <View style={{ margin: 20 }}>
           <TextInput
             multiline
@@ -204,6 +190,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             data={measurements?.map((m) => ({
               date: m.date,
               value: m.weight,
+              weight_mesure: m.weight_mesure,
             }))}
             isPending={isPending}
           />
@@ -211,11 +198,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
             data={measurements?.map((m) => ({
               date: m.date,
               value: m.size,
+              size_mesure: m.size_mesure,
             }))}
             isPending={isPending}
           />
         </View>
-        <EventCalendar
+        {/* <EventCalendar
           onDayPress={(day) => setSelectedDate(day.dateString)}
           markedDates={{
             [selectedDate]: {
@@ -224,7 +212,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
               selectedTextColor: "white",
             },
           }}
-        />
+        /> */}
       </ScrollView>
 
       <FAB
@@ -250,6 +238,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 weight: values.weight,
                 size: values.size,
                 date: values.date,
+                size_mesure: values.size_mesure,
+                weight_mesure: values.weight_mesure,
               },
             },
             {
@@ -270,13 +260,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
         reptile_id={id}
         onPress={() => setShowWeightModal(false)}
       />
-      <EventModal
+      {/* <EventModal
         visible={!!selectedDate}
         value={eventDescription}
         onChangeText={setEventDescription}
         addPress={handleAddEvent}
         cancelPress={() => setSelectedDate("")}
-      />
+      /> */}
     </>
   );
 };

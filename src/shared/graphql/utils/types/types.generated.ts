@@ -19,7 +19,9 @@ export type AddMeasurementInput = {
   date: Scalars['String']['input'];
   reptile_id: Scalars['ID']['input'];
   size: Scalars['Float']['input'];
+  size_mesure: Scalars['String']['input'];
   weight: Scalars['Float']['input'];
+  weight_mesure: Scalars['String']['input'];
 };
 
 export type AddNotesResponse = {
@@ -42,7 +44,6 @@ export type AddReptileInput = {
   health_status?: InputMaybe<Scalars['String']['input']>;
   humidity_level?: InputMaybe<Scalars['Int']['input']>;
   last_fed?: InputMaybe<Scalars['String']['input']>;
-  lighting_requirements?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   next_vet_visit: Scalars['String']['input'];
@@ -92,7 +93,9 @@ export type Measurement = {
   id: Scalars['ID']['output'];
   reptile_id: Scalars['ID']['output'];
   size: Scalars['Float']['output'];
+  size_mesure: Scalars['String']['output'];
   weight: Scalars['Float']['output'];
+  weight_mesure: Scalars['String']['output'];
 };
 
 export type MedicalRecord = {
@@ -206,20 +209,17 @@ export type RegisterInput = {
 export type Reptile = {
   acquired_date?: Maybe<Scalars['String']['output']>;
   age: Scalars['Int']['output'];
-  behavior_notes?: Maybe<Scalars['String']['output']>;
   diet?: Maybe<Scalars['String']['output']>;
   documents?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   enclosure?: Maybe<Enclosure>;
   feeding_schedule?: Maybe<Scalars['String']['output']>;
   gallery?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  handling_notes?: Maybe<Scalars['String']['output']>;
   health_status?: Maybe<Scalars['String']['output']>;
   humidity_level?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   image_url?: Maybe<Scalars['String']['output']>;
   last_fed: Scalars['String']['output'];
   last_vet_visit?: Maybe<Scalars['String']['output']>;
-  lighting_requirements?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   medical_history?: Maybe<Array<Maybe<MedicalRecord>>>;
   name: Scalars['String']['output'];
@@ -258,32 +258,6 @@ export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string, notes?: string | undefined } | undefined> | undefined };
-
-export type AddReptilesMutationVariables = Exact<{
-  input: AddReptileInput;
-}>;
-
-
-export type AddReptilesMutation = { addReptile?: { id: string, name: string } | undefined };
-
-export type RemoveReptileMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type RemoveReptileMutation = { deleteReptile: { success: boolean, message: string } };
-
-export type ReptileQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined, sort_of_species?: string | undefined, feeding_schedule?: string | undefined, diet?: string | undefined, humidity_level?: number | undefined, temperature_range?: string | undefined, lighting_requirements?: string | undefined, health_status?: string | undefined, last_vet_visit?: string | undefined, next_vet_visit?: string | undefined, behavior_notes?: string | undefined, handling_notes?: string | undefined, acquired_date?: string | undefined, origin?: string | undefined, location?: string | undefined, medical_history?: Array<{ date: string, diagnosis?: string | undefined, treatment?: string | undefined, vet_name?: string | undefined, notes?: string | undefined } | undefined> | undefined, enclosure?: { id: string, type: string, dimensions: string, temperature?: string | undefined, humidity?: number | undefined, lighting?: string | undefined, notes?: string | undefined } | undefined } | undefined };
-
-export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ReptilesQuery = { reptiles?: Array<{ id: string, name: string, species: string, age: number, last_fed: string, image_url?: string | undefined } | undefined> | undefined };
 
 export type LoginMutationVariables = Exact<{
   input: LoginInput;
@@ -331,7 +305,33 @@ export type MeasurementsQueryVariables = Exact<{
 }>;
 
 
-export type MeasurementsQuery = { measurements: Array<{ id: string, reptile_id: string, date: string, weight: number, size: number }> };
+export type MeasurementsQuery = { measurements: Array<{ id: string, reptile_id: string, date: string, weight: number, size: number, size_mesure: string, weight_mesure: string }> };
+
+export type AddReptilesMutationVariables = Exact<{
+  input: AddReptileInput;
+}>;
+
+
+export type AddReptilesMutation = { addReptile?: { id: string, name: string } | undefined };
+
+export type RemoveReptileMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveReptileMutation = { deleteReptile: { success: boolean, message: string } };
+
+export type ReptileQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ReptileQuery = { reptile?: { id: string, name: string, species: string, age: number, last_fed: string, notes?: string | undefined, image_url?: string | undefined, sort_of_species?: string | undefined, feeding_schedule?: string | undefined, diet?: string | undefined, humidity_level?: number | undefined, temperature_range?: string | undefined, health_status?: string | undefined, last_vet_visit?: string | undefined, next_vet_visit?: string | undefined, acquired_date?: string | undefined, origin?: string | undefined, location?: string | undefined, medical_history?: Array<{ date: string, diagnosis?: string | undefined, treatment?: string | undefined, vet_name?: string | undefined, notes?: string | undefined } | undefined> | undefined, enclosure?: { id: string, type: string, dimensions: string, temperature?: string | undefined, humidity?: number | undefined, lighting?: string | undefined, notes?: string | undefined } | undefined } | undefined };
+
+export type ReptilesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ReptilesQuery = { reptiles?: Array<{ id: string, name: string, species: string, age: number, last_fed: string, image_url?: string | undefined, sex?: string | undefined } | undefined> | undefined };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 

@@ -105,7 +105,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
                   }}
                 >
                   <Text style={{ fontWeight: "bold", textAlign: "center" }}>
-                    {items[0].value + "kg"}
+                    {items[0].value + " " + items[0].weight_mesure}
                   </Text>
                 </View>
               </View>

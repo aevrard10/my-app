@@ -14,6 +14,8 @@ const query = gql`
       date
       weight
       size
+      size_mesure
+      weight_mesure
     }
   }
 `;
