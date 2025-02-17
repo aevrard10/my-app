@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView, View } from "react-native";
 import {
+  ActivityIndicator,
   Avatar,
   Card,
   Chip,
@@ -14,9 +15,11 @@ import getFoodIcon from "../Feed/utils/getFoodIcon";
 const FeedHistory = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { data } = useFoodStockHistoryQuery();
+  const { data, isPending } = useFoodStockHistoryQuery();
 
-
+if (isPending) {
+  return <ActivityIndicator />;
+}
 
   return (
     <>

@@ -1,4 +1,4 @@
-enum FoodType {
+export enum FoodType {
     RONGEUR = "rongeur",
     INSECTES = "insectes",
     VOLAILLE = "volaille",
