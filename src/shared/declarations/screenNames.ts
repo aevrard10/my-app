@@ -12,6 +12,7 @@ enum ScreenNames {
   NOTIFICATIONS = "Notifications",
   ADD_MEASUREMENTS = "AddMeasurements",
   ADD_FEED = "AddFeed",
+FEED_HISTORY = "FeedHistory",
 }
 
 export default ScreenNames;

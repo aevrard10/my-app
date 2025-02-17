@@ -1,6 +1,6 @@
 import { Card, Button, Dialog, Portal, Text, Avatar } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Reptile } from "@shared/graphql/utils/types/types.generated";
 import useRemoveReptileMutation from "../../hooks/mutations/useRemoveReptile";
@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import useReptilesQuery from "../../hooks/queries/useReptilesQuery";
 import { capitalize } from "lodash";
 import ScreenNames from "@shared/declarations/screenNames";
+import { getBackgroundColor, getIcon } from "../../utils/getSex";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -18,8 +19,8 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   const queryClient = useQueryClient();
   const { mutate } = useRemoveReptileMutation();
   const [showDialog, setShowDialog] = useState(false);
-  // TODO: hover retourne cardComponent et affiche les infos du reptile
-
+  const iconSex = useMemo(() => getIcon(item?.sex), [item?.sex]);
+const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]);
   const removeReptile = useCallback(() => {
     mutate(
       { id: item?.id },
@@ -42,7 +43,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   }, [item, mutate]);
   return (
     <Card style={styles.card} mode="elevated">
-      {item.sex && (
+      {item?.sex && (
         <View
           style={{
             position: "absolute",
@@ -54,11 +55,11 @@ const CardComponent: FC<CardComponentProps> = (props) => {
             size={40}
             style={{
               borderRadius: 0,
-              backgroundColor: item?.sex === "Mâle" ? "#6c998d" : "#a17884",
+              backgroundColor: backgroundColor,
               borderTopLeftRadius: 24,
               borderBottomRightRadius: 24,
             }}
-            icon={item?.sex === "Mâle" ? "gender-male" : "gender-female"}
+            icon={iconSex}
             color={"#fff"}
           />
           "

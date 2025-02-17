@@ -7,6 +7,7 @@ enum QueriesKeys {
   GET_NOTIFICATIONS = "getNotifications",
   MESUAREMENTS = "mesuarements",
   STOCK = "stock",
+  FEED_HISTORY = "feedHistory",
 }
 
 export default QueriesKeys;

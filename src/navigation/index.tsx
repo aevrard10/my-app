@@ -19,6 +19,7 @@ import { Reptiles } from "./screens/Reptiles";
 import Feed from "./screens/Feed";
 import AddMesuarements from "./screens/AddMesuarements";
 import AddFeed from "./screens/AddFeed";
+import FeedHistory from "./screens/FeedHistory";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -158,6 +159,14 @@ const MyStack = () => {
             options={{
               presentation: "modal",
               title: "Ajouter des aliments",
+            }}
+          />
+             <Stack.Screen
+            name={ScreenNames.FEED_HISTORY}
+            component={FeedHistory}
+            options={{
+              presentation: "modal",
+              title: "Historique des stocks",
             }}
           />
           <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />

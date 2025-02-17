@@ -310,10 +310,22 @@ export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string, notes?: string | undefined } | undefined> | undefined };
 
+export type UpdateFoodStockMutationVariables = Exact<{
+  input: UpdateFoodStockInput;
+}>;
+
+
+export type UpdateFoodStockMutation = { updateFoodStock: { success: boolean, message: string } };
+
 export type FoodStockQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type FoodStockQuery = { foodStock: Array<{ id: string, name: string, quantity: number, unit: string, last_updated: string, type: string }> };
+
+export type FoodStockHistoryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FoodStockHistoryQuery = { foodStockHistory: Array<{ id: string, food_id: string, quantity_change: number, reason?: string | undefined, date: string }> };
 
 export type LoginMutationVariables = Exact<{
   input: LoginInput;

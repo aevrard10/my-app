@@ -67,7 +67,7 @@ const AddFeed = () => {
             <Surface style={styles.inputSection}>
               {/* Sélecteur de type de nourriture */}
               <View style={styles.fieldContainer}>
-                <Button mode="outlined" onPress={() => setVisible(true)}>
+                <Button mode="contained" onPress={() => setVisible(true)}>
                   {formik.values.name || "Sélectionner une nourriture"}
                 </Button>
                 <Portal>
