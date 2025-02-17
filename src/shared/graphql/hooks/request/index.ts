@@ -10,6 +10,8 @@ import {
 import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 import computeHeaders from "@shared/graphql/utils/computeHeaders";
 import { assign } from "lodash";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 function parseRequestExtendedArgs<TVariables extends RequestVariables>(
   queryOrOptions: string | Options<TVariables>,
   variables?: TVariables,
@@ -28,7 +30,9 @@ async function getToken(): Promise<string | null> {
   try {
     const data = await queryClient.ensureQueryData({
       queryKey: useCurrentTokenQuery.queryKey,
-      queryFn: useCurrentTokenQuery.queryFn,
+      queryFn: async () => {
+        return await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
+      }, 
     });
     return data as string;
   } catch (e) {

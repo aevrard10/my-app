@@ -24,6 +24,7 @@ const query = gql`
       health_status
       acquired_date
       origin
+      sex
       location
     }
   }

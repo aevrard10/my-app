@@ -40,6 +40,28 @@ const theme = {
     secondaryContainer: "#E8F5E9", // Vert clair pour les éléments secondaires
   },
 };
+
+const linking = {
+  prefixes: ["reptitrack://", "https://reptitrack.com"],
+  config: {
+    screens: {
+      HomeTabs: "reptiTrack",
+      Home: "my-reptiles",
+      ReptileProfileDetails: "reptile/:id",
+      AddMeasurements: "add-measurements",
+      Feed: "alimentations",
+      Agenda: "agenda",
+      Notifications: "notifications",
+      AddFeed: "add-feed",
+      FeedHistory: "feed-history",
+      AddReptile: "add-reptile",
+      Login: "login",
+      Register: "register",
+   
+    },
+  },
+};
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -77,13 +99,7 @@ const App = () => {
         <PaperProvider theme={theme}>
           <QueryClientProvider client={queryClient}>
             <NavigationContainer
-              linking={{
-                enabled: "auto",
-                prefixes: [
-                  // Change the scheme to match your app's scheme defined in app.json
-                  "reptitrack://",
-                ],
-              }}
+              linking={linking}
               onReady={() => {
                 SplashScreen.hideAsync();
               }}

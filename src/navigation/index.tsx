@@ -1,11 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HeaderButton } from "@react-navigation/elements";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Home } from "./screens/Home";
 import ReptileProfileDetails from "./screens/ReptileProfileDetails";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
-import { Appbar, Icon, IconButton } from "react-native-paper";
+import {  Icon, IconButton } from "react-native-paper";
 import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
@@ -14,7 +13,6 @@ import Agenda from "./screens/Agenda";
 import Register from "./screens/Register";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
-import { Image } from "react-native";
 import { Reptiles } from "./screens/Reptiles";
 import Feed from "./screens/Feed";
 import AddMesuarements from "./screens/AddMesuarements";
@@ -84,6 +82,7 @@ const MyStack = () => {
   console.log("token", token);
   return (
     <Stack.Navigator
+    
       screenOptions={{
         header: ({ options, route, back }) => (
           <Header

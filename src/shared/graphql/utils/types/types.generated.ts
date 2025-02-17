@@ -129,6 +129,7 @@ export type Mutation = {
   markNotificationAsRead: Notification;
   register: AuthPayload;
   updateFoodStock: MutationResponse;
+  updateReptile: ReptileUpdateResponse;
 };
 
 
@@ -191,6 +192,12 @@ export type MutationRegisterArgs = {
 
 export type MutationUpdateFoodStockArgs = {
   input: UpdateFoodStockInput;
+};
+
+
+export type MutationUpdateReptileArgs = {
+  id: Scalars['ID']['input'];
+  input: ReptileInput;
 };
 
 export type MutationResponse = {
@@ -269,6 +276,30 @@ export type ReptileEvent = {
   event_time: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   notes?: Maybe<Scalars['String']['output']>;
+};
+
+export type ReptileInput = {
+  acquired_date?: InputMaybe<Scalars['String']['input']>;
+  age?: InputMaybe<Scalars['Int']['input']>;
+  diet?: InputMaybe<Scalars['String']['input']>;
+  feeding_schedule?: InputMaybe<Scalars['String']['input']>;
+  health_status?: InputMaybe<Scalars['String']['input']>;
+  humidity_level?: InputMaybe<Scalars['String']['input']>;
+  last_fed?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  origin?: InputMaybe<Scalars['String']['input']>;
+  sex?: InputMaybe<Scalars['String']['input']>;
+  sort_of_species?: InputMaybe<Scalars['String']['input']>;
+  species: Scalars['String']['input'];
+  temperature_range?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReptileUpdateResponse = {
+  message: Scalars['String']['output'];
+  reptile?: Maybe<Reptile>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type UpdateFoodStockInput = {
@@ -368,6 +399,14 @@ export type LastFedUpdateMutationVariables = Exact<{
 
 
 export type LastFedUpdateMutation = { lastFedUpdate?: { success: boolean, message: string } | undefined };
+
+export type UpdateReptileMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: ReptileInput;
+}>;
+
+
+export type UpdateReptileMutation = { updateReptile: { success: boolean, message: string } };
 
 export type MeasurementsQueryVariables = Exact<{
   reptileId: Scalars['ID']['input'];

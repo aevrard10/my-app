@@ -14,7 +14,7 @@ const HistoryChip: FC<HistoryChipProps> = (props) => {
     <View style={styles.chipContainer}>
       <Chip
         onPress={() => navigate(ScreenNames.FEED_HISTORY)}
-        icon="food-drink"
+        icon="food-fork-drink"
         style={[styles.chip, { backgroundColor: colors?.primary }]}
         textStyle={styles.textStyle}
       >

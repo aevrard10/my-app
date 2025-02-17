@@ -1,6 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
 import ScreenNames from "@shared/declarations/screenNames";
-import { ScrollView } from "react-native";
 import {
   FAB,
   useTheme,
@@ -13,6 +12,8 @@ import { useSnackbar } from "@rn-flix/snackbar";
 import useFoodStockHistoryQuery from "../FeedHistory/hooks/data/queries/useStockQuery";
 import FeedCard from "./components/FeedCard";
 import HistoryChip from "./components/HistoryChip";
+import ListEmptyComponent from "@shared/components/ListEmptyComponent";
+import { FlatList } from "react-native";
 
 const Feed = () => {
   const { colors } = useTheme();
@@ -55,21 +56,23 @@ const Feed = () => {
 
   return (
     <>
-      <ScrollView>
         <HistoryChip navigate={navigate} colors={colors} />
-        {data?.map((food) => {
-          return (
+        <FlatList
+        ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
+          data={data}
+          renderItem={({ item }) => (
             <FeedCard
-              food={food}
+              food={item}
               isLoading={isLoading}
               handleUpdateStock={handleUpdateStock}
               quantity={quantity}
               setQuantity={setQuantity}
               colors={colors}
             />
-          );
-        })}
-      </ScrollView>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+     
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}
         color="#fff"

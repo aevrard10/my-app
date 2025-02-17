@@ -41,6 +41,7 @@ const AddFeed = () => {
 
   return (
     <Portal.Host>
+
       <Formik
         initialValues={initialValues}
         validationSchema={schema}
@@ -63,52 +64,52 @@ const AddFeed = () => {
         }}
       >
         {(formik) => (
+
           <ScrollView contentContainerStyle={styles.container}>
+
             <Surface style={styles.inputSection}>
               {/* Sélecteur de type de nourriture */}
               <View style={styles.fieldContainer}>
+
                 <Button mode="contained" onPress={() => setVisible(true)}>
                   {formik.values.name || "Sélectionner une nourriture"}
                 </Button>
+            
                 <Portal>
-                  <Dialog visible={visible} onDismiss={() => setVisible(false)}>
-                    <Dialog.Title>Choisir un aliment</Dialog.Title>
-                    <Dialog.Content>
-                      <RadioButton.Group
-                        onValueChange={(value) => {
-                          formik.setFieldValue("name", value);
-                          setVisible(false);
-                        }}
-                        value={formik.values.name}
-                      >
-                        <RadioButton.Item label="Poussin" value="Poussin" />
-                        <RadioButton.Item label="Poule" value="Poule" />
-                        <RadioButton.Item label="Caille" value="Caille" />
-                        <RadioButton.Item label="Canard" value="Canard" />
-                        <RadioButton.Item label="Dinde" value="Dinde" />
-                        <RadioButton.Item label="Souris" value="Souris" />
-                        <RadioButton.Item label="Rat" value="Rat" />
-                        <RadioButton.Item label="lézard" value="lézard" />
-                        <RadioButton.Item label="Criquet" value="Criquet" />
-                        <RadioButton.Item label="Blatte" value="Blatte" />
-                        <RadioButton.Item
-                          label="Vers de farine"
-                          value="Vers de farine"
-                        />
-                        <RadioButton.Item
-                          label="Vers de terre"
-                          value="Vers de terre"
-                        />
-                        <RadioButton.Item label="Grillon" value="Grillon" />
-                        <RadioButton.Item label="Cafard" value="Cafard" />
-                        <RadioButton.Item label="Poisson" value="Poisson" />
-                        <RadioButton.Item label="Autre" value="Autre" />
-                      </RadioButton.Group>
-                    </Dialog.Content>
-                  </Dialog>
-                </Portal>
-              </View>
+  <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+    <Dialog.Title>Choisir un aliment</Dialog.Title>
+    <Dialog.Content>
+      <ScrollView style={{ maxHeight: 300 }}> {/* Limite la hauteur du ScrollView */}
+        <RadioButton.Group
+          onValueChange={(value) => {
+            formik.setFieldValue("name", value);
+            setVisible(false);
+          }}
+          value={formik.values.name}
+        >
+          <RadioButton.Item label="Poussin" value="Poussin" />
+          <RadioButton.Item label="Poule" value="Poule" />
+          <RadioButton.Item label="Caille" value="Caille" />
+          <RadioButton.Item label="Canard" value="Canard" />
+          <RadioButton.Item label="Dinde" value="Dinde" />
+          <RadioButton.Item label="Souris" value="Souris" />
+          <RadioButton.Item label="Rat" value="Rat" />
+          <RadioButton.Item label="Lézard" value="Lézard" />
+          <RadioButton.Item label="Criquet" value="Criquet" />
+          <RadioButton.Item label="Blatte" value="Blatte" />
+          <RadioButton.Item label="Vers de farine" value="Vers de farine" />
+          <RadioButton.Item label="Vers de terre" value="Vers de terre" />
+          <RadioButton.Item label="Grillon" value="Grillon" />
+          <RadioButton.Item label="Cafard" value="Cafard" />
+          <RadioButton.Item label="Poisson" value="Poisson" />
+          <RadioButton.Item label="Autre" value="Autre" />
+        </RadioButton.Group>
+      </ScrollView>
+    </Dialog.Content>
+  </Dialog>
+</Portal>
 
+</View>
               <Divider style={styles.divider} />
               {/* Sélecteur de type  */}
               <View style={styles.fieldContainer}>
@@ -170,10 +171,13 @@ const AddFeed = () => {
                 Ajouter
               </Button>
             </View>
+
           </ScrollView>
+
         )}
       </Formik>
-    </Portal.Host>
+                  </Portal.Host>
+
   );
 };
 
