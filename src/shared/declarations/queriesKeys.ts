@@ -6,6 +6,7 @@ enum QueriesKeys {
   REPTILES_EVENTS = "reptilesEvents",
   GET_NOTIFICATIONS = "getNotifications",
   MESUAREMENTS = "mesuarements",
+  STOCK = "stock",
 }
 
 export default QueriesKeys;

@@ -1,6 +1,6 @@
 import useMutation from "@shared/graphql/useMutation";
 import {
-  AddMeasurementInput,
+  AddMeasurementMutation,
   AddMeasurementMutationVariables,
 } from "@shared/graphql/utils/types/types.generated";
 import { gql } from "graphql-request";
@@ -13,7 +13,7 @@ const mutation = gql`
   }
 `;
 const useAddMeasurementMutation = () => {
-  return useMutation<AddMeasurementInput, AddMeasurementMutationVariables>({
+  return useMutation<AddMeasurementMutation, AddMeasurementMutationVariables>({
     mutation,
   });
 };

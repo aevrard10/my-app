@@ -1,29 +1,30 @@
-import React, { FC } from "react";
+
+
+import React, { FC, useState } from "react";
 import { TextInput, View, StyleSheet, ScrollView, Modal } from "react-native";
 import {
-  // Modal,
+  
   Button,
-  Text,
   Surface,
   Divider,
-  Portal,
-  Appbar,
   SegmentedButtons,
 } from "react-native-paper";
-import { ErrorMessage, Formik } from "formik";
+import { Formik } from "formik";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import * as Yup from "yup";
-type WeightModalProps = {
-  visible: boolean;
-  onPress: () => void;
-  onSubmit: () => void;
-};
+import { useQueryClient } from "@tanstack/react-query";
+import useMeasurementsQuery from "../ReptileProfileDetails/hooks/data/queries/useMeasurementsQuery";
+import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { useSnackbar } from "@rn-flix/snackbar";
+import useAddMeasurementMutation from "./hooks/data/mutations/useAddMeasurementsMutation";
+import ScreenNames from "@shared/declarations/screenNames";
+
 
 const initialValues = {
   weight: 0,
   size: 0,
-  date: "",
+  date: formatYYYYMMDD(new Date()),
   size_mesure: "cm",
   weight_mesure: "g",
 };
@@ -33,40 +34,55 @@ const schema = {
   size: Yup.number().required("La taille est requise"),
   date: Yup.date().required("La date est requise"),
 };
-// TODO: transformer en page
-const WeightModal: FC<WeightModalProps> = (props) => {
-  const { visible, onPress, onSubmit } = props;
-  const [inputDate, setInputDate] = React.useState<Date | undefined>(
+type Props = StaticScreenProps<{
+  id: string;
+}>;
+const AddMesuarements = ({ route }: Props) => {
+    const id = route.params.id;
+    const { show } = useSnackbar();
+  const [inputDate, setInputDate] = useState<Date | undefined>(
     new Date()
   );
-  return (
-    <Formik
+    const queryClient = useQueryClient();
+    const { mutate: addMeasurement } = useAddMeasurementMutation();
+const {navigate} = useNavigation();
+ return ( <Formik
       initialValues={initialValues}
       enableReinitialize
-      onSubmit={onSubmit}
+      onSubmit={(values) => {
+        console.log('values',values);
+        addMeasurement(
+          {
+            input: {
+              reptile_id: id,
+              date: values.date,
+              weight: values.weight,
+              size: values.size,
+              size_mesure: values.size_mesure,
+              weight_mesure: values.weight_mesure,
+            },
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({
+                queryKey: useMeasurementsQuery.queryKey,
+              });
+              console.log("success");
+
+              show("Mesures ajoutées avec succès!");
+              navigate(ScreenNames.REPTILE_PROFILE_DETAILS, { id });
+            },
+            onError: () => {
+              show("Une erreur s'est produite");
+            },
+          }
+        );
+      }}
       // validationSchema={schema}
     >
       {(formik) => (
-        <Modal
-          visible={visible}
-          onDismiss={onPress}
-          contentContainerStyle={{
-            backgroundColor: "white",
-            marginHorizontal: 20,
-            padding: 20,
-            gap: 10,
-          }}
-        >
-          <Appbar.Header
-            style={[
-              {
-                backgroundColor: "#fff",
-              },
-            ]}
-          >
-            <Appbar.BackAction onPress={onPress} />
-            <Appbar.Content title="Ajouter une mesure" />
-          </Appbar.Header>
+  
+        
           <ScrollView>
             <Surface style={styles.inputSection}>
               <View
@@ -90,6 +106,7 @@ const WeightModal: FC<WeightModalProps> = (props) => {
                     formik.setFieldValue("weight_mesure", value);
                   }}
                   value={formik.values.weight_mesure}
+                  style={{ flex: 1 }}
                   buttons={[
                     {
                       value: "g",
@@ -108,6 +125,7 @@ const WeightModal: FC<WeightModalProps> = (props) => {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   marginVertical: 10,
+                  flexWrap: 'nowrap',
                 }}
               >
                 <TextInput
@@ -138,6 +156,7 @@ const WeightModal: FC<WeightModalProps> = (props) => {
                       label: "mm",
                     },
                   ]}
+                  style={{ flex: 1 }}
                 />
               </View>
               <Divider style={{ marginHorizontal: 8 }} />
@@ -164,12 +183,10 @@ const WeightModal: FC<WeightModalProps> = (props) => {
               <Button mode="contained" onPress={formik.submitForm}>
                 Ajouter
               </Button>
-              <Button mode="contained" onPress={onPress}>
-                Annuler
-              </Button>
+            
             </View>
           </ScrollView>
-        </Modal>
+
       )}
     </Formik>
   );
@@ -193,6 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     borderColor: "#fff",
     backgroundColor: "#fff",
+    // flex: 1,
   },
   button: {
     gap: 10,
@@ -210,22 +228,9 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 10,
     borderRadius: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
-  },
-  modalTitle: {
-    fontSize: 18,
-    marginBottom: 10,
+    flex:1,
   },
 });
-export default WeightModal;
+
+
+export default AddMesuarements;

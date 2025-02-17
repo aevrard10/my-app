@@ -54,11 +54,11 @@ const CardComponent: FC<CardComponentProps> = (props) => {
             size={40}
             style={{
               borderRadius: 0,
-              backgroundColor: item?.sex === "male" ? "#6c998d" : "#a17884",
+              backgroundColor: item?.sex === "Mâle" ? "#6c998d" : "#a17884",
               borderTopLeftRadius: 24,
               borderBottomRightRadius: 24,
             }}
-            icon={item?.sex === "male" ? "gender-male" : "gender-female"}
+            icon={item?.sex === "Mâle" ? "gender-male" : "gender-female"}
             color={"#fff"}
           />
           "

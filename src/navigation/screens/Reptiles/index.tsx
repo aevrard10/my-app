@@ -28,9 +28,9 @@ import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 
 const Reptiles = () => {
   const { navigate } = useNavigation();
-  const { data, isPending: isLoading, refetch } = useReptilesQuery();
+  const { data, isPending: isLoading, refetch, error } = useReptilesQuery();
   const { colors } = useTheme();
-
+console.log('error', error)
   const [searchText, setSearchText] = useState("");
   const [, user] = useCurrentUserQuery();
   const [filteredData] = useSearchFilter(

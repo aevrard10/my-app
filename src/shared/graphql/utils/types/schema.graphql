@@ -24,14 +24,21 @@ input RegisterInput {
   password: String!
 }
 
+type Notification {
+  id: Int!
+  user_id: Int!
+  message: String!
+  sent: Boolean!
+  read: Boolean
+  created_at: String!
+  sent_at: String
+}
+
 input LoginInput {
   email: String!
   password: String!
   expo_token: String
 }
-: String
-}
-
 
 type Reptile {
   id: ID!
@@ -46,8 +53,6 @@ type Reptile {
   humidity_level: Int
   temperature_range: String
   health_status: String
-  last_vet_visit: String
-  next_vet_visit: String
   acquired_date: String
   origin: String
   location: String
@@ -57,50 +62,6 @@ type Reptile {
   image_url: String
 }
 
-input AddReptileInput {
-  name: String!
-  species: String!
-  sort_of_species: String
-  sex: String
-  age: Int!
-  last_fed: String
-  feeding_schedule: String
-  diet: String
-  humidity_level: Int
-  temperature_range: String
-  health_status: String
-  acquired_date: String!
-  origin: String
-  location: String
-  notes: String
-  next_vet_visit: String!
-}
-type DeleteReptileResponse {
-  success: Boolean!
-  message: String!
-}
-type AddNotesResponse {
-  success: Boolean!
-  message: String!
-}
-type ReptileEvent {
-  id: ID!
-  event_date: String!
-  event_name: String!
-  event_time: String!
-  notes: String
-}
-input AddReptileEventInput {
-  event_name: String!
-  event_date: String!
-  event_time: String!
-  notes: String
-}
-
-type LogoutResponse {
-  success: Boolean!
-  message: String!
-}
 input AddMeasurementInput {
   reptile_id: ID!
   date: String!
@@ -119,33 +80,118 @@ type Measurement {
   size_mesure: String!
   weight_mesure: String!
 }
-type Notification {
-  id: Int!
-  user_id: Int!
+
+input AddReptileInput {
+  name: String!
+  species: String!
+  sort_of_species: String
+  sex: String
+  age: Int!
+  last_fed: String
+  feeding_schedule: String
+  diet: String
+  humidity_level: Int
+  temperature_range: String
+  health_status: String
+  acquired_date: String
+  origin: String
+  location: String
+  notes: String
+}
+
+input AddReptileEventInput {
+  event_name: String!
+  event_date: String!
+  event_time: String!
+  notes: String
+}
+
+type DeleteReptileResponse {
+  success: Boolean!
   message: String!
-  sent: Boolean!
-  read: Boolean
-  created_at: String!
-  sent_at: String
 }
-type Query {
-  reptile(id: ID!): Reptile
-  reptiles: [Reptile]
-  currentUser: User
-  reptileEvent: [ReptileEvent]
-  measurements(reptile_id: ID!): [Measurement!]!
-  getNotifications: [Notification!]!
-  getUnreadNotificationsCount(user_id: Int!): Int!
+
+type AddNotesResponse {
+  success: Boolean!
+  message: String!
 }
+
+type LogoutResponse {
+  success: Boolean!
+  message: String!
+}
+
+type ReptileEvent {
+  id: ID!
+  event_date: String!
+  event_name: String!
+  event_time: String!
+  notes: String
+}
+type LastFedUpdateResponse {
+  success: Boolean!
+  message: String!
+}
+  type FoodStock {
+  id: ID!
+  name: String!
+  quantity: Int!
+  unit: String!
+ last_updated: String!
+ type: String!
+}
+
+type FoodStockHistory {
+  id: ID!
+  food_id: ID!
+  quantity_change: Int!
+  reason: String
+  date: String!
+}
+
+input UpdateFoodStockInput {
+  food_id: ID!
+  quantity_change: Int!
+  reason: String
+}
+
+input AddFoodStockInput {
+  name: String!
+  quantity: Int!
+  type: String!
+}
+
+
+
+type MutationResponse {
+  success: Boolean!
+  message: String!
+}
+
 type Mutation {
-  register(input: RegisterInput!): AuthPayload!
-  login(input: LoginInput!): AuthPayload!
   addReptile(input: AddReptileInput!): Reptile
+  addReptileEvent(input: AddReptileEventInput!): ReptileEvent
   addNotes(id: ID!, notes: String!): AddNotesResponse!
   deleteReptile(id: ID!): DeleteReptileResponse!
+  register(input: RegisterInput!): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
   logout: LogoutResponse!
-  addReptileEvent(input: AddReptileEventInput!): ReptileEvent
   addMeasurement(input: AddMeasurementInput!): Measurement
   markNotificationAsRead(id: Int!): Notification!
   markAllNotificationsAsRead(user_id: Int!): [Notification!]!
+    lastFedUpdate(id: ID!, last_fed: String!): LastFedUpdateResponse
+    updateFoodStock(input: UpdateFoodStockInput!): MutationResponse!
+  addFoodStock(input: AddFoodStockInput!): FoodStock!
+}
+
+type Query {
+  measurements(reptile_id: ID!): [Measurement!]!
+  getNotifications: [Notification!]!
+  getUnreadNotificationsCount(user_id: Int!): Int!
+  reptile(id: ID!): Reptile
+  reptiles: [Reptile]
+  reptileEvent: [ReptileEvent]
+  currentUser: User
+      foodStock: [FoodStock!]!
+  foodStockHistory: [FoodStockHistory!]!
 }

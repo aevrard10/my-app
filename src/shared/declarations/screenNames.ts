@@ -10,6 +10,8 @@ enum ScreenNames {
   PROFILE = "Profile",
   AGENDA = "Agenda",
   NOTIFICATIONS = "Notifications",
+  ADD_MEASUREMENTS = "AddMeasurements",
+  ADD_FEED = "AddFeed",
 }
 
 export default ScreenNames;

@@ -22,9 +22,6 @@ const query = gql`
       humidity_level
       temperature_range
       health_status
-      last_vet_visit
-      next_vet_visit
-
       acquired_date
       origin
       location

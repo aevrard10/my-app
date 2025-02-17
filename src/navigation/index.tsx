@@ -17,6 +17,8 @@ import ScreenNames from "@shared/declarations/screenNames";
 import { Image } from "react-native";
 import { Reptiles } from "./screens/Reptiles";
 import Feed from "./screens/Feed";
+import AddMesuarements from "./screens/AddMesuarements";
+import AddFeed from "./screens/AddFeed";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -83,16 +85,6 @@ const MyStack = () => {
     <Stack.Navigator
       screenOptions={{
         header: ({ options, route, back }) => (
-          // <Appbar.Header
-          //   style={[
-          //     {
-          //       backgroundColor: "#fff",
-          //     },
-          //   ]}
-          // >
-          //   <Appbar.BackAction onPress={() => console.log("")} />
-          //   <Appbar.Content title={getHeaderTitle(options, route.name)} />
-          // </Appbar.Header>
           <Header
             {...options}
             back={back}
@@ -151,6 +143,22 @@ const MyStack = () => {
           <Stack.Screen
             name={ScreenNames.REPTILE_PROFILE_DETAILS}
             component={ReptileProfileDetails}
+          />
+          <Stack.Screen
+            name={ScreenNames.ADD_MEASUREMENTS}
+            component={AddMesuarements}
+            options={{
+              presentation: "modal",
+              title: "Ajouter des mesures",
+            }}
+          />
+          <Stack.Screen
+            name={ScreenNames.ADD_FEED}
+            component={AddFeed}
+            options={{
+              presentation: "modal",
+              title: "Ajouter des aliments",
+            }}
           />
           <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />
         </>

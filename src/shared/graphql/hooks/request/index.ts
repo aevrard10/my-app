@@ -38,6 +38,7 @@ async function getToken(): Promise<string | null> {
 function getEndpoint() {
   if (!process.env.EXPO_PUBLIC_API_URL)
     throw new Error("Request is missing API endpoint");
+  console.log(`Requesting to ${process.env.EXPO_PUBLIC_API_URL}`);
   return `${process.env.EXPO_PUBLIC_API_URL}`;
 }
 const request: Request = async <

@@ -43,7 +43,6 @@ const initialValues = {
   acquired_date: "",
   origin: "",
   location: "",
-  next_vet_visit: "",
 };
 const schema = Yup.object().shape({
   name: Yup.string().required(),
@@ -59,8 +58,7 @@ const schema = Yup.object().shape({
   acquired_date: Yup.string(),
   origin: Yup.string(),
   location: Yup.string(),
-  sex: Yup.string().oneOf(["male", "female"]),
-  next_vet_visit: Yup.string().required(),
+  sex: Yup.string().oneOf(["Mâle", "Femelle"]),
 });
 
 const AddReptile = () => {
@@ -70,9 +68,6 @@ const AddReptile = () => {
   const { goBack } = useNavigation();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
-    undefined
-  );
-  const [inputDateNextVet, setInputDateNextVet] = useState<Date | undefined>(
     undefined
   );
   const [imageUri, setImageUri] = useState<string | null>();
@@ -152,7 +147,6 @@ const AddReptile = () => {
                 acquired_date: values.acquired_date,
                 origin: values.origin,
                 location: values.location,
-                next_vet_visit: values.next_vet_visit,
               },
             },
             {
@@ -281,25 +275,7 @@ const AddReptile = () => {
                 />
 
                 <Divider style={{ marginHorizontal: 8 }} />
-                <DatePickerInput
-                  mode="outlined"
-                  style={styles.pickerInput}
-                  dense
-                  outlineStyle={styles.outlineStyle}
-                  locale="fr"
-                  label="Prochain rendez-vous chez le vétérinaire"
-                  saveLabel="Confirmer"
-                  withDateFormatInLabel={false}
-                  value={inputDateNextVet}
-                  onChange={(data) => {
-                    setInputDateNextVet(data);
-                    formik.setFieldValue(
-                      "next_vet_visit",
-                      formatYYYYMMDD(data)
-                    );
-                  }}
-                  inputMode="start"
-                />
+        
 
                 <Divider style={{ marginHorizontal: 8 }} />
                 <DatePickerInput
@@ -364,11 +340,11 @@ const AddReptile = () => {
                   onValueChange={formik.handleChange("sex")}
                   buttons={[
                     {
-                      value: "female",
+                      value: "Femelle",
                       icon: "gender-female",
                     },
                     {
-                      value: "male",
+                      value: "Mâle",
                       icon: "gender-male",
                     },
                   ]}

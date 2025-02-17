@@ -56,7 +56,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
         endOpacity={0.2}
         initialSpacing={0}
         noOfSections={6}
-        maxValue={10}
+        maxValue={60}
         yAxisColor="white"
         yAxisThickness={0}
         rulesType="solid"

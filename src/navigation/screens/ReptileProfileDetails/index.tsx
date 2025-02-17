@@ -3,28 +3,24 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
-  Divider,
   FAB,
   Surface,
   useTheme,
-  Text,
 } from "react-native-paper";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import useMeasurementsQuery from "./hooks/data/queries/useMeasurementsQuery";
 import TextInfo from "./components/TextInfo";
-import WeightModal from "./components/WeightModal";
-import EventModal from "./components/EventModal";
 import GraphicChart from "./components/GraphicChart";
 import ReptilePicture from "./components/ReptilePicture";
-import EventCalendar from "./components/EventCalendar";
-import useAddMeasurementMutation from "./hooks/data/mutations/useAddMeasurementsMutation";
 import TemperatureChart from "./components/TemperatureChart";
 import HumidityChart from "./components/HumidityChart";
 import TextInput from "@shared/components/TextInput";
 import SizeChart from "./components/SizeChart";
 import useReptileQuery from "../Reptiles/hooks/queries/useReptileQuery";
+import ScreenNames from "@shared/declarations/screenNames";
+import useLastFedUpdateMutation from "./hooks/data/mutations/useLastFedUpdate";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -32,16 +28,16 @@ type Props = StaticScreenProps<{
 
 const ReptileProfileDetails = ({ route }: Props) => {
   const id = route.params.id;
-  const { data } = useReptileQuery(id);
+  const { data, error } = useReptileQuery(id);
+  console.log('error', error)
   const [notes, setNotes] = useState(data?.notes || "");
   const navigation = useNavigation();
 
   const { mutate } = useAddNotesMutation();
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
-  const [showWeightModal, setShowWeightModal] = useState(false);
   const { data: measurements, isPending } = useMeasurementsQuery(id);
-
+const {mutate: updateLastFed} = useLastFedUpdateMutation()
   useEffect(() => {
     navigation.setOptions({ title: data?.name ?? "Détails du reptile" });
   }, [data?.name]);
@@ -59,26 +55,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       }
     );
   }, [id, notes, mutate]);
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [eventDescription, setEventDescription] = useState<string>("");
-  const { mutate: addMeasurement } = useAddMeasurementMutation();
 
-  const handleAddEvent = () => {
-    if (selectedDate && eventDescription) {
-      mutate(
-        { reptileId: id, date: selectedDate, description: eventDescription },
-        {
-          onSuccess: () => {
-            show("Événement ajouté avec succès!");
-            setEventDescription("");
-            setSelectedDate("");
-          },
-        }
-      );
-    } else {
-      show("Veuillez remplir tous les champs.");
-    }
-  };
   const { colors } = useTheme();
   return (
     <>
@@ -86,7 +63,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
         <ReptilePicture data={data} />
         <Button
           mode="contained"
-          onPress={() => navigation.navigate("EditReptile", { id })}
+          onPress={() => {
+            updateLastFed( {id,  last_fed: new Date().toISOString().split("T")[0] }, {  // Format YYYY-MM-DD
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: useReptileQuery.queryKey(id),
+                });
+                show("Nourrissage enregistré");
+              },
+              
+                onError: () => {
+                  show("Erreur lors de l'enregistrement du nourrissage");
+
+              }
+            
+            })
+          }}
         >
           Nourrissage
         </Button>
@@ -120,15 +112,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
         <Surface style={styles.inputSection}>
           <TextInfo value={data?.health_status || ""} title="État de santé" />
-          <TextInfo
-            value={data?.last_vet_visit || ""}
-            title="Dernière visite chez le vétérinaire"
-          />
-          <TextInfo
-            value={data?.next_vet_visit || ""}
-            title="Prochaine visite chez le vétérinaire"
-            noDivider
-          />
+    
         </Surface>
 
         <View style={{ margin: 20 }}>
@@ -226,39 +210,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         variant="primary"
         color="#fff"
         icon="weight-kilogram"
-        onPress={() => setShowWeightModal(true)}
-      />
-      <WeightModal
-        onSubmit={(values) => {
-          console.log(values);
-          addMeasurement(
-            {
-              input: {
-                reptile_id: id,
-                weight: values.weight,
-                size: values.size,
-                date: values.date,
-                size_mesure: values.size_mesure,
-                weight_mesure: values.weight_mesure,
-              },
-            },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries({
-                  queryKey: useMeasurementsQuery.queryKey,
-                });
-                show("Mesures ajoutées avec succès!");
-                setShowWeightModal(false);
-              },
-              onError: () => {
-                show("Une erreur s'est produite");
-              },
-            }
-          );
-        }}
-        visible={!!showWeightModal}
-        reptile_id={id}
-        onPress={() => setShowWeightModal(false)}
+        onPress={() => navigation.navigate(ScreenNames.ADD_MEASUREMENTS, { id })}
       />
       {/* <EventModal
         visible={!!selectedDate}
