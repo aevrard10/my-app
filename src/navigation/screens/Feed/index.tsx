@@ -1,31 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
 import ScreenNames from "@shared/declarations/screenNames";
 import { ScrollView, View } from "react-native";
-import { Avatar, Card, Chip, FAB, ProgressBar, Text, useTheme } from "react-native-paper";
+import { Avatar, Card, Chip, FAB, Icon, ProgressBar, Text, useTheme } from "react-native-paper";
 import useFoodQuery from "./hooks/data/queries/useStockQuery";
-
-const getFoodIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case "rongeur":
-      return require("../../../../assets/souris.png");
-    case "insectes":
-      return require("../../../../assets/voler.png");
-    case "vollaile":
-      return require("../../../../assets/poulet.png");;
-    case "poisson":
-      return "fish";
-      case "reptile":
-        return require("../../../../assets/lizard.png");
-    default:
-      return "food-fork-drink";
-  }
-};
+import getFoodIcon from "./utils/getFoodIcon";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data } = useFoodQuery();
-
   return (
     <>
       <ScrollView>
@@ -45,11 +28,15 @@ const Feed = () => {
                   )}
                   right={() => (
                     <Chip
-                      icon="cart"
+                    icon={() => (
+                      <Icon source="cart" size={16} color={"white"} />
+                  )}
+              
                       style={{
                         marginRight: 8,
                         backgroundColor: stockCritical ? "darkred" : stockLow ? "red" : "green",
                       }}
+                      
                       textStyle={{ color: "#fff", fontWeight: "bold" }}
                     >
                       {food.quantity} {food.unit || "restant(s)"}

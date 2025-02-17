@@ -41,7 +41,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
     );
   }, [item, mutate]);
   return (
-    <Card style={styles.card}>
+    <Card style={styles.card} mode="elevated">
       {item.sex && (
         <View
           style={{
@@ -68,7 +68,9 @@ const CardComponent: FC<CardComponentProps> = (props) => {
         source={{
           uri: item?.image_url,
         }}
+        resizeMode="cover"
         style={{
+          // prendre toute la largeur de la carte
           backgroundColor: "#4CAF50",
         }}
       />
