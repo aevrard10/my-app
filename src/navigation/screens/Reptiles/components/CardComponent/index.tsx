@@ -66,9 +66,9 @@ const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]
         </View>
       )}
       <Card.Cover
-        source={{
+        source={item?.image_url  ? {
           uri: item?.image_url,
-        }}
+        } : require("../../../../../../assets/cobra.png")}
         resizeMode="cover"
         style={{
           // prendre toute la largeur de la carte

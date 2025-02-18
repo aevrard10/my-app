@@ -39,9 +39,9 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
       queryKey: useCurrentTokenQuery.queryKey,
       queryFn: useCurrentTokenQuery.queryFn,
     });
-    console.log("🗂️ UPLOADING DOCUMENT (NATIVE)..");
+    console.log("🗂️ UPLOADING IMAGE (MOBILE)..");
     console.log("🗂️ file: ", file);
-    console.log("🗂️ id: ", d);
+    console.log("🗂️ reptile ID: ", d);
 
     let documentUri: string;
 
@@ -56,20 +56,20 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
     console.log("🗂️ documentUri: ", documentUri);
 
     const formData = new FormData();
-    formData.append("file", {
+    formData.append("image", {
       uri: documentUri,
       name: `image_${Date.now()}.jpg`,
       type: "image/jpeg",
     });
-    formData.append("id", d);
+    formData.append("reptileId", d); // Associe l'ID du reptile à l'upload
 
-    console.log("🗂️ FormData :", formData);
+    console.log("🗂️ FormData:", formData);
 
-    const response = await fetch("http://192.168.1.20:3030/api/file-upload", {
+    const response = await fetch("https://back-hsvb.onrender.com/api/upload", {
       method: "POST",
       body: formData,
       headers: {
-        token, // Ajoute ton token ici si nécessaire
+        token, // Ajoute ton token ici si nécessaire pour l'authentification
         "Content-Type": "multipart/form-data",
       },
     });
@@ -79,14 +79,15 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
     }
 
     const data = await response.json();
-    console.log("🗂️ Image uploadée avec succès :", data.url);
+    console.log("🗂️ Image uploadée avec succès :", data.imageUrl);
 
-    return data;
+    // Faire quelque chose avec l'URL retournée, par exemple mettre à jour l'interface utilisateur
+    return data.imageUrl; // Tu peux retourner l'URL pour l'utiliser où nécessaire
+
   } catch (error) {
     console.error("🗂️ 👉 UPLOAD ERROR: ", error);
     throw error;
   }
 };
-
 
 export default handleImageUpload;
