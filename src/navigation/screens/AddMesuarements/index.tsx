@@ -106,7 +106,7 @@ const {navigate} = useNavigation();
                     formik.setFieldValue("weight_mesure", value);
                   }}
                   value={formik.values.weight_mesure}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1}}
                   buttons={[
                     {
                       value: "g",
