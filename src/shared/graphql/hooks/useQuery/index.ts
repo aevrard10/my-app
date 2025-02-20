@@ -43,6 +43,8 @@ const useQuery = <
         query,
         variables,
       }),
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5,
     ...options,
   });
 };

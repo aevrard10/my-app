@@ -28,12 +28,14 @@ function parseRequestExtendedArgs<TVariables extends RequestVariables>(
 }
 async function getToken(): Promise<string | null> {
   try {
-    const data = await queryClient.ensureQueryData({
-      queryKey: useCurrentTokenQuery.queryKey,
-      queryFn: async () => {
-        return await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
-      }, 
-    });
+    const data = await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
+    //  await queryClient.ensureQueryData({
+    //   queryKey: useCurrentTokenQuery.queryKey,
+    //   queryFn: async () => {
+    //     return await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
+    //   }, 
+    // });
+    console.log(`Token: ${data}`);
     return data as string;
   } catch (e) {
     return null;
