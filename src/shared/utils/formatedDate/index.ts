@@ -100,3 +100,30 @@ export function notificationsMultiFormat(date: DateFormatInput) {
 
   return formattedDate;
 }
+
+
+export function formatDateToYYYYMMDD(dateStr: string): string {
+  const [day, month, year] = dateStr.split("/");
+  return `${year}/${month}/${day}`;
+}
+
+const month = {
+  janvier: "01",
+  février: "02",
+  mars: "03",
+  avril: "04",
+  mai: "05",
+  juin: "06",
+  juillet: "07",
+  août: "08",
+  septembre: "09",
+  octobre: "10",
+  novembre: "11",
+  décembre: "12",
+}
+
+// format date "samedi 15 février 2025" => "2025-02-15"
+export const formatLongDateToYYYYMMDD = (date: string) => {
+  const [day, dayNumber, monthName, year] = date.split(" ");
+  return `${year}-${month[monthName]}-${dayNumber}`;
+}

@@ -126,7 +126,7 @@ const AddFeed = () => {
                       <RadioButton.Group
                         onValueChange={(value) => {
                           formik.setFieldValue("type", value);
-                          setVisible(false);
+                          setVisibleType(false);
                         }}
                         value={formik.values.type}
                       >

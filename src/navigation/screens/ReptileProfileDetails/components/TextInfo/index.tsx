@@ -1,6 +1,6 @@
 import TextInput from "@shared/components/TextInput";
 import { FC } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TextInputProps } from "react-native";
 import { Text, Divider } from "react-native-paper";
 
 type TextProps = {
@@ -9,16 +9,17 @@ type TextProps = {
   noDivider?: boolean;
   readOnly?: boolean;
   onChangeText?: (text: string) => void;
+  keyboardType?: TextInputProps["keyboardType"];
 };
 const TextInfo: FC<TextProps> = (props) => {
-  const { title, value, noDivider, readOnly = true,onChangeText } = props;
+  const { title, value, noDivider, readOnly = true,onChangeText, keyboardType } = props;
   return (
     <View>
       <View style={styles.infoContainer}>
         <View style={styles.textContainer}>
           <Text style={styles.text} variant="labelMedium">{title}</Text>
           {!readOnly ? (
-          <TextInput value={value} onChangeText={onChangeText} textAlign="left"  />):(
+          <TextInput keyboardType={keyboardType} value={value} onChangeText={onChangeText} textAlign="left"  />):(
 
           <Text style={styles.text} variant="bodyLarge">{value}</Text>)}
         </View>

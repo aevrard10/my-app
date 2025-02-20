@@ -16,6 +16,10 @@ import useUpdateReptileMutation from "./hooks/data/mutations/useUpdateReptile";
 import { Formik } from "formik";
 import FeedPortal from "./components/FeedPortal";
 import Charts from "./components/Charts";
+import {
+  formatDateToYYYYMMDD,
+  formatLongDateToYYYYMMDD,
+} from "@shared/utils/formatedDate";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -82,16 +86,17 @@ const ReptileProfileDetails = ({ route }: Props) => {
           name: data?.name || "",
           age: data?.age || 0,
           species: data?.species || "",
-          acquired_date: data?.acquired_date || "",
+          acquired_date: formatLongDateToYYYYMMDD(data?.acquired_date || ""),
           origin: data?.origin || "",
           location: data?.location || "",
-          last_fed: data?.last_fed || "",
+          last_fed: formatDateToYYYYMMDD(data?.last_fed || ""),
           feeding_schedule: data?.feeding_schedule || "",
           diet: data?.diet || "",
           health_status: data?.health_status || "",
           notes: data?.notes || "",
           sex: data?.sex || "",
-
+          humidity_level: data?.humidity_level?.toString() || "",
+          temperature_range: data?.temperature_range || "",
         }}
         enableReinitialize
         onSubmit={(values) => {
@@ -107,50 +112,105 @@ const ReptileProfileDetails = ({ route }: Props) => {
               <FeedPortal id={id} food={food} data={data} />
 
               <Surface style={styles.inputSection}>
-              <TextInfo title="Âge" readOnly={false} value={formik.values.age?.toString()  || "-"}      onChangeText={(text) => {
-                      const number = parseInt(text, 10);
-                      formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                    }}
-               />
-              <TextInfo readOnly={false} title="Espèce" value={formik.values?.species || ""} />
                 <TextInfo
-                readOnly={false}
+                  keyboardType="numeric"
+                  title="Âge"
+                  readOnly={false}
+                  value={formik.values.age?.toString()}
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
+                  }}
+                />
+                <TextInfo
+                  readOnly={false}
+                  title="Espèce"
+                  value={formik.values?.species || ""}
+                  onChangeText={(text) => {
+                    formik.setFieldValue("species", text);
+                  }}
+                />
+
+                <TextInfo
+                  readOnly={false}
                   title="Date d'acquisition"
                   value={formik.values?.acquired_date || ""}
                 />
-                <TextInfo readOnly={false} title="Origine" value={formik.values?.origin || ""} />
                 <TextInfo
-                readOnly={false}
+                  readOnly={false}
+                  title="Origine"
+                  value={formik.values?.origin || ""}
+                  noDivider
+                />
+              </Surface>
+              <Surface style={styles.inputSection}>
+                <TextInfo
+                  readOnly={false}
                   title="Emplacement"
                   value={formik.values?.location || ""}
                   noDivider
+                  onChangeText={(text) => {
+                    formik.setFieldValue("location", text);
+                  }}
+                />
+                <TextInfo
+                  readOnly={false}
+                  title="Humidité"
+                  value={formik.values?.humidity_level || ""}
+                  noDivider
+                  keyboardType="numeric"
+                  onChangeText={(text) => {
+                    const number = parseInt(text, 10);
+                    formik.setFieldValue(
+                      "humidity_level",
+                      isNaN(number) ? "" : number
+                    ); // Ne pas permettre un non-nombre
+                  }}
+                />
+                <TextInfo
+                  readOnly={false}
+                  title="Température"
+                  value={formik.values?.temperature_range || ""}
+                  noDivider
+                  keyboardType="numeric"
+                  onChangeText={(text) => {
+                    formik.setFieldValue("temperature_range", text);
+                  }}
                 />
               </Surface>
               <Surface style={styles.inputSection}>
-                <TextInfo readOnly title="Dernier repas" value={formik.values?.last_fed || ""} />
                 <TextInfo
-                readOnly={false}
-                  value={formik.values?.feeding_schedule || ""}
-                  title="Horaire de repas"
+                  readOnly={false}
+                  title="Dernier repas"
+                  value={formik.values?.last_fed || ""}
                 />
                 <TextInfo
-                readOnly={false}
+                  readOnly={false}
                   value={formik.values?.diet || ""}
                   title="Régime alimentaire"
                   noDivider
-                />
-              </Surface>
-<Button mode="contained" onPress={formik.handleSubmit}>
-              Modifier les informations
-            </Button>
-              <Surface style={styles.inputSection}>
-                <TextInfo
-                readOnly={false}
-                  value={formik.values?.health_status || ""}
-                  title="État de santé"
+                  onChangeText={(text) => {
+                    formik.setFieldValue("diet", text);
+                  }}
                 />
               </Surface>
 
+              <Surface style={styles.inputSection}>
+                <TextInfo
+                  readOnly={false}
+                  value={formik.values?.health_status || ""}
+                  title="État de santé"
+                  onChangeText={(text) => {
+                    formik.setFieldValue("health_status", text);
+                  }}
+                />
+              </Surface>
+              <View style={{ marginHorizontal: 20 }}>
+
+              <Button mode="contained" onPress={formik.submitForm}>
+                Modifier les informations
+              </Button>
+              </View>
               <View style={{ margin: 20 }}>
                 <TextInput
                   multiline
@@ -166,7 +226,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   </Button>
                 </View>
               </View>
-             <Charts data={data} measurements={measurements} isPending={isPending} />
+              <Charts
+                data={data}
+                measurements={measurements}
+                isPending={isPending}
+              />
             </ScrollView>
             <FAB
               style={{
