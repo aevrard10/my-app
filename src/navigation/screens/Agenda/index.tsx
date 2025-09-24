@@ -14,7 +14,6 @@ import {
   Button,
   Divider,
   FAB,
-  // Modal,
   Surface,
   useTheme,
 } from "react-native-paper";
