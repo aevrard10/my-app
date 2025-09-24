@@ -33,7 +33,10 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/cobra.png"
+          "image": "./assets/cobra.png",
+
+          "enableFullScreenImage_legacy": "true",
+          "resizeMode": "cover"
         }
       ],
       "react-native-edge-to-edge",

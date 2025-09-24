@@ -1,4 +1,4 @@
-import { View, StyleSheet, Image, KeyboardAvoidingView } from "react-native";
+import { View, StyleSheet, Image, KeyboardAvoidingView, ScrollView } from "react-native";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { useSnackbar } from "@rn-flix/snackbar";
@@ -23,6 +23,7 @@ const Register = () => {
   const { isMd } = useBreakpoints();
 
   return (
+    <ScrollView>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View
         style={{
@@ -144,6 +145,7 @@ const Register = () => {
         </Surface>
       </View>
     </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
