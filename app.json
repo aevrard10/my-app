@@ -25,7 +25,9 @@
       }
     },
     "web": {
-      "favicon": "./assets/cobra.png"
+      "favicon": "./assets/cobra.png",
+        "output": "server",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-asset",
