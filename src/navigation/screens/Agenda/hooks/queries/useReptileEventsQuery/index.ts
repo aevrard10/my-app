@@ -5,6 +5,7 @@ import {
   ReptileEventQueryVariables,
 } from "@shared/graphql/utils/types/types.generated";
 import QueriesKeys from "@shared/declarations/queriesKeys";
+import dayjs from "dayjs";
 
 const query = gql`
   query ReptileEventQuery {
@@ -20,25 +21,29 @@ const query = gql`
 const queryKey = [QueriesKeys.REPTILES_EVENTS];
 
 // Helper functions to format date and time
-const formatDate = (timestamp: string): string => {
-  const date = new Date(parseInt(timestamp, 10));
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+const formatDate = (value: string): string => {
+  if (!value) {
+    return dayjs().format("YYYY-MM-DD");
+  }
+
+  if (/^\d+$/.test(value)) {
+    const numeric = Number(value);
+    const ms = value.length <= 10 ? numeric * 1000 : numeric;
+    return dayjs(ms).format("YYYY-MM-DD");
+  }
+
+  const normalized = value.replace(/\//g, "-");
+  const parsed = dayjs(normalized);
+  return parsed.isValid() ? parsed.format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD");
 };
 
 const formatTime = (time: string): string => {
+  if (!time) return "";
   const [hours, minutes] = time.split(":");
-  const date = new Date();
-  date.setHours(parseInt(hours, 10));
-  date.setMinutes(parseInt(minutes, 10));
-  const options: Intl.DateTimeFormatOptions = {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  };
-  return date.toLocaleTimeString("fr", options); // Adjust to preferred locale
+  const parsed = dayjs()
+    .hour(Number(hours ?? 0))
+    .minute(Number(minutes ?? 0));
+  return parsed.format("HH:mm");
 };
 
 // Modified hook with transformation logic
@@ -47,7 +52,10 @@ const useReptileEventsQuery = Object.assign(
     return useQuery<
       ReptileEventQuery,
       ReptileEventQueryVariables,
-      Record<string, { name: string; time: string }[]>
+      Record<
+        string,
+        { id: string; name: string; time: string; notes?: string; date: string }[]
+      >
     >({
       queryKey,
       query,
@@ -58,6 +66,7 @@ const useReptileEventsQuery = Object.assign(
             const formattedDate = formatDate(event.event_date);
             const formattedTime = formatTime(event.event_time);
             const item = {
+              id: event?.id,
               name: event?.event_name,
               time: formattedTime,
               notes: event?.notes,
