@@ -16,7 +16,7 @@ type NotifItemProps = {
   item: {
     message: string;
     read: boolean;
-    created_at: string;
+    created_at: string | number;
     id: string;
   };
 };
