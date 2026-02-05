@@ -7,7 +7,7 @@ import {
   Platform,
 } from "react-native";
 import { Agenda as RNCAgenda } from "react-native-calendars";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Appbar,
   Button,
@@ -25,6 +25,7 @@ import { DatePickerInput } from "react-native-paper-dates";
 import { formatTime, formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TimePicker from "@shared/components/TimePicker";
 import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMutation";
+import useDeleteReptileEventMutation from "./hooks/mutations/useDeleteReptileEventMutation";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
 import TextInput from "@shared/components/TextInput";
@@ -32,6 +33,7 @@ import AgendaItem from "./components/AgendaItem";
 import TextInfo from "../ReptileProfileDetails/components/TextInfo";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const initialValues = {
   event_name: "",
@@ -40,6 +42,8 @@ const initialValues = {
   notes: "",
 };
 const Agenda = () => {
+  const navigation = useNavigation();
+  const route = useRoute<any>();
   const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const { colors } = useTheme();
@@ -48,6 +52,8 @@ const Agenda = () => {
   const [showEventInfo, setShowEventInfo] = useState<boolean>(false);
   const [event, setEvent] = useState<any>();
   const { mutate, isPending } = useAddReptileEventMutation();
+  const { mutate: deleteEvent, isPending: isDeleting } =
+    useDeleteReptileEventMutation();
   const customTheme = {
     agendaDayTextColor: colors.primary, // Custom color for agenda day text
     agendaDayNumColor: colors.primary, // Custom color for agenda day number
@@ -61,6 +67,13 @@ const Agenda = () => {
   };
   const { show } = useSnackbar();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (route.params?.openAddEvent) {
+      setAddEvent(true);
+      navigation.setParams({ openAddEvent: false });
+    }
+  }, [route.params?.openAddEvent, navigation]);
 
   return (
     <Screen>
@@ -285,6 +298,31 @@ const Agenda = () => {
               <TextInfo title="Notes" value={event?.notes} />
             </View>
           </ScrollView>
+          <Button
+            mode="outlined"
+            loading={isDeleting}
+            textColor={colors.error}
+            onPress={() => {
+              if (!event?.id) return;
+              deleteEvent(
+                { id: event.id },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries({
+                      queryKey: useReptileEventsQuery.queryKey,
+                    });
+                    setShowEventInfo(false);
+                    show("Événement supprimé");
+                  },
+                  onError: () => {
+                    show("Impossible de supprimer l'événement");
+                  },
+                }
+              );
+            }}
+          >
+            Supprimer l&apos;événement
+          </Button>
         </Modal>
       </Portal>
     </Screen>
