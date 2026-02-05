@@ -200,6 +200,7 @@ input ReptileInput {
 type Mutation {
   addReptile(input: AddReptileInput!): Reptile
   addReptileEvent(input: AddReptileEventInput!): ReptileEvent
+  deleteReptileEvent(id: ID!): MutationResponse!
   addNotes(id: ID!, notes: String!): AddNotesResponse!
   deleteReptile(id: ID!): DeleteReptileResponse!
   register(input: RegisterInput!): AuthPayload!
