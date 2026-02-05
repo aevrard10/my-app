@@ -10,9 +10,7 @@ import {
   Portal,
   Searchbar,
   useTheme,
-  Avatar,
   Text,
-  Icon,
 } from "react-native-paper";
 import CardComponent from "./components/CardComponent";
 import { useNavigation } from "@react-navigation/native";
@@ -24,20 +22,14 @@ import ScreenNames from "@shared/declarations/screenNames";
 import useSearchFilter from "@shared/hooks/useSearchFilter";
 import { useState } from "react";
 import React from "react";
-import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
-import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 
 const Reptiles = () => {
   const { navigate } = useNavigation();
   const { data, isPending: isLoading, refetch } = useReptilesQuery();
-  const { data: summary } = useDashboardSummaryQuery();
   const { colors } = useTheme();
   const [searchText, setSearchText] = useState("");
-  const [, user] = useCurrentUserQuery();
-  const upcomingEvents = summary?.upcoming_events ?? [];
   const [filteredData] = useSearchFilter(
     data ?? [],
     searchText,
@@ -65,115 +57,24 @@ const Reptiles = () => {
           )}
           ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
           ListHeaderComponent={
-            <>
-              <CardSurface style={styles.summaryCard}>
-                <View style={styles.summaryHeader}>
-                  <Text variant="titleMedium">Aujourd&apos;hui</Text>
-                  <Text variant="bodySmall" style={styles.summarySubtitle}>
-                    Vos indicateurs clés en un coup d&apos;œil.
-                  </Text>
-                </View>
-                <View style={styles.statsRow}>
-                  <View
-                    style={[
-                      styles.statPill,
-                      { backgroundColor: colors.secondaryContainer },
-                    ]}
-                  >
-                    <Icon source="turtle" size={16} color={colors.secondary} />
-                    <Text variant="titleMedium" style={styles.statValue}>
-                      {summary?.reptiles_count ?? 0}
-                    </Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>
-                      Reptiles
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.statPill,
-                      { backgroundColor: colors.primaryContainer },
-                    ]}
-                  >
-                    <Icon source="calendar" size={16} color={colors.primary} />
-                    <Text variant="titleMedium" style={styles.statValue}>
-                      {summary?.events_today ?? 0}
-                    </Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>
-                      Événements
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.statPill,
-                      { backgroundColor: colors.tertiaryContainer },
-                    ]}
-                  >
-                    <Icon source="bell" size={16} color={colors.tertiary} />
-                    <Text variant="titleMedium" style={styles.statValue}>
-                      {summary?.unread_notifications ?? 0}
-                    </Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>
-                      Alertes
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.upcomingSection}>
-                  <Text variant="labelLarge">Prochains événements</Text>
-                  {upcomingEvents.length === 0 ? (
-                    <Text variant="bodySmall" style={styles.upcomingEmpty}>
-                      Aucun événement prévu pour le moment.
-                    </Text>
-                  ) : (
-                    <View style={styles.upcomingList}>
-                      {upcomingEvents.map((event) => {
-                        const timeLabel = event.event_time
-                          ? event.event_time.slice(0, 5)
-                          : "";
-                        return (
-                          <View key={event.id} style={styles.upcomingItem}>
-                            <View style={styles.upcomingDot} />
-                            <View style={styles.upcomingText}>
-                              <Text variant="bodyMedium">
-                                {event.event_name}
-                              </Text>
-                              <Text
-                                variant="bodySmall"
-                                style={styles.upcomingMeta}
-                              >
-                                {formatDDMMYYYY(event.event_date)} · {timeLabel}
-                              </Text>
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  )}
-                </View>
-              </CardSurface>
-              <CardSurface style={styles.headerCard}>
-                <View style={styles.headerRow}>
-                  <Avatar.Icon size={40} icon="turtle" />
-                  <View style={styles.headerTextContainer}>
-                    <Text style={styles.headerText} variant="titleMedium">
-                      Bonjour, @{user?.username} !
-                    </Text>
-                    <Text style={styles.headerSubtitle} variant="bodySmall">
-                      Votre suivi quotidien en un coup d&apos;œil.
-                    </Text>
-                  </View>
-                </View>
-                <Searchbar
-                  elevation={0}
-                  mode="bar"
-                  value={searchText}
-                  onChangeText={setSearchText}
-                  placeholder="Rechercher un reptile"
-                  clearButtonMode="always"
-                  style={styles.searchbar}
-                  inputStyle={styles.searchInput}
-                />
-              </CardSurface>
-            </>
+            <CardSurface style={styles.headerCard}>
+              <Text style={styles.headerTitle} variant="titleLarge">
+                Mes reptiles
+              </Text>
+              <Text style={styles.headerSubtitle} variant="bodySmall">
+                Retrouvez l&apos;ensemble de vos reptiles et leurs détails.
+              </Text>
+              <Searchbar
+                elevation={0}
+                mode="bar"
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholder="Rechercher un reptile"
+                clearButtonMode="always"
+                style={styles.searchbar}
+                inputStyle={styles.searchInput}
+              />
+            </CardSurface>
           }
           refreshControl={
             <RefreshControl
@@ -213,6 +114,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 12,
   },
+  quickActionsCard: {
+    marginTop: 4,
+    marginBottom: 12,
+    gap: 10,
+  },
+  quickActionsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  quickAction: {
+    flex: 1,
+    minWidth: 120,
+    borderRadius: 16,
+    padding: 12,
+  },
+  quickActionContent: {
+    gap: 8,
+  },
+  quickActionText: {
+    opacity: 0.9,
+  },
   summaryHeader: {
     gap: 4,
   },
@@ -237,6 +160,10 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   statLabel: {
+    opacity: 0.7,
+  },
+  summaryError: {
+    marginTop: 6,
     opacity: 0.7,
   },
   upcomingSection: {
