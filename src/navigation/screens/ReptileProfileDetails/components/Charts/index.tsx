@@ -1,4 +1,4 @@
-import { View } from "react-native"
+import { View, StyleSheet } from "react-native"
 import TemperatureChart from "./components/TemperatureChart"
 import HumidityChart from "./components/HumidityChart"
 import GraphicChart from "./components/GraphicChart"
@@ -23,7 +23,7 @@ const Charts:FC<ChartsProps> = (props) => {
     const { data, measurements, isPending } = props
     return (
         <>
-        <View style={{ flexDirection: "row" }}>
+        <View style={styles.topRow}>
         <TemperatureChart
           data={[
             {
@@ -62,7 +62,7 @@ const Charts:FC<ChartsProps> = (props) => {
           humidity={data?.humidity_level || ""}
         />
       </View>
-      <View style={{ gap: 10 }}>
+      <View style={styles.bottomRow}>
         <GraphicChart
           data={measurements?.map((m) => ({
             date: m.date,
@@ -86,3 +86,16 @@ const Charts:FC<ChartsProps> = (props) => {
 }
 
 export default Charts;
+
+const styles = StyleSheet.create({
+  topRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 8,
+    flexWrap: "wrap",
+  },
+  bottomRow: {
+    marginTop: 8,
+    gap: 12,
+  },
+});

@@ -1,10 +1,11 @@
 import React, { FC, useState } from "react";
-import { Alert, Button, Platform, StyleSheet, View } from "react-native";
+import { Alert, Platform, StyleSheet, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Avatar, Chip, TouchableRipple } from "react-native-paper";
+import { Avatar, Chip, Text, TouchableRipple, useTheme } from "react-native-paper";
 import { ReptileQuery } from "@shared/graphql/utils/types/types.generated";
 
 import handleImageUpload from "@shared/utils/handleImageUpload/index";
+import CardSurface from "@shared/components/CardSurface";
 
 type ReptilePictureProps = {
   data: ReptileQuery["reptile"];
@@ -15,6 +16,7 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
   const [imageUri, setImageUri] = useState<string | null>(
     data?.image_url || null
   );
+  const { colors } = useTheme();
   const pickImage = async () => {
     if (Platform.OS === "web") {
       const input = document.createElement("input");
@@ -45,41 +47,69 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.avatarContainer}>
-        <TouchableRipple onPress={pickImage} style={{ borderRadius: 100 }}>
-          <Avatar.Image
-            size={150}
-            source={
-              data?.image_url || imageUri
-                ? { uri: imageUri ? imageUri : data?.image_url }
-                : require("../../../../../../assets/cobra.png")
+    <CardSurface style={styles.card}>
+      <View style={styles.container}>
+        <View style={styles.avatarContainer}>
+          <TouchableRipple onPress={pickImage} style={styles.avatarTouch}>
+            <Avatar.Image
+              size={150}
+              source={
+                data?.image_url || imageUri
+                  ? { uri: imageUri ? imageUri : data?.image_url }
+                  : require("../../../../../../assets/cobra.png")
+              }
+            />
+          </TouchableRipple>
+        </View>
+        <Text variant="titleLarge">{data?.name}</Text>
+        <Text variant="bodySmall" style={styles.subtitle}>
+          Appuyez pour changer la photo.
+        </Text>
+        <View style={styles.chipRow}>
+          <Chip
+            icon={
+              data?.sort_of_species === "snake"
+                ? "snake"
+                : require("../../../../../../assets/lizard.png")
             }
-          />
-        </TouchableRipple>
+            style={{ backgroundColor: colors.secondaryContainer }}
+          >
+            {data?.species}
+          </Chip>
+          {data?.sex ? (
+            <Chip style={{ backgroundColor: colors.surfaceVariant }}>
+              {data?.sex}
+            </Chip>
+          ) : null}
+        </View>
       </View>
-      <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
-        <Chip
-          icon={
-            data?.sort_of_species === "snake"
-              ? "snake"
-              : require("../../../../../../assets/lizard.png")
-          }
-        >
-          {data?.species}
-        </Chip>
-      </View>
-    </View>
+    </CardSurface>
   );
 };
 
 const styles = StyleSheet.create({
+  card: {
+    marginBottom: 12,
+  },
   container: {
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   avatarContainer: { padding: 10 },
+  avatarTouch: {
+    borderRadius: 100,
+  },
+  subtitle: {
+    opacity: 0.6,
+  },
+  chipRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 6,
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
 });
 
 export default ReptilePicture;

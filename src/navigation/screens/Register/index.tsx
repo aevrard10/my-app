@@ -1,10 +1,20 @@
-import { View, StyleSheet, Image, KeyboardAvoidingView, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { useSnackbar } from "@rn-flix/snackbar";
-import { Button, Avatar, Surface, TextInput } from "react-native-paper";
-import useBreakpoints from "@shared/hooks/useBreakpoints";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import ScreenNames from "@shared/declarations/screenNames";
 import useRegisterMutation from "./hooks/mutations/useRegisterMutation";
+import Screen from "@shared/components/Screen";
+import CardSurface from "@shared/components/CardSurface";
 
 const initialValues = {
   email: "",
@@ -17,173 +27,200 @@ const schema = Yup.object().shape({
   password: Yup.string().required(),
   username: Yup.string().required(),
 });
+
 const Register = () => {
   const { mutate, isPending } = useRegisterMutation();
   const { show } = useSnackbar();
-  const { isMd } = useBreakpoints();
+  const { navigate } = useNavigation();
+  const { colors } = useTheme();
 
   return (
-    <ScrollView>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-          height: "100%",
-        }}
+    <Screen contentStyle={styles.screen}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Surface
-          style={{
-            width: "90%",
-            // overflow: "hidden",
-            backgroundColor: "white",
-          }}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
         >
-          <View style={{ flexDirection: "row" }}>
-            {isMd && (
+          <View style={styles.hero}>
+            <View
+              style={[styles.heroBadge, { backgroundColor: colors.secondary }]}
+            >
               <Image
-                source={{
-                  uri: "https://lapauseinfo.fr/wp-content/uploads/2024/02/26771140-une-bleu-serpent-naturel-contexte-gratuit-photo-scaled.jpeg",
-                }}
-                style={{ width: "50%", height: "100%" }}
+                source={require("../../../assets/twoReptile/reptile.png")}
+                style={styles.heroImage}
               />
-            )}
-            <View style={styles.container}>
-              <View style={styles.header}>
-                <View style={styles.avatarBorder}>
-                  <Avatar.Icon
-                    size={150}
-                    style={{
-                      borderWidth: 5,
-                      borderColor: "#fff",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    icon={"account-circle"}
-                  />
-                </View>
-              </View>
-
-              <Formik
-                initialValues={initialValues}
-                validationSchema={schema}
-                enableReinitialize
-                onSubmit={(values, { resetForm }) => {
-                  mutate(
-                    {
-                      input: {
-                        username: values.username,
-                        email: values.email,
-                        password: values.password,
-                      },
-                    },
-                    {
-                      onSuccess: async (data) => {
-                        resetForm();
-                        show("Inscription réussi", {
-                          label: "Ok",
-                        });
-                      },
-                      onError: () => {
-                        show(
-                          "Une erreur est survenue, Veuillez réessayer ...",
-                          {
-                            label: "Ok",
-                          }
-                        );
-                      },
-                    }
-                  );
-                }}
-              >
-                {(formik) => (
-                  <View style={styles.formContainer}>
-                    <TextInput
-                      mode="outlined"
-                      outlineStyle={{ borderWidth: 0 }}
-                      style={styles.input}
-                      placeholder="Nom d'utilisateur"
-                      value={formik.values.username}
-                      onChangeText={formik.handleChange("username")}
-                      onBlur={formik.handleBlur("username")}
-                    />
-                    <TextInput
-                      outlineStyle={{ borderWidth: 0 }}
-                      style={styles.input}
-                      placeholder="Email"
-                      keyboardType="email-address"
-                      mode="outlined"
-                      value={formik.values.email}
-                      onChangeText={formik.handleChange("email")}
-                      onBlur={formik.handleBlur("email")}
-                    />
-                    <TextInput
-                      outlineStyle={{ borderWidth: 0 }}
-                      mode="outlined"
-                      style={styles.input}
-                      placeholder="Mot de passe"
-                      value={formik.values.password}
-                      onChangeText={formik.handleChange("password")}
-                      onBlur={formik.handleBlur("password")}
-                    />
-
-                    <Button
-                      mode="outlined"
-                      loading={isPending}
-                      disabled={!formik.isValid}
-                      onPress={formik.submitForm}
-                      mode="contained"
-                    >
-                      S'inscrire
-                    </Button>
-                  </View>
-                )}
-              </Formik>
             </View>
+            <Text variant="headlineMedium" style={styles.title}>
+              Créer votre espace
+            </Text>
+            <Text variant="bodyMedium" style={styles.subtitle}>
+              Centralisez vos soins, stocks et historiques en quelques clics.
+            </Text>
           </View>
-        </Surface>
-      </View>
-    </KeyboardAvoidingView>
-    </ScrollView>
+
+          <CardSurface style={styles.card}>
+            <Text variant="titleLarge" style={styles.formTitle}>
+              Inscription
+            </Text>
+            <Text variant="bodySmall" style={styles.formSubtitle}>
+              Rejoignez votre tableau de bord reptile.
+            </Text>
+
+            <Formik
+              initialValues={initialValues}
+              validationSchema={schema}
+              enableReinitialize
+              onSubmit={(values, { resetForm }) => {
+                mutate(
+                  {
+                    input: {
+                      username: values.username,
+                      email: values.email,
+                      password: values.password,
+                    },
+                  },
+                  {
+                    onSuccess: async () => {
+                      resetForm();
+                      show("Inscription réussi", {
+                        label: "Ok",
+                      });
+                      navigate(ScreenNames.LOGIN);
+                    },
+                    onError: () => {
+                      show(
+                        "Une erreur est survenue, Veuillez réessayer ...",
+                        {
+                          label: "Ok",
+                        }
+                      );
+                    },
+                  }
+                );
+              }}
+            >
+              {(formik) => (
+                <View style={styles.formContainer}>
+                  <TextInput
+                    mode="outlined"
+                    style={styles.input}
+                    placeholder="Nom d'utilisateur"
+                    value={formik.values.username}
+                    onChangeText={formik.handleChange("username")}
+                    onBlur={formik.handleBlur("username")}
+                    left={<TextInput.Icon icon="account-outline" />}
+                  />
+                  <TextInput
+                    mode="outlined"
+                    style={styles.input}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    value={formik.values.email}
+                    onChangeText={formik.handleChange("email")}
+                    onBlur={formik.handleBlur("email")}
+                    left={<TextInput.Icon icon="email-outline" />}
+                  />
+                  <TextInput
+                    mode="outlined"
+                    style={styles.input}
+                    placeholder="Mot de passe"
+                    secureTextEntry
+                    value={formik.values.password}
+                    onChangeText={formik.handleChange("password")}
+                    onBlur={formik.handleBlur("password")}
+                    left={<TextInput.Icon icon="lock-outline" />}
+                  />
+
+                  <Button
+                    loading={isPending}
+                    disabled={!formik.isValid}
+                    onPress={formik.submitForm}
+                    mode="contained"
+                    contentStyle={styles.primaryButtonContent}
+                  >
+                    Créer mon compte
+                  </Button>
+                </View>
+              )}
+            </Formik>
+          </CardSurface>
+
+          <View style={styles.footer}>
+            <Text variant="bodySmall" style={styles.footerText}>
+              Déjà un compte ?
+            </Text>
+            <Button mode="text" onPress={() => navigate(ScreenNames.LOGIN)}>
+              Se connecter
+            </Button>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Screen>
   );
 };
+
 const styles = StyleSheet.create({
-  input: {
-    height: 60,
-    margin: 12,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  screen: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
-  avatarBorder: {
+  scrollContent: {
+    paddingBottom: 32,
+  },
+  hero: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  heroBadge: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "white",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    marginBottom: 16,
   },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    flexDirection: "column",
+  heroImage: {
+    width: 96,
+    height: 96,
+    resizeMode: "contain",
   },
-  header: {
-    marginTop: 20,
-    alignItems: "center",
-    justifyContent: "center",
+  title: {
+    textAlign: "center",
+  },
+  subtitle: {
+    textAlign: "center",
+    opacity: 0.7,
+    marginTop: 6,
+  },
+  card: {
+    padding: 20,
+  },
+  formTitle: {
+    marginBottom: 4,
+  },
+  formSubtitle: {
+    opacity: 0.65,
   },
   formContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    gap: 10,
+    marginTop: 16,
+    gap: 12,
+  },
+  input: {
+    backgroundColor: "transparent",
+  },
+  primaryButtonContent: {
+    paddingVertical: 6,
+  },
+  footer: {
+    alignItems: "center",
+    marginTop: 16,
+  },
+  footerText: {
+    opacity: 0.6,
   },
 });
+
 export default Register;

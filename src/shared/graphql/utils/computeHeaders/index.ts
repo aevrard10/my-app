@@ -4,10 +4,16 @@ import { assign, clone, isNil, omitBy } from "lodash";
 const defaultHeaders = { "Content-Type": "application/json" };
 
 function computeHeaders(requestHeaders?: RequestHeaders): HeadersInit {
-  return omitBy(
-    assign(clone(defaultHeaders), requestHeaders),
-    isNil
-  ) as HeadersInit;
+  const headers = assign(clone(defaultHeaders), requestHeaders) as Record<
+    string,
+    string | undefined | null
+  >;
+
+  if (headers.token && !headers.authorization) {
+    headers.authorization = `Bearer ${headers.token}`;
+  }
+
+  return omitBy(headers, isNil) as HeadersInit;
 }
 
 export { defaultHeaders };

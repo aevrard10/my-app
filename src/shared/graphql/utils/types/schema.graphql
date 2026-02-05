@@ -149,6 +149,13 @@ type FoodStockHistory {
   date: String!
 }
 
+type DashboardSummary {
+  reptiles_count: Int!
+  events_today: Int!
+  unread_notifications: Int!
+  upcoming_events: [ReptileEvent!]!
+}
+
 input UpdateFoodStockInput {
   food_id: ID!
   quantity_change: Int!
@@ -200,7 +207,7 @@ type Mutation {
   logout: LogoutResponse!
   addMeasurement(input: AddMeasurementInput!): Measurement
   markNotificationAsRead(id: Int!): Notification!
-  markAllNotificationsAsRead(user_id: Int!): [Notification!]!
+  markAllNotificationsAsRead: [Notification!]!
     lastFedUpdate(id: ID!, last_fed: String!): LastFedUpdateResponse
     updateFoodStock(input: UpdateFoodStockInput!): MutationResponse!
   addFoodStock(input: AddFoodStockInput!): FoodStock!
@@ -211,11 +218,12 @@ type Mutation {
 type Query {
   measurements(reptile_id: ID!): [Measurement!]!
   getNotifications: [Notification!]!
-  getUnreadNotificationsCount(user_id: Int!): Int!
+  getUnreadNotificationsCount: Int!
   reptile(id: ID!): Reptile
   reptiles: [Reptile]
   reptileEvent: [ReptileEvent]
   currentUser: User
       foodStock: [FoodStock!]!
   foodStockHistory: [FoodStockHistory!]!
+  dashboardSummary: DashboardSummary!
 }

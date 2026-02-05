@@ -1,6 +1,8 @@
 import { FC } from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Platform, StyleSheet } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
+import { Text, useTheme } from "react-native-paper";
+import CardSurface from "@shared/components/CardSurface";
 
 type HumidityChartProps = {
   data: {
@@ -13,24 +15,12 @@ type HumidityChartProps = {
 };
 const HumidityChart: FC<HumidityChartProps> = (props) => {
   const { data, humidity } = props;
+  const { colors } = useTheme();
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
-      <View
-        style={{
-          margin: 10,
-          padding: 16,
-          borderRadius: 20,
-          backgroundColor: "#232B5D",
-        }}
-      >
-        <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
-          Humidité
-        </Text>
-        <View style={{ padding: 20, alignItems: "center" }}>
+    <View style={styles.wrapper}>
+      <CardSurface style={styles.card}>
+        <Text variant="titleSmall">Humidité</Text>
+        <View style={styles.chartContainer}>
           <PieChart
             data={data}
             donut
@@ -44,15 +34,11 @@ const HumidityChart: FC<HumidityChartProps> = (props) => {
               web: 60,
               default: 30,
             })}
-            innerCircleColor={"#232B5D"}
+            innerCircleColor={colors.surface}
             centerLabelComponent={() => {
               return (
-                <View
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                >
-                  <Text
-                    style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
-                  >
+                <View style={styles.centerLabel}>
+                  <Text variant="titleMedium">
                     {humidity ?? ""}%
                   </Text>
                 </View>
@@ -60,9 +46,26 @@ const HumidityChart: FC<HumidityChartProps> = (props) => {
             }}
           />
         </View>
-      </View>
+      </CardSurface>
     </View>
   );
 };
 
 export default HumidityChart;
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+  card: {
+    marginVertical: 8,
+  },
+  chartContainer: {
+    padding: 16,
+    alignItems: "center",
+  },
+  centerLabel: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

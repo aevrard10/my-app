@@ -1,4 +1,11 @@
-import { Card, Button, Dialog, Portal, Text, Avatar } from "react-native-paper";
+import {
+  Card,
+  Button,
+  Dialog,
+  Portal,
+  Text,
+  Avatar,
+} from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { FC, useCallback, useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -9,6 +16,8 @@ import useReptilesQuery from "../../hooks/queries/useReptilesQuery";
 import { capitalize } from "lodash";
 import ScreenNames from "@shared/declarations/screenNames";
 import { getBackgroundColor, getIcon } from "../../utils/getSex";
+import { useSnackbar } from "@rn-flix/snackbar";
+import { useTheme } from "react-native-paper";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -19,9 +28,17 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   const queryClient = useQueryClient();
   const { mutate } = useRemoveReptileMutation();
   const [showDialog, setShowDialog] = useState(false);
+  const { show } = useSnackbar();
+  const { colors } = useTheme();
   const iconSex = useMemo(() => getIcon(item?.sex), [item?.sex]);
-const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]);
+  const backgroundColor = useMemo(
+    () => getBackgroundColor(item?.sex),
+    [item?.sex]
+  );
   const removeReptile = useCallback(() => {
+    if (!item?.id) {
+      return;
+    }
     mutate(
       { id: item?.id },
       {
@@ -40,7 +57,7 @@ const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]
         },
       }
     );
-  }, [item, mutate]);
+  }, [item?.id, mutate, queryClient, show]);
   return (
     <Card style={styles.card} mode="elevated">
       {item?.sex && (
@@ -62,24 +79,26 @@ const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]
             icon={iconSex}
             color={"#fff"}
           />
-          "
         </View>
       )}
       <Card.Cover
-        source={item?.image_url  ? {
-          uri: item?.image_url,
-        } : require("../../../../../../assets/cobra.png")}
+        source={
+          item?.image_url
+            ? {
+                uri: item?.image_url,
+              }
+            : require("../../../../../../assets/cobra.png")
+        }
         resizeMode="cover"
-        style={{
-          // prendre toute la largeur de la carte
-          backgroundColor: "#4CAF50",
-        }}
+        style={[styles.cover, { backgroundColor: colors.primary }]}
       />
       <Card.Title
         title={capitalize(item?.name)}
         subtitle={item?.age + " ans"}
+        titleStyle={styles.title}
+        subtitleStyle={styles.subtitle}
       />
-      <Card.Actions>
+      <Card.Actions style={styles.actions}>
         <Button
           onPress={() =>
             navigate(ScreenNames.REPTILE_PROFILE_DETAILS, {
@@ -101,11 +120,9 @@ const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]
         >
           <Dialog.Title>Suppression</Dialog.Title>
           <Dialog.Content>
-            <Dialog.Content>
-              <Text variant="bodyMedium">
-                Êtes-vous sûr de vouloir supprimer ce reptile ?
-              </Text>
-            </Dialog.Content>
+            <Text variant="bodyMedium">
+              Êtes-vous sûr de vouloir supprimer ce reptile ?
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setShowDialog(false)}>Annuler</Button>
@@ -118,8 +135,26 @@ const backgroundColor = useMemo(() => getBackgroundColor(item?.sex), [item?.sex]
 };
 const styles = StyleSheet.create({
   card: {
-    margin: 20,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 18,
+    overflow: "hidden",
     backgroundColor: "#fff",
+  },
+  cover: {
+    height: 180,
+    backgroundColor: "#2F5D50",
+  },
+  title: {
+    fontSize: 16,
+  },
+  subtitle: {
+    opacity: 0.6,
+  },
+  actions: {
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
 });
 export default CardComponent;

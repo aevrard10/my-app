@@ -1,14 +1,8 @@
 
 
 import React, { FC, useState } from "react";
-import { TextInput, View, StyleSheet, ScrollView, Modal } from "react-native";
-import {
-  
-  Button,
-  Surface,
-  Divider,
-  SegmentedButtons,
-} from "react-native-paper";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { Button, Divider, SegmentedButtons, Text } from "react-native-paper";
 import { Formik } from "formik";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
@@ -19,6 +13,9 @@ import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { useSnackbar } from "@rn-flix/snackbar";
 import useAddMeasurementMutation from "./hooks/data/mutations/useAddMeasurementsMutation";
 import ScreenNames from "@shared/declarations/screenNames";
+import Screen from "@shared/components/Screen";
+import CardSurface from "@shared/components/CardSurface";
+import TextInput from "@shared/components/TextInput";
 
 
 const initialValues = {
@@ -46,11 +43,12 @@ const AddMesuarements = ({ route }: Props) => {
     const queryClient = useQueryClient();
     const { mutate: addMeasurement } = useAddMeasurementMutation();
 const {navigate} = useNavigation();
- return ( <Formik
+ return (
+ <Screen>
+ <Formik
       initialValues={initialValues}
       enableReinitialize
       onSubmit={(values) => {
-        console.log('values',values);
         addMeasurement(
           {
             input: {
@@ -67,7 +65,6 @@ const {navigate} = useNavigation();
               queryClient.invalidateQueries({
                 queryKey: useMeasurementsQuery.queryKey,
               });
-              console.log("success");
 
               show("Mesures ajoutées avec succès!");
               navigate(ScreenNames.REPTILE_PROFILE_DETAILS, { id });
@@ -83,8 +80,17 @@ const {navigate} = useNavigation();
       {(formik) => (
   
         
-          <ScrollView>
-            <Surface style={styles.inputSection}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+            <View style={styles.header}>
+              <Text variant="headlineSmall">Ajouter des mesures</Text>
+              <Text variant="bodySmall" style={styles.headerSubtitle}>
+                Enregistrez poids et taille pour suivre l&apos;évolution.
+              </Text>
+            </View>
+            <CardSurface style={styles.inputSection}>
               <View
                 style={{
                   flexDirection: "row",
@@ -94,7 +100,7 @@ const {navigate} = useNavigation();
               >
                 <TextInput
                   placeholder="Poids"
-                  value={formik.values.weight}
+                  value={formik.values.weight?.toString() ?? ""}
                   onChangeText={(text) => {
                     const number = parseInt(text, 10);
                     formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
@@ -130,7 +136,7 @@ const {navigate} = useNavigation();
               >
                 <TextInput
                   placeholder="Taille"
-                  value={formik.values.size}
+                  value={formik.values.size?.toString() ?? ""}
                   onChangeText={(text) => {
                     const number = parseInt(text, 10);
                     formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
@@ -172,13 +178,12 @@ const {navigate} = useNavigation();
                 withDateFormatInLabel={false}
                 value={inputDate}
                 onChange={(data) => {
-                  console.log(formatYYYYMMDD(data));
                   setInputDate(data);
                   formik.setFieldValue("date", formatYYYYMMDD(data));
                 }}
                 inputMode="start"
               />
-            </Surface>
+            </CardSurface>
             <View style={styles.button}>
               <Button mode="contained" onPress={formik.submitForm}>
                 Ajouter
@@ -189,18 +194,30 @@ const {navigate} = useNavigation();
 
       )}
     </Formik>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  header: {
+    marginHorizontal: 12,
+    marginBottom: 12,
+  },
+  headerSubtitle: {
+    opacity: 0.7,
+    marginTop: 4,
+  },
   outlineStyle: {
     borderWidth: 0,
   },
   pickerInput: {
     borderWidth: 0,
-    borderColor: "#fff",
-    backgroundColor: "#fff",
-    borderTopColor: "#fff",
+    borderColor: "transparent",
+    backgroundColor: "transparent",
+    borderTopColor: "transparent",
     // backgroundColor: "red",
     position: "relative",
   },
@@ -217,17 +234,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
   },
   inputSection: {
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     margin: 10,
-    borderRadius: 10,
     flex:1,
   },
 });

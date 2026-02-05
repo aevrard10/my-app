@@ -1,7 +1,8 @@
 import { FC } from "react";
-import { Platform, View, Text, Dimensions } from "react-native";
+import { Platform, View, Dimensions, StyleSheet } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import { ActivityIndicator, Card } from "react-native-paper";
+import { ActivityIndicator, Text, useTheme } from "react-native-paper";
+import CardSurface from "@shared/components/CardSurface";
 
 type GraphicChartProps = {
   data: any;
@@ -9,36 +10,13 @@ type GraphicChartProps = {
 };
 const GraphicChart: FC<GraphicChartProps> = (props) => {
   const { data, isPending } = props;
+  const { colors } = useTheme();
   if (isPending) {
     return <ActivityIndicator animating={true} />;
   }
   return (
-    <Card
-      style={[
-        {
-          paddingVertical: 20,
-        },
-        Platform.select({
-          web: {
-            justifyContent: "center",
-            marginHorizontal: 20,
-            overflow: "hidden",
-          },
-          default: {
-            marginHorizontal: 20,
-            overflow: "hidden",
-          },
-        }),
-      ]}
-    >
-      <Text
-        style={{
-          fontSize: 14,
-          color: "black",
-          fontWeight: "bold",
-          textAlign: "center",
-        }}
-      >
+    <CardSurface style={styles.card}>
+      <Text variant="titleSmall" style={styles.title}>
         Poids du reptile
       </Text>
       <LineChart
@@ -48,10 +26,10 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
         width={Dimensions.get("window").width - 40}
         hideDataPoints
         spacing={10}
-        color="#00ff83"
+        color={colors.primary}
         thickness={2}
-        startFillColor="rgba(20,105,81,0.3)"
-        endFillColor="rgba(20,85,81,0.01)"
+        startFillColor="rgba(47,93,80,0.35)"
+        endFillColor="rgba(47,93,80,0.05)"
         startOpacity={0.9}
         endOpacity={0.2}
         initialSpacing={0}
@@ -66,9 +44,9 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
         xAxisColor="lightgray"
         pointerConfig={{
           pointerStripHeight: 160,
-          pointerStripColor: "lightgray",
+          pointerStripColor: "rgba(0,0,0,0.2)",
           pointerStripWidth: 2,
-          pointerColor: "lightgray",
+          pointerColor: "rgba(0,0,0,0.2)",
           radius: 6,
           pointerLabelWidth: 10,
           pointerLabelHeight: 9,
@@ -85,14 +63,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
                   marginLeft: -40,
                 }}
               >
-                <Text
-                  style={{
-                    color: "black",
-                    fontSize: 14,
-                    marginBottom: 6,
-                    textAlign: "center",
-                  }}
-                >
+                <Text variant="bodySmall" style={styles.pointerDate}>
                   {items[0].date}
                 </Text>
 
@@ -101,10 +72,10 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
                     paddingHorizontal: 14,
                     paddingVertical: 6,
                     borderRadius: 16,
-                    backgroundColor: "white",
+                    backgroundColor: colors.surface,
                   }}
                 >
-                  <Text style={{ fontWeight: "bold", textAlign: "center" }}>
+                  <Text variant="bodySmall" style={styles.pointerValue}>
                     {items[0].value + " " + items[0].weight_mesure}
                   </Text>
                 </View>
@@ -113,8 +84,27 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
           },
         }}
       />
-    </Card>
+    </CardSurface>
   );
 };
 
 export default GraphicChart;
+
+const styles = StyleSheet.create({
+  card: {
+    marginHorizontal: 12,
+    paddingVertical: 16,
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  pointerDate: {
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  pointerValue: {
+    textAlign: "center",
+    fontWeight: "700",
+  },
+});

@@ -17,11 +17,22 @@ const TextInfo: FC<TextProps> = (props) => {
     <View>
       <View style={styles.infoContainer}>
         <View style={styles.textContainer}>
-          <Text style={styles.text} variant="labelMedium">{title}</Text>
+          <Text style={styles.label} variant="labelMedium">
+            {title}
+          </Text>
           {!readOnly ? (
-          <TextInput keyboardType={keyboardType} value={value} onChangeText={onChangeText} textAlign="left"  />):(
-
-          <Text style={styles.text} variant="bodyLarge">{value}</Text>)}
+            <TextInput
+              keyboardType={keyboardType}
+              value={value}
+              onChangeText={onChangeText}
+              textAlign="left"
+              style={styles.input}
+            />
+          ) : (
+            <Text style={styles.value} variant="bodyLarge">
+              {value}
+            </Text>
+          )}
         </View>
       </View>
       {noDivider ? null : <Divider style={styles.divider} />}
@@ -29,12 +40,16 @@ const TextInfo: FC<TextProps> = (props) => {
   );
 };
 const styles = StyleSheet.create({
-  infoContainer: { marginVertical: 8, marginRight: 24, alignSelf: 'flex-start' },
-  textContainer: { marginVertical: 8 },
+  infoContainer: { marginVertical: 6, alignSelf: "flex-start" },
+  textContainer: { marginVertical: 6 },
   divider: {
     marginHorizontal: 16,
   },
-  text: { marginLeft: 10 },
+  label: { opacity: 0.6 },
+  value: { marginTop: 4 },
+  input: {
+    marginTop: 4,
+  },
 });
 
 export default TextInfo;

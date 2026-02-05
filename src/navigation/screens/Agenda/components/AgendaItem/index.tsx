@@ -1,7 +1,7 @@
-import { ReptileEventQuery } from "@shared/graphql/utils/types/types.generated";
 import { FC } from "react";
-import { View } from "react-native";
-import { Surface, Text } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+import CardSurface from "@shared/components/CardSurface";
 
 type AgendaItemProps = {
   item: {
@@ -13,51 +13,53 @@ type AgendaItemProps = {
 
 const AgendaItem: FC<AgendaItemProps> = (props) => {
   const { item } = props;
+  const { colors } = useTheme();
 
   return (
-    <Surface
-      style={{
-        marginTop: 16,
-        backgroundColor: "white",
-        marginHorizontal: 10,
-        padding: 20,
-
-        borderRadius: 10,
-        flex: 1,
-      }}
-    >
-      <View
-        style={{
-          justifyContent: "space-between",
-
-          flexDirection: "row",
-          marginBottom: 10,
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <Text
-          style={{
-            flex: 1, // Permet au texte de s'adapter dans l'espace disponible
-            marginRight: 10, // Espacement pour éviter le chevauchement avec l'heure
-          }}
-          numberOfLines={1}
-          variant="titleMedium"
-        >
+    <CardSurface style={styles.card}>
+      <View style={styles.row}>
+        <View
+          style={[styles.dot, { backgroundColor: colors.primary }]}
+        />
+        <Text style={styles.title} numberOfLines={1} variant="titleMedium">
           {item?.name}
         </Text>
-        <Text
-          style={{
-            flexShrink: 0, // Empêche l'heure de rétrécir
-          }}
-          variant="labelSmall"
-        >
+        <Text style={styles.time} variant="labelSmall">
           {item?.time}
         </Text>
       </View>
-      <Text numberOfLines={1}>{item?.notes}</Text>
-    </Surface>
+      <Text numberOfLines={2} style={styles.notes}>
+        {item?.notes}
+      </Text>
+    </CardSurface>
   );
 };
 
 export default AgendaItem;
+
+const styles = StyleSheet.create({
+  card: {
+    marginTop: 12,
+    paddingVertical: 16,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  title: {
+    flex: 1,
+  },
+  time: {
+    opacity: 0.7,
+  },
+  notes: {
+    opacity: 0.7,
+  },
+});

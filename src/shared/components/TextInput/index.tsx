@@ -4,13 +4,16 @@ import {
   StyleSheet,
   TextInputProps,
 } from "react-native";
+import { useTheme } from "react-native-paper";
 
 const TextInput: FC<TextInputProps> = (props) => {
+  const { colors } = useTheme();
   return (
     <RNTextInput
       {...props}
-      style={styles.input}
-      placeholderTextColor="gray" // Assurez-vous que la couleur est visible
+      style={[styles.input, props.style]}
+      placeholderTextColor={props.placeholderTextColor ?? colors.outline}
+      selectionColor={colors.primary}
     />
   );
 };
@@ -22,7 +25,7 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     backgroundColor: "#fff",
     borderRadius: 10,
-    fontFamily: "Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    fontFamily: "JetBrainsMono-Regular",
   },
 });
 export default TextInput;

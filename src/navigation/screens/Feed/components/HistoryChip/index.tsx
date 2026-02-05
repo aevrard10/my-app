@@ -26,7 +26,8 @@ const HistoryChip: FC<HistoryChipProps> = (props) => {
 const styles = StyleSheet.create({
   chipContainer: { flexDirection: "row", justifyContent: "space-between" },
   chip: {
-    margin: 16,
+    marginBottom: 12,
+    alignSelf: "flex-start",
   },
   textStyle: { color: "#fff", fontWeight: "bold" },
 });

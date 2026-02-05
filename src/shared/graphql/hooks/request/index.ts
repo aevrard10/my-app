@@ -1,4 +1,3 @@
-import queryClient from "@shared/graphql/utils/queryClient";
 import {
   ErrorPolicy,
   Options,
@@ -7,7 +6,7 @@ import {
   Result,
   RequestVariables,
 } from "./types";
-import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
+import { getGraphQLEndpoint } from "@shared/config/api";
 import computeHeaders from "@shared/graphql/utils/computeHeaders";
 import { assign } from "lodash";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,23 +28,13 @@ function parseRequestExtendedArgs<TVariables extends RequestVariables>(
 async function getToken(): Promise<string | null> {
   try {
     const data = await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
-    //  await queryClient.ensureQueryData({
-    //   queryKey: useCurrentTokenQuery.queryKey,
-    //   queryFn: async () => {
-    //     return await AsyncStorage.getItem(QueriesKeys.USER_TOKEN);
-    //   }, 
-    // });
-    console.log(`Token: ${data}`);
     return data as string;
   } catch (e) {
     return null;
   }
 }
 function getEndpoint() {
-  if (!process.env.EXPO_PUBLIC_API_URL)
-    throw new Error("Request is missing API endpoint");
-  console.log(`Requesting to ${process.env.EXPO_PUBLIC_API_URL}`);
-  return `${process.env.EXPO_PUBLIC_API_URL}`;
+  return getGraphQLEndpoint();
 }
 const request: Request = async <
   TData,

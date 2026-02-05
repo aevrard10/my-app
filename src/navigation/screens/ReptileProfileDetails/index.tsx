@@ -1,7 +1,7 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, FAB, Surface, useTheme } from "react-native-paper";
+import { Button, FAB, useTheme } from "react-native-paper";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
@@ -20,6 +20,8 @@ import {
   formatDateToYYYYMMDD,
   formatLongDateToYYYYMMDD,
 } from "@shared/utils/formatedDate";
+import Screen from "@shared/components/Screen";
+import CardSurface from "@shared/components/CardSurface";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -78,7 +80,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
       }
     );
   };
-  console.log(data);
   return (
     <>
       <Formik
@@ -106,12 +107,16 @@ const ReptileProfileDetails = ({ route }: Props) => {
       >
         {(formik) => (
           <>
-            <ScrollView>
+            <Screen>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
               <ReptilePicture data={data} />
 
               <FeedPortal id={id} food={food} data={data} />
 
-              <Surface style={styles.inputSection}>
+              <CardSurface style={styles.inputSection}>
                 <TextInfo
                   keyboardType="numeric"
                   title="Âge"
@@ -142,8 +147,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   value={formik.values?.origin || ""}
                   noDivider
                 />
-              </Surface>
-              <Surface style={styles.inputSection}>
+              </CardSurface>
+              <CardSurface style={styles.inputSection}>
                 <TextInfo
                   readOnly={false}
                   title="Emplacement"
@@ -177,8 +182,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     formik.setFieldValue("temperature_range", text);
                   }}
                 />
-              </Surface>
-              <Surface style={styles.inputSection}>
+              </CardSurface>
+              <CardSurface style={styles.inputSection}>
                 <TextInfo
                   readOnly={false}
                   title="Dernier repas"
@@ -193,9 +198,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     formik.setFieldValue("diet", text);
                   }}
                 />
-              </Surface>
+              </CardSurface>
 
-              <Surface style={styles.inputSection}>
+              <CardSurface style={styles.inputSection}>
                 <TextInfo
                   readOnly={false}
                   value={formik.values?.health_status || ""}
@@ -204,14 +209,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     formik.setFieldValue("health_status", text);
                   }}
                 />
-              </Surface>
-              <View style={{ marginHorizontal: 20 }}>
+              </CardSurface>
+              <View style={styles.actionBlock}>
 
               <Button mode="contained" onPress={formik.submitForm}>
                 Modifier les informations
               </Button>
               </View>
-              <View style={{ margin: 20 }}>
+              <CardSurface style={styles.notesCard}>
                 <TextInput
                   multiline
                   style={styles.input}
@@ -225,7 +230,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     Enregistrer les notes
                   </Button>
                 </View>
-              </View>
+              </CardSurface>
               <Charts
                 data={data}
                 measurements={measurements}
@@ -247,6 +252,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 navigation.navigate(ScreenNames.ADD_MEASUREMENTS, { id })
               }
             />
+            </Screen>
           </>
         )}
       </Formik>
@@ -255,18 +261,25 @@ const ReptileProfileDetails = ({ route }: Props) => {
 };
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 140,
+  },
   input: {
     padding: 10,
     outlineStyle: "none",
     borderRadius: 30,
-    borderColor: "#fff",
-    backgroundColor: "#fff",
+    borderColor: "transparent",
+    backgroundColor: "transparent",
   },
   inputSection: {
-    // overflow: "hidden",
-    margin: 10,
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    marginVertical: 8,
+  },
+  actionBlock: {
+    marginHorizontal: 12,
+    marginTop: 8,
+  },
+  notesCard: {
+    marginVertical: 12,
   },
 });
 

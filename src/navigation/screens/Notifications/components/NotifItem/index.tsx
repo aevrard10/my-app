@@ -3,7 +3,6 @@ import React, { FC, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Icon,
-  Surface,
   TouchableRipple,
   useTheme,
   Text,
@@ -11,6 +10,8 @@ import {
 import useMarkNotificationAsReadMutationMutation from "../../hooks/mutations/useMarkNotificationAsReadMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import useGetNotificationsQuery from "../../hooks/queries/GetNotificationsQuery";
+import CardSurface from "@shared/components/CardSurface";
+import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 type NotifItemProps = {
   item: {
     message: string;
@@ -23,11 +24,9 @@ type NotifItemProps = {
 const NotifItem: FC<NotifItemProps> = (props) => {
   const { item } = props;
   const { colors } = useTheme();
-  const { mutate } = useMarkNotificationAsReadMutationMutation(item?.id);
+  const { mutate } = useMarkNotificationAsReadMutationMutation();
   const queryClient = useQueryClient();
   const markNotificationAsRead = useCallback(() => {
-    console.log("item", item?.id);
-
     mutate(
       {
         id: item?.id,
@@ -37,24 +36,29 @@ const NotifItem: FC<NotifItemProps> = (props) => {
           queryClient.invalidateQueries({
             queryKey: useGetNotificationsQuery.queryKey,
           });
-        },
-        onError: (e) => {
-          console.log("Error", e);
+          queryClient.invalidateQueries({
+            queryKey: useDashboardSummaryQuery.queryKey,
+          });
         },
       }
     );
-  }, [item?.id]);
-  const created_at = item?.created_at * 1000;
+  }, [item?.id, mutate, queryClient]);
+  const created_at =
+    typeof item?.created_at === "number"
+      ? item?.created_at * 1000
+      : item?.created_at;
   return (
     <TouchableRipple
       onPress={markNotificationAsRead}
       style={styles.touchableRipple}
     >
-      <Surface
+      <CardSurface
         style={[
           styles.surface,
           {
-            backgroundColor: item?.read ? "#fff" : colors.secondaryContainer,
+            backgroundColor: item?.read
+              ? colors.surface
+              : colors.secondaryContainer,
           },
         ]}
       >
@@ -109,20 +113,20 @@ const NotifItem: FC<NotifItemProps> = (props) => {
             </Text>
           </View>
         </View>
-      </Surface>
+      </CardSurface>
     </TouchableRipple>
   );
 };
 
 const styles = StyleSheet.create({
   touchableRipple: {
-    marginBottom: 10,
-    borderRadius: 6,
-    marginHorizontal: 16,
-    marginTop: 10,
+    marginBottom: 12,
+    borderRadius: 18,
+    marginTop: 8,
   },
   surface: {
-    borderRadius: 6,
+    borderRadius: 18,
+    padding: 12,
   },
   identifierAndText: {
     flexDirection: "row",
@@ -130,16 +134,15 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   container: {
-    marginLeft: 16,
+    marginLeft: 12,
     flex: 1,
     width: "100%",
   },
   surfaceContainer: {
     flexDirection: "row",
-    paddingLeft: 16,
-    paddingVertical: 12,
+    paddingVertical: 4,
     alignItems: "center",
-    paddingRight: 24,
+    paddingRight: 8,
   },
   imageContainer: {
     width: 24,

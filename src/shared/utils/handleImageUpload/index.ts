@@ -1,13 +1,13 @@
 import queryClient from "@shared/graphql/utils/queryClient";
 import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 import * as FileSystem from "expo-file-system";
+import { getUploadEndpoint } from "@shared/config/api";
 
 const cleanFileFromCache = async (fileUri: string, deleteIt = false) => {
   if (!deleteIt) {
     return;
   }
 
-  console.log("🗂️ 👉 DELETING FILE FROM CACHE DIRECTORY..");
   await FileSystem.deleteAsync(fileUri);
 };
 
@@ -39,9 +39,6 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
       queryKey: useCurrentTokenQuery.queryKey,
       queryFn: useCurrentTokenQuery.queryFn,
     });
-    console.log("🗂️ UPLOADING IMAGE (MOBILE)..");
-    console.log("🗂️ file: ", file);
-    console.log("🗂️ reptile ID: ", d);
 
     let documentUri: string;
 
@@ -53,8 +50,6 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
       throw new Error("Impossible de récupérer l'URI du fichier.");
     }
 
-    console.log("🗂️ documentUri: ", documentUri);
-
     const formData = new FormData();
     formData.append("image", {
       uri: documentUri,
@@ -63,15 +58,10 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
     });
     formData.append("reptileId", d); // Associe l'ID du reptile à l'upload
 
-    console.log("🗂️ FormData:", formData);
-
-    const response = await fetch("https://back-hsvb.onrender.com/api/upload", {
+    const response = await fetch(getUploadEndpoint(), {
       method: "POST",
       body: formData,
-      headers: {
-        token, // Ajoute ton token ici si nécessaire pour l'authentification
-        "Content-Type": "multipart/form-data",
-      },
+      headers: token ? { token } : undefined,
     });
 
     if (!response.ok) {
@@ -79,13 +69,8 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
     }
 
     const data = await response.json();
-    console.log("🗂️ Image uploadée avec succès :", data.imageUrl);
-
-    // Faire quelque chose avec l'URL retournée, par exemple mettre à jour l'interface utilisateur
-    return data.imageUrl; // Tu peux retourner l'URL pour l'utiliser où nécessaire
-
+    return data.imageUrl;
   } catch (error) {
-    console.error("🗂️ 👉 UPLOAD ERROR: ", error);
     throw error;
   }
 };

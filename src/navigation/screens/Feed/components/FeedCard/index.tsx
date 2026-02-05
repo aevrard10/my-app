@@ -1,5 +1,13 @@
-import { View } from "react-native"
-import { Avatar, Button, Card, Chip, Icon, ProgressBar } from "react-native-paper"
+import { View, StyleSheet } from "react-native";
+import {
+  Avatar,
+  Button,
+  Card,
+  Chip,
+  Icon,
+  ProgressBar,
+  useTheme,
+} from "react-native-paper";
 import getFoodIcon, { FoodType } from "../../utils/getFoodIcon"
 import TextInput from "@shared/components/TextInput"
 import { FC } from "react"
@@ -21,16 +29,17 @@ type FoodCardProps = {
 }
 const FeedCard :FC<FoodCardProps> = (props) => {
    const { food, isLoading, handleUpdateStock, quantity, setQuantity, colors } = props;
+   const { colors: themeColors } = useTheme();
    const stockLow = food.quantity < 10;
    const stockCritical = food.quantity === 0;
 
    const progress = Math.min(
      Math.floor(food.quantity) / 200,
      1
-   )?.toFixed(1); // Par exemple 100 comme valeur max
+   ); // Par exemple 100 comme valeur max
     return (
-        <View style={{ margin: 16 }} key={food.id}>
-        <Card>
+        <View style={styles.wrapper} key={food.id}>
+        <Card style={styles.card}>
           <Card.Title
             title={food.name}
             subtitle={food.type || "Nourriture"}
@@ -46,14 +55,16 @@ const FeedCard :FC<FoodCardProps> = (props) => {
                 icon={() => (
                   <Icon source={getFoodIcon(food.type)} size={16} color="white" />
                 )}
-                style={{
-                  marginRight: 8,
-                  backgroundColor: stockCritical
-                    ? "darkred"
-                    : stockLow
-                    ? "red"
-                    : "green",
-                }}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: stockCritical
+                      ? "#C33C3C"
+                      : stockLow
+                      ? "#B67A2E"
+                      : themeColors.primary,
+                  },
+                ]}
                 textStyle={{ color: "#fff", fontWeight: "bold" }}
               >
                 {food.quantity} {food.unit || "restant(s)"}
@@ -63,18 +74,19 @@ const FeedCard :FC<FoodCardProps> = (props) => {
           <Card.Content>
             <ProgressBar
               progress={progress}
-              color={stockLow ? "red" : colors.primary}
+              color={stockLow ? "#B67A2E" : colors.primary}
+              style={styles.progress}
             />
           </Card.Content>
          
 
-          <Card.Actions style={{ justifyContent: "space-between" }}>
+          <Card.Actions style={styles.actions}>
           <TextInput
             label="Quantité"
             keyboardType="numeric"
             value={String(quantity)}
             onChangeText={(text) => setQuantity(parseInt(text) || 1)}  // Mettre à jour la quantité
-            style={{ margin: 16 , backgroundColor: colors.surface}}
+            style={[styles.quantityInput, { backgroundColor: colors.surface }]}
           />
             <Button
               mode="contained"
@@ -96,5 +108,34 @@ const FeedCard :FC<FoodCardProps> = (props) => {
     )
 }
 
+const styles = StyleSheet.create({
+  wrapper: {
+    marginVertical: 10,
+  },
+  card: {
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  chip: {
+    marginRight: 8,
+  },
+  progress: {
+    height: 6,
+    borderRadius: 6,
+    marginTop: 6,
+  },
+  actions: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 8,
+    paddingBottom: 12,
+  },
+  quantityInput: {
+    margin: 8,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+  },
+});
 
 export default FeedCard;

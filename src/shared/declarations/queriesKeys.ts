@@ -8,6 +8,7 @@ enum QueriesKeys {
   MESUAREMENTS = "mesuarements",
   STOCK = "stock",
   FEED_HISTORY = "feedHistory",
+  DASHBOARD_SUMMARY = "dashboardSummary",
 }
 
 export default QueriesKeys;

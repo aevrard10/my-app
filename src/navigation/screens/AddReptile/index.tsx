@@ -3,8 +3,8 @@ import {
   Button,
   Divider,
   SegmentedButtons,
-  Surface,
   TouchableRipple,
+  Text,
 } from "react-native-paper";
 import { Formik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,9 +24,11 @@ import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TextInput from "@shared/components/TextInput";
 import * as ImagePicker from "expo-image-picker";
-import handleImageUpload from "@shared/utils/handleImageUpload/index.web";
+import handleImageUpload from "@shared/utils/handleImageUpload";
 import useAddReptilesMutation from "../Reptiles/hooks/mutations/useAddReptilesMutation";
 import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
+import Screen from "@shared/components/Screen";
+import CardSurface from "@shared/components/CardSurface";
 
 const initialValues = {
   name: "",
@@ -103,14 +105,21 @@ const AddReptile = () => {
     }
   };
   return (
-    <ScrollView keyboardShouldPersistTaps="handled">
+    <Screen>
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={styles.scrollContent}
+    >
+      <View style={styles.header}>
+        <Text variant="headlineSmall">Nouveau reptile</Text>
+        <Text variant="bodySmall" style={styles.headerSubtitle}>
+          Ajoutez un compagnon et commencez le suivi.
+        </Text>
+      </View>
       <View style={styles.container}>
         <View style={styles.avatarContainer}>
           <TouchableRipple
-            style={{
-              borderRadius: 100,
-              overflow: "hidden",
-            }}
+            style={styles.avatarTouch}
             onPress={pickImage}
           >
             <Avatar.Image
@@ -122,6 +131,9 @@ const AddReptile = () => {
               }
             />
           </TouchableRipple>
+          <Text variant="bodySmall" style={styles.avatarHint}>
+            Appuyez pour ajouter une photo.
+          </Text>
         </View>
       </View>
 
@@ -184,7 +196,7 @@ const AddReptile = () => {
             style={{ flex: 1 }}
           >
             <View style={styles.formContainer}>
-              <Surface style={styles.inputSection}>
+              <CardSurface style={styles.inputSection}>
                 <TextInput
                   placeholder="Nom"
                   value={formik.values.name}
@@ -198,8 +210,8 @@ const AddReptile = () => {
                   value={formik.values.species}
                   onChangeText={formik.handleChange("species")}
                 />
-              </Surface>
-              <Surface style={styles.inputSection}>
+              </CardSurface>
+              <CardSurface style={styles.inputSection}>
                 <TextInput
                   placeholder="Origine"
                   value={formik.values.origin}
@@ -213,8 +225,8 @@ const AddReptile = () => {
                   onChangeText={formik.handleChange("location")}
                   onBlur={formik.handleBlur("location")}
                 />
-              </Surface>
-              <Surface style={[styles.inputSection]}>
+              </CardSurface>
+              <CardSurface style={[styles.inputSection]}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <TextInput
                     placeholder="Age"
@@ -249,9 +261,9 @@ const AddReptile = () => {
                     inputMode="start"
                   />
                 </View>
-              </Surface>
+              </CardSurface>
 
-              <Surface style={styles.inputSection}>
+              <CardSurface style={styles.inputSection}>
                 <TextInput
                   placeholder="Régime alimentaire"
                   value={formik.values.diet}
@@ -295,11 +307,11 @@ const AddReptile = () => {
                   inputMode="start"
                 />
                 <Divider style={{ marginHorizontal: 8 }} />
-              </Surface>
-              <Surface style={styles.inputSection}>
+              </CardSurface>
+              <CardSurface style={styles.inputSection}>
                 <TextInput
                   placeholder="Niveau d'humidité"
-                  value={formik.values.humidity_level}
+                  value={formik.values.humidity_level?.toString() ?? ""}
                   onChangeText={(text) => {
                     const number = parseInt(text, 10);
                     formik.setFieldValue(
@@ -316,40 +328,42 @@ const AddReptile = () => {
                   onChangeText={formik.handleChange("temperature_range")}
                   onBlur={formik.handleBlur("temperature_range")}
                 />
-              </Surface>
+              </CardSurface>
 
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                <SegmentedButtons
-                  value={formik.values.snake}
-                  onValueChange={formik.handleChange("snake")}
-                  style={{ flex: 1 }}
-                  buttons={[
-                    {
-                      value: "snake",
-                      label: "Serpent",
-                    },
-                    {
-                      value: "lizard",
-                      label: "Varan",
-                    },
-                  ]}
-                />
-                <SegmentedButtons
-                  style={{ flex: 1 }}
-                  value={formik.values.sex}
-                  onValueChange={formik.handleChange("sex")}
-                  buttons={[
-                    {
-                      value: "Femelle",
-                      icon: "gender-female",
-                    },
-                    {
-                      value: "Mâle",
-                      icon: "gender-male",
-                    },
-                  ]}
-                />
-              </View>
+              <CardSurface>
+                <View style={styles.segmentRow}>
+                  <SegmentedButtons
+                    value={formik.values.snake}
+                    onValueChange={formik.handleChange("snake")}
+                    style={{ flex: 1 }}
+                    buttons={[
+                      {
+                        value: "snake",
+                        label: "Serpent",
+                      },
+                      {
+                        value: "lizard",
+                        label: "Varan",
+                      },
+                    ]}
+                  />
+                  <SegmentedButtons
+                    style={{ flex: 1 }}
+                    value={formik.values.sex}
+                    onValueChange={formik.handleChange("sex")}
+                    buttons={[
+                      {
+                        value: "Femelle",
+                        icon: "gender-female",
+                      },
+                      {
+                        value: "Mâle",
+                        icon: "gender-male",
+                      },
+                    ]}
+                  />
+                </View>
+              </CardSurface>
 
               <Button
                 icon={"plus"}
@@ -365,24 +379,44 @@ const AddReptile = () => {
         )}
       </Formik>
     </ScrollView>
+    </Screen>
   );
 };
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  header: {
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  headerSubtitle: {
+    opacity: 0.7,
+    marginTop: 4,
+  },
   container: {
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
   },
   avatarContainer: { padding: 10 },
+  avatarTouch: {
+    borderRadius: 100,
+    overflow: "hidden",
+  },
+  avatarHint: {
+    marginTop: 6,
+    opacity: 0.6,
+  },
   outlineStyle: {
     borderWidth: 0,
   },
   pickerInput: {
     borderWidth: 0,
-    borderColor: "#fff",
-    backgroundColor: "#fff",
-    borderTopColor: "#fff",
-    // backgroundColor: "red",
+    borderColor: "transparent",
+    backgroundColor: "transparent",
+    borderTopColor: "transparent",
     position: "relative",
   },
   formContainer: {
@@ -391,10 +425,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   inputSection: {
-    // overflow: "hidden",
-    margin: 10,
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    marginVertical: 8,
+  },
+  segmentRow: {
+    flexDirection: "row",
+    gap: 10,
   },
   verticleLine: {
     height: "70%",
@@ -408,8 +443,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 30,
     borderWidth: 0,
-    borderColor: "#fff",
-    backgroundColor: "#fff",
+    borderColor: "transparent",
+    backgroundColor: "transparent",
   },
 });
 export default AddReptile;
