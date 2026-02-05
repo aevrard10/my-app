@@ -1,6 +1,7 @@
 import { gql } from "graphql-request";
 import useQuery from "@shared/graphql/hooks/useQuery";
 import QueriesKeys from "@shared/declarations/queriesKeys";
+import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 
 type DashboardSummary = {
   reptiles_count: number;
@@ -40,12 +41,14 @@ const queryKey = [QueriesKeys.DASHBOARD_SUMMARY];
 
 const useDashboardSummaryQuery = Object.assign(
   () => {
+    const [, token] = useCurrentTokenQuery();
     return useQuery<DashboardSummaryQuery, void, DashboardSummary>({
       queryKey,
       query,
       options: {
         select: (data) => data.dashboardSummary,
         staleTime: 1000 * 60 * 2,
+        enabled: !!token,
       },
     });
   },

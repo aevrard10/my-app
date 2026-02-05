@@ -7,6 +7,7 @@ enum ScreenNames {
   FEED = "Feed",
   NOT_FOUND = "NotFound",
   HOME = "Home",
+  REPTILES = "Reptiles",
   PROFILE = "Profile",
   AGENDA = "Agenda",
   NOTIFICATIONS = "Notifications",
