@@ -4,13 +4,10 @@ import ReptileProfileDetails from "./screens/ReptileProfileDetails";
 import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
 import { Icon, IconButton, useTheme } from "react-native-paper";
-import Login from "./screens/Login";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
 import { useAuth } from "@shared/contexts/AuthContext";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 import Agenda from "./screens/Agenda";
-import Register from "./screens/Register";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
 import { Reptiles } from "./screens/Reptiles";
@@ -21,18 +18,16 @@ import AddFeed from "./screens/AddFeed";
 import FeedHistory from "./screens/FeedHistory";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
-import ForgotPassword from "./screens/ForgotPassword";
-import ResetPassword from "./screens/ResetPassword";
 import AppleLogin from "./screens/AppleLogin";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { data: summary } = useDashboardSummaryQuery();
-  const unreadCount = summary?.unread_notifications ?? 0;
-  const notificationsBadge =
-    unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : undefined;
+  // const { data: summary } = useDashboardSummaryQuery();
+  // const unreadCount = summary?.unread_notifications ?? 0;
+  // const notificationsBadge =
+  //   unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : undefined;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -77,7 +72,11 @@ const HomeTabs = () => {
           title: "Aliments",
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
-            <Icon source={"food-fork-drink"} color={colors.primary} size={size} />
+            <Icon
+              source={"food-fork-drink"}
+              color={colors.primary}
+              size={size}
+            />
           ),
           headerShown: false,
         }}
@@ -104,7 +103,7 @@ const HomeTabs = () => {
           tabBarIcon: ({ size }) => (
             <Icon source={"bell"} color={colors.primary} size={size} />
           ),
-          tabBarBadge: notificationsBadge,
+          // tabBarBadge: notificationsBadge,
           tabBarBadgeStyle: {
             backgroundColor: colors.error,
             color: "#fff",
@@ -123,7 +122,6 @@ const MyStack = () => {
   const { mutate } = useLogoutMutation();
   return (
     <Stack.Navigator
-    
       screenOptions={{
         header: ({ options, route, back }) => (
           <Header
@@ -151,26 +149,6 @@ const MyStack = () => {
     >
       {!token ? (
         <>
-          <Stack.Screen
-            name={ScreenNames.LOGIN}
-            component={Login}
-            options={{ title: "Connexion", headerShown: false }}
-          />
-          <Stack.Screen
-            name={ScreenNames.REGISTER}
-            component={Register}
-            options={{ title: "Inscription" }}
-          />
-          <Stack.Screen
-            name={ScreenNames.FORGOT_PASSWORD}
-            component={ForgotPassword}
-            options={{ title: "Mot de passe oublié" }}
-          />
-          <Stack.Screen
-            name={ScreenNames.RESET_PASSWORD}
-            component={ResetPassword}
-            options={{ title: "Nouveau mot de passe" }}
-          />
           <Stack.Screen
             name={ScreenNames.APPLE_LOGIN}
             component={AppleLogin}
@@ -218,7 +196,7 @@ const MyStack = () => {
               title: "Ajouter des aliments",
             }}
           />
-             <Stack.Screen
+          <Stack.Screen
             name={ScreenNames.FEED_HISTORY}
             component={FeedHistory}
             options={{

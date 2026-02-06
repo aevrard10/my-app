@@ -110,19 +110,23 @@ export const upsertReptileEvent = async (
   return next;
 };
 
-export const deleteReptileEvent = async (id: string, event_date: string) => {
-  const month = monthFromDate(event_date);
-  const bucket = await readBucket(month);
-  const filtered = bucket.filter((e) => e.id !== id);
-  await writeBucket(month, filtered);
-  if (filtered.length === 0) {
-    const months = await readIndex();
-    const next = months.filter((m) => m !== month);
-    await writeIndex(next);
+export const deleteReptileEvent = async (id: string, event_date?: string) => {
+  const months = await readIndex();
+  const targets = event_date ? [monthFromDate(event_date)] : months;
+  for (const month of targets) {
+    const bucket = await readBucket(month);
+    const filtered = bucket.filter((e) => e.id !== id);
+    if (filtered.length !== bucket.length) {
+      await writeBucket(month, filtered);
+      if (filtered.length === 0) {
+        const nextIdx = (await readIndex()).filter((m) => m !== month);
+        await writeIndex(nextIdx);
+      }
+    }
   }
 };
 
 export const excludeReptileEventOccurrence = async (
   id: string,
-  date: string,
+  date?: string,
 ): Promise<void> => deleteReptileEvent(id, date);

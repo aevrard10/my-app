@@ -1,40 +1,42 @@
-import { gql } from "graphql-request";
-import useQuery from "@shared/graphql/hooks/useQuery";
+import { useQuery } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
-import {
-  FoodStockQuery,
-  FoodStockQueryVariables,
-} from "@shared/graphql/utils/types/types.generated";
+import { execute } from "@shared/local/db";
 
-const query = gql`
-  query FoodStockQuery {
-    foodStock {
-      id
-      name
-      quantity
-      unit
-      last_updated
-      type
-    }
-  }
-`;
+type StockItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  unit?: string | null;
+  last_updated?: string | null;
+};
+
 const queryKey = [QueriesKeys.STOCK];
 
 const useFoodQuery = Object.assign(
-  () => {
-    return useQuery<
-      FoodStockQuery,
-      FoodStockQueryVariables,
-      FoodStockQuery["foodStock"]
-    >({
-      queryKey, //TODO: add id in queryKey
-      query,
-      options: {
-        select: (data) => data?.foodStock || [],
+  () =>
+    useQuery<StockItem[]>({
+      queryKey,
+      queryFn: async () => {
+        const rows = await execute(
+          `SELECT food_name as name,
+                  IFNULL(SUM(quantity),0) as quantity,
+                  unit,
+                  MAX(fed_at) as last_updated
+           FROM feedings
+           WHERE reptile_id = 'stock'
+           GROUP BY food_name, unit
+           ORDER BY last_updated DESC;`,
+        );
+        return rows.map((r: any) => ({
+          id: `${r.name}-${r.unit || ""}`,
+          name: r.name,
+          quantity: r.quantity,
+          unit: r.unit,
+          last_updated: r.last_updated,
+        }));
       },
-    });
-  },
-  { query, queryKey }
+    }),
+  { queryKey },
 );
 
 export default useFoodQuery;

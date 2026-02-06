@@ -1,37 +1,38 @@
-import { gql } from "graphql-request";
-import useQuery from "@shared/graphql/hooks/useQuery";
+import { useQuery } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
-import { FoodStockHistoryQuery, FoodStockHistoryQueryVariables } from "@shared/graphql/utils/types/types.generated";
+import { execute } from "@shared/local/db";
 
+type StockHistoryItem = {
+  id: string;
+  date: string;
+  reason: string;
+  quantity_change: number;
+  unit?: string | null;
+};
 
-const query = gql`
-  query FoodStockHistoryQuery {
-    foodStockHistory {
-      id
-      food_id
-      quantity_change
-      reason
-      date
-    }
-  }
-`;
-const queryKey = [QueriesKeys.FEED_HISTORY];
+const queryKey = [QueriesKeys.STOCK_HISTORY];
 
 const useFoodStockHistoryQuery = Object.assign(
-  () => {
-    return useQuery<
-      FoodStockHistoryQuery,
-      FoodStockHistoryQueryVariables,
-      FoodStockHistoryQuery["foodStockHistory"]
-    >({
-      queryKey, //TODO: add id in queryKey
-      query,
-      options: {
-        select: (data) => data?.foodStockHistory|| [],
+  () =>
+    useQuery<StockHistoryItem[]>({
+      queryKey,
+      queryFn: async () => {
+        const rows = await execute(
+          `SELECT id,
+                  fed_at AS date,
+                  food_name AS reason,
+                  quantity AS quantity_change,
+                  unit
+           FROM feedings
+           WHERE reptile_id = 'stock'
+           ORDER BY fed_at DESC
+           LIMIT 500;`,
+        );
+        return rows as StockHistoryItem[];
       },
-    });
-  },
-  { query, queryKey }
+      staleTime: 1000 * 60 * 5,
+    }),
+  { queryKey },
 );
 
 export default useFoodStockHistoryQuery;

@@ -1,14 +1,18 @@
 import { useNavigation } from "@react-navigation/native";
-import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
-import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import Skeleton from "@shared/components/Skeleton";
 import React from "react";
-import { Alert, Linking, Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   Avatar,
   Button,
@@ -19,25 +23,58 @@ import {
   useTheme,
 } from "react-native-paper";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
+import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
-  const [, user] = useCurrentUserQuery();
-  const {
-    data: summary,
-    isPending: isSummaryLoading,
-    error: summaryError,
-  } = useDashboardSummaryQuery();
-  const { data: healthAlerts } = useHealthAlertsQuery();
+
+  const { data, isPending, isLoading, error } = useDashboardSummaryQuery();
+  console.log(
+    "Dashboard summary data:",
+    data,
+    "Loading:",
+    isLoading,
+    "Error:",
+    error,
+  );
+  //   queryKey: ["home-summary"],
+  //   queryFn: async () => {
+  //     const reptiles = await getReptiles();
+  //     const events = await getReptileEvents();
+  //     const today = dayjs().format("YYYY-MM-DD");
+  //     const eventsToday = events.filter(
+  //       (e) => dayjs(e.event_date).format("YYYY-MM-DD") === today,
+  //     );
+  //     const upcomingEvents = events
+  //       .filter((e) => dayjs(e.event_date).isSameOrAfter(dayjs()))
+  //       .sort(
+  //         (a, b) =>
+  //           dayjs(a.event_date).valueOf() - dayjs(b.event_date).valueOf(),
+  //       )
+  //       .slice(0, 5);
+  //     return {
+  //       reptiles_count: reptiles.length,
+  //       events_today: eventsToday.length,
+  //       unread_notifications: 0,
+  //       upcoming_events: upcomingEvents,
+  //       health_alerts: [],
+  //     };
+  //   },
+  //   staleTime: 1000 * 60 * 5,
+  // });
+  const summary = data;
+  const isSummaryLoading = isPending || isLoading;
+  const summaryError = error;
+  const healthAlerts = data?.events_today ?? []; // summary?.health_alerts
   const { mutate: logout } = useLogoutMutation();
 
   const upcomingEvents = summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
   const unreadNotifications = summary?.unread_notifications ?? 0;
-  const alertsCount =
-    healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
+  const alertsCount = 0;
+  // healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
   const usefulLinks = [
     {
       label: "INPN (MNHN)",
@@ -73,7 +110,7 @@ const Home = () => {
           <View style={styles.heroRow}>
             <Avatar.Icon size={44} icon="turtle" />
             <View style={styles.heroText}>
-              <Text variant="titleMedium">Bonjour, @{user?.username} !</Text>
+              <Text variant="titleMedium">Bonjour !</Text>
               <Text variant="bodySmall" style={styles.heroSubtitle}>
                 Bienvenue sur votre tableau de bord.
               </Text>
@@ -89,7 +126,11 @@ const Home = () => {
                 }
                 Alert.alert("Déconnexion", "Se déconnecter ?", [
                   { text: "Annuler", style: "cancel" },
-                  { text: "Déconnexion", style: "destructive", onPress: () => logout() },
+                  {
+                    text: "Déconnexion",
+                    style: "destructive",
+                    onPress: () => logout(),
+                  },
                 ]);
               }}
             />
@@ -100,10 +141,7 @@ const Home = () => {
           <Text variant="labelLarge">Raccourcis</Text>
           <View style={styles.quickActionsRow}>
             <TouchableRipple
-              style={[
-                styles.quickAction,
-                { backgroundColor: colors.primary },
-              ]}
+              style={[styles.quickAction, { backgroundColor: colors.primary }]}
               onPress={() => navigate(ScreenNames.ADD_REPTILE)}
             >
               <View style={styles.quickActionContent}>
@@ -174,7 +212,10 @@ const Home = () => {
               return (
                 <View
                   key={index}
-                  style={[styles.statPill, { backgroundColor: pillColors[index] }]}
+                  style={[
+                    styles.statPill,
+                    { backgroundColor: pillColors[index] },
+                  ]}
                 >
                   <Icon
                     source={icons[index]}
@@ -183,21 +224,25 @@ const Home = () => {
                       index === 0
                         ? colors.secondary
                         : index === 1
-                        ? colors.primary
-                        : colors.tertiary
+                          ? colors.primary
+                          : colors.tertiary
                     }
                   />
                   {isSummaryLoading ? (
-                    <Skeleton height={18} width={36} style={styles.statSkeleton} />
+                    <Skeleton
+                      height={18}
+                      width={36}
+                      style={styles.statSkeleton}
+                    />
                   ) : (
                     <Text variant="titleMedium" style={styles.statValue}>
                       {summaryError
                         ? "—"
                         : index === 0
-                        ? reptilesCount
-                        : index === 1
-                        ? eventsToday
-                        : unreadNotifications}
+                          ? reptilesCount
+                          : index === 1
+                            ? eventsToday
+                            : unreadNotifications}
                     </Text>
                   )}
                   <Text variant="labelSmall" style={styles.statLabel}>
@@ -210,14 +255,24 @@ const Home = () => {
               <View
                 style={[
                   styles.statPill,
-                  { backgroundColor: colors.errorContainer, flex: 1, minWidth: 90 },
+                  {
+                    backgroundColor: colors.errorContainer,
+                    flex: 1,
+                    minWidth: 90,
+                  },
                 ]}
               >
                 <Icon source="alert" size={16} color={colors.error} />
-                <Text variant="titleMedium" style={[styles.statValue, { color: colors.error }]}>
+                <Text
+                  variant="titleMedium"
+                  style={[styles.statValue, { color: colors.error }]}
+                >
                   {alertsCount}
                 </Text>
-                <Text variant="labelSmall" style={[styles.statLabel, { color: colors.error }]}>
+                <Text
+                  variant="labelSmall"
+                  style={[styles.statLabel, { color: colors.error }]}
+                >
                   Alertes santé
                 </Text>
               </View>
@@ -225,7 +280,7 @@ const Home = () => {
           </View>
           {summaryError ? (
             <Text variant="labelSmall" style={styles.summaryError}>
-              Dashboard indisponible — vérifie le backend.
+              Dashboard indisponible.
             </Text>
           ) : null}
           <View style={styles.upcomingSection}>
@@ -237,7 +292,11 @@ const Home = () => {
                     <View style={styles.upcomingDot} />
                     <View style={styles.upcomingText}>
                       <Skeleton height={12} width="60%" />
-                      <Skeleton height={10} width="40%" style={{ marginTop: 6 }} />
+                      <Skeleton
+                        height={10}
+                        width="40%"
+                        style={{ marginTop: 6 }}
+                      />
                     </View>
                   </View>
                 ))}

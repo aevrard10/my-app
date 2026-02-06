@@ -9,6 +9,8 @@ const useReptileQuery = Object.assign(
     useQuery({
       queryKey: queryKey(id),
       queryFn: () => getReptile(id),
+      placeholderData: (prev) => prev,
+      staleTime: 1000 * 60 * 2,
     }),
   { queryKey },
 );

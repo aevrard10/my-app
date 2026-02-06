@@ -15,18 +15,17 @@ import { FC, useEffect, useState } from "react"
 import { Text } from "react-native";
 
 type FoodCardProps = {
-    food: {
-        id: string;
-        name: string;
-        type: FoodType;
-        quantity: number;
-        unit: string;
-    },
-    isLoading: boolean;
-    handleUpdateStock: (id: string, quantity: number, reason: string) => void;
-    colors: any;
-
-}
+  food: {
+    id: string;
+    name: string;
+    type: FoodType;
+    quantity: number;
+    unit: string;
+  };
+  isLoading: boolean;
+  handleUpdateStock: (name: string, delta: number, unit?: string | null) => void;
+  colors: any;
+};
 const FeedCard :FC<FoodCardProps> = (props) => {
    const { food, isLoading, handleUpdateStock, colors } = props;
    const { colors: themeColors } = useTheme();
@@ -140,11 +139,7 @@ const FeedCard :FC<FoodCardProps> = (props) => {
                 icon="minus"
                 disabled={food.quantity === 0 || isLoading}
                 onPress={() =>
-                  handleUpdateStock(
-                    food.id,
-                    -quantityValue,
-                    `Mise à jour de ${food.name}`,
-                  )
+                  handleUpdateStock(food.name, -quantityValue, food.unit)
                 }
               >
                 Retirer
@@ -154,11 +149,7 @@ const FeedCard :FC<FoodCardProps> = (props) => {
                 icon="plus"
                 disabled={isLoading}
                 onPress={() =>
-                  handleUpdateStock(
-                    food.id,
-                    quantityValue,
-                    `Ajout de ${food.name}`,
-                  )
+                  handleUpdateStock(food.name, quantityValue, food.unit)
                 }
               >
                 Ajouter

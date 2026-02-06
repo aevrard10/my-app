@@ -2,13 +2,15 @@ import React, { FC, useState } from "react";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Avatar, Chip, Text, TouchableRipple, useTheme } from "react-native-paper";
-import { ReptileQuery } from "@shared/graphql/utils/types/types.generated";
+import { LocalReptile } from "@shared/local/reptileStore";
 
-import handleImageUpload from "@shared/utils/handleImageUpload/index";
+import { addReptilePhotoFromUri } from "@shared/local/reptilePhotosStore";
+import { useQueryClient } from "@tanstack/react-query";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 import CardSurface from "@shared/components/CardSurface";
 
 type ReptilePictureProps = {
-  data: ReptileQuery["reptile"];
+  data: LocalReptile | null | undefined;
 };
 
 const ReptilePicture: FC<ReptilePictureProps> = (props) => {
@@ -17,6 +19,8 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
     data?.image_url || null
   );
   const { colors } = useTheme();
+  const qc = useQueryClient();
+
   const pickImage = async () => {
     if (Platform.OS === "web") {
       const input = document.createElement("input");
@@ -24,23 +28,27 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
       input.accept = "image/*";
       input.onchange = async (event: any) => {
         const file = event.target.files[0];
-        if (file) {
-          setImageUri(URL.createObjectURL(file)); // Prévisualisation
-          await handleImageUpload(file, data?.id); // Envoi au backend
+        if (file && data?.id) {
+          const uri = URL.createObjectURL(file);
+          setImageUri(uri);
+          await addReptilePhotoFromUri(data.id, uri);
+          qc.invalidateQueries({ queryKey: [QueriesKeys.REPTILE, data.id, "photos"] });
         }
       };
       input.click();
-    } else {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.8,
-      });
+      return;
+    }
 
-      if (!result.canceled && result.assets?.[0]?.uri) {
-        setImageUri(result.assets[0].uri); // Prévisualisation
-        await handleImageUpload({ uri: result.assets[0].uri }, data?.id); // Envoi au backend
-      }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets?.[0]?.uri && data?.id) {
+      setImageUri(result.assets[0].uri);
+      await addReptilePhotoFromUri(data.id, result.assets[0].uri);
+      qc.invalidateQueries({ queryKey: [QueriesKeys.REPTILE, data.id, "photos"] });
     }
   };
 

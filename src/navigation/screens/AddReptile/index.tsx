@@ -29,6 +29,7 @@ import useAddReptilesMutation from "../Reptiles/hooks/mutations/useAddReptilesMu
 import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
+import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 
 const initialValues = {
   name: "",
@@ -71,7 +72,7 @@ const AddReptile = () => {
   const { colors } = useTheme();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
-    undefined
+    undefined,
   );
   const [imageUri, setImageUri] = useState<string | null>(null);
 
@@ -138,128 +139,187 @@ const AddReptile = () => {
           </Text>
         </CardSurface>
 
-      <Formik
-        initialValues={initialValues}
-        validationSchema={schema}
-        enableReinitialize
-        onSubmit={(values, { resetForm }) => {
-          addReptile(
-            {
-              input: {
-                name: values.name,
-                species: values.species,
-                age: values.age,
-                last_fed: values.last_fed,
-                sort_of_species: values.snake,
-                sex: values.sex,
-                feeding_schedule: values.feeding_schedule,
-                diet: values.diet,
-                humidity_level: values.humidity_level,
-                temperature_range: values.temperature_range,
-                health_status: values.health_status,
-                acquired_date: values.acquired_date,
-                origin: values.origin,
-                location: values.location,
-                image_url: imageUri ?? null,
+        <Formik
+          initialValues={initialValues}
+          validationSchema={schema}
+          enableReinitialize
+          onSubmit={(values, { resetForm }) => {
+            addReptile(
+              {
+                input: {
+                  name: values.name,
+                  species: values.species,
+                  age: values.age,
+                  last_fed: values.last_fed,
+                  sort_of_species: values.snake,
+                  sex: values.sex,
+                  feeding_schedule: values.feeding_schedule,
+                  diet: values.diet,
+                  humidity_level: values.humidity_level,
+                  temperature_range: values.temperature_range,
+                  health_status: values.health_status,
+                  acquired_date: values.acquired_date,
+                  origin: values.origin,
+                  location: values.location,
+                  image_url: imageUri ?? null,
+                },
               },
-            },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries({
-                  queryKey: useReptilesQuery.queryKey,
-                });
-                goBack();
-                show("Reptile ajouté avec succès !", {
-                  label: "Ok",
-                });
+              {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: useReptilesQuery.queryKey,
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: useDashboardSummaryQuery.queryKey,
+                  });
+                  goBack();
+                  show("Reptile ajouté avec succès !", {
+                    label: "Ok",
+                  });
+                },
+                onError: () => {
+                  show("Une erreur est survenue, Veuillez réessayer ...", {
+                    label: "Ok",
+                  });
+                },
               },
-              onError: () => {
-                show("Une erreur est survenue, Veuillez réessayer ...", {
-                  label: "Ok",
-                });
-              },
-            }
-          );
-        }}
-      >
-        {(formik) => (
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-          >
-            <View style={styles.formContainer}>
-              <CardSurface style={styles.sectionCard}>
-                <Text variant="labelLarge" style={styles.sectionTitle}>
-                  Identité
-                </Text>
-                <TextInput
-                  placeholder="Nom"
-                  value={formik.values.name}
-                  onChangeText={formik.handleChange("name")}
-                  onBlur={formik.handleBlur("name")}
-                />
-                <TextInput
-                  placeholder="Espèce"
-                  onBlur={formik.handleBlur("species")}
-                  value={formik.values.species}
-                  onChangeText={formik.handleChange("species")}
-                />
-                <View style={styles.row}>
+            );
+          }}
+        >
+          {(formik) => (
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1 }}
+            >
+              <View style={styles.formContainer}>
+                <CardSurface style={styles.sectionCard}>
+                  <Text variant="labelLarge" style={styles.sectionTitle}>
+                    Identité
+                  </Text>
                   <TextInput
-                    placeholder="Âge"
-                    value={formik.values.age?.toString()}
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      const number = parseInt(text, 10);
-                      formik.setFieldValue("age", isNaN(number) ? "" : number);
-                    }}
-                    onBlur={formik.handleBlur("age")}
-                    inputMode="numeric"
-                    style={styles.rowInput}
+                    placeholder="Nom"
+                    value={formik.values.name}
+                    onChangeText={formik.handleChange("name")}
+                    onBlur={formik.handleBlur("name")}
                   />
+                  <TextInput
+                    placeholder="Espèce"
+                    onBlur={formik.handleBlur("species")}
+                    value={formik.values.species}
+                    onChangeText={formik.handleChange("species")}
+                  />
+                  <View style={styles.row}>
+                    <TextInput
+                      placeholder="Âge"
+                      value={formik.values.age?.toString()}
+                      keyboardType="numeric"
+                      onChangeText={(text) => {
+                        const number = parseInt(text, 10);
+                        formik.setFieldValue(
+                          "age",
+                          isNaN(number) ? "" : number,
+                        );
+                      }}
+                      onBlur={formik.handleBlur("age")}
+                      inputMode="numeric"
+                      style={styles.rowInput}
+                    />
+                    <SegmentedButtons
+                      value={formik.values.snake}
+                      onValueChange={formik.handleChange("snake")}
+                      style={[styles.rowInput, styles.segmentCompact]}
+                      buttons={[
+                        { value: "snake", label: "Serpent" },
+                        { value: "lizard", label: "Varan" },
+                      ]}
+                    />
+                  </View>
                   <SegmentedButtons
-                    value={formik.values.snake}
-                    onValueChange={formik.handleChange("snake")}
-                    style={[styles.rowInput, styles.segmentCompact]}
+                    value={formik.values.sex}
+                    onValueChange={formik.handleChange("sex")}
+                    style={styles.segmentCompact}
                     buttons={[
-                      { value: "snake", label: "Serpent" },
-                      { value: "lizard", label: "Varan" },
+                      { value: "Femelle", icon: "gender-female" },
+                      { value: "Mâle", icon: "gender-male" },
                     ]}
                   />
-                </View>
-                <SegmentedButtons
-                  value={formik.values.sex}
-                  onValueChange={formik.handleChange("sex")}
-                  style={styles.segmentCompact}
-                  buttons={[
-                    { value: "Femelle", icon: "gender-female" },
-                    { value: "Mâle", icon: "gender-male" },
-                  ]}
-                />
-              </CardSurface>
-              <CardSurface style={styles.sectionCard}>
-                <Text variant="labelLarge" style={styles.sectionTitle}>
-                  Origine
-                </Text>
-                <TextInput
-                  placeholder="Origine"
-                  value={formik.values.origin}
-                  onChangeText={formik.handleChange("origin")}
-                  onBlur={formik.handleBlur("origin")}
-                />
-                <TextInput
-                  placeholder="Emplacement"
-                  value={formik.values.location}
-                  onChangeText={formik.handleChange("location")}
-                  onBlur={formik.handleBlur("location")}
-                />
-                <View style={styles.row}>
+                </CardSurface>
+                <CardSurface style={styles.sectionCard}>
+                  <Text variant="labelLarge" style={styles.sectionTitle}>
+                    Origine
+                  </Text>
+                  <TextInput
+                    placeholder="Origine"
+                    value={formik.values.origin}
+                    onChangeText={formik.handleChange("origin")}
+                    onBlur={formik.handleBlur("origin")}
+                  />
+                  <TextInput
+                    placeholder="Emplacement"
+                    value={formik.values.location}
+                    onChangeText={formik.handleChange("location")}
+                    onBlur={formik.handleBlur("location")}
+                  />
+                  <View style={styles.row}>
+                    <DatePickerInput
+                      placeholderTextColor="gray" // Assurez-vous que la couleur est visible
+                      mode="outlined"
+                      style={[
+                        styles.pickerInput,
+                        styles.rowInput,
+                        { backgroundColor: colors.surface },
+                      ]}
+                      dense
+                      outlineStyle={[
+                        styles.outlineStyle,
+                        {
+                          borderColor: colors.outlineVariant ?? colors.outline,
+                        },
+                      ]}
+                      locale="fr"
+                      label="Acquisition"
+                      saveLabel="Confirmer"
+                      withDateFormatInLabel={false}
+                      contentStyle={styles.dateContent}
+                      value={inputDateAcquired}
+                      onChange={(data) => {
+                        setInputDateAcquired(data);
+                        formik.setFieldValue(
+                          "acquired_date",
+                          formatYYYYMMDD(data),
+                        );
+                      }}
+                      inputMode="start"
+                    />
+                  </View>
+                </CardSurface>
+
+                <CardSurface style={styles.sectionCard}>
+                  <Text variant="labelLarge" style={styles.sectionTitle}>
+                    Alimentation
+                  </Text>
+                  <TextInput
+                    placeholder="Régime alimentaire"
+                    value={formik.values.diet}
+                    onChangeText={formik.handleChange("diet")}
+                    onBlur={formik.handleBlur("diet")}
+                  />
+                  <TextInput
+                    placeholder="Fréquence de repas"
+                    value={formik.values.feeding_schedule}
+                    onChangeText={formik.handleChange("feeding_schedule")}
+                    onBlur={formik.handleBlur("feeding_schedule")}
+                  />
+                  <TextInput
+                    placeholder="État de santé"
+                    value={formik.values.health_status}
+                    onChangeText={formik.handleChange("health_status")}
+                    onBlur={formik.handleBlur("health_status")}
+                  />
                   <DatePickerInput
-                    placeholderTextColor="gray" // Assurez-vous que la couleur est visible
                     mode="outlined"
                     style={[
                       styles.pickerInput,
-                      styles.rowInput,
                       { backgroundColor: colors.surface },
                     ]}
                     dense
@@ -268,114 +328,63 @@ const AddReptile = () => {
                       { borderColor: colors.outlineVariant ?? colors.outline },
                     ]}
                     locale="fr"
-                    label="Acquisition"
+                    label="Dernier repas"
                     saveLabel="Confirmer"
                     withDateFormatInLabel={false}
                     contentStyle={styles.dateContent}
-                    value={inputDateAcquired}
+                    value={inputDate}
                     onChange={(data) => {
-                      setInputDateAcquired(data);
-                      formik.setFieldValue(
-                        "acquired_date",
-                        formatYYYYMMDD(data)
-                      );
+                      setInputDate(data);
+                      formik.setFieldValue("last_fed", formatYYYYMMDD(data));
                     }}
                     inputMode="start"
                   />
-                </View>
-              </CardSurface>
+                </CardSurface>
+                <CardSurface style={styles.sectionCard}>
+                  <Text variant="labelLarge" style={styles.sectionTitle}>
+                    Santé & environnement
+                  </Text>
+                  <TextInput
+                    placeholder="Niveau d'humidité"
+                    value={formik.values.humidity_level?.toString() ?? ""}
+                    onChangeText={(text) => {
+                      const number = parseInt(text, 10);
+                      formik.setFieldValue(
+                        "humidity_level",
+                        isNaN(number) ? "" : number,
+                      ); // Ne pas permettre un non-nombre
+                    }}
+                    onBlur={formik.handleBlur("humidity_level")}
+                  />
+                  <TextInput
+                    placeholder="Plage de température"
+                    value={formik.values.temperature_range}
+                    onChangeText={formik.handleChange("temperature_range")}
+                    onBlur={formik.handleBlur("temperature_range")}
+                  />
+                  <TextInput
+                    placeholder="État de santé"
+                    value={formik.values.health_status}
+                    onChangeText={formik.handleChange("health_status")}
+                    onBlur={formik.handleBlur("health_status")}
+                  />
+                </CardSurface>
 
-              <CardSurface style={styles.sectionCard}>
-                <Text variant="labelLarge" style={styles.sectionTitle}>
-                  Alimentation
-                </Text>
-                <TextInput
-                  placeholder="Régime alimentaire"
-                  value={formik.values.diet}
-                  onChangeText={formik.handleChange("diet")}
-                  onBlur={formik.handleBlur("diet")}
-                />
-                <TextInput
-                  placeholder="Fréquence de repas"
-                  value={formik.values.feeding_schedule}
-                  onChangeText={formik.handleChange("feeding_schedule")}
-                  onBlur={formik.handleBlur("feeding_schedule")}
-                />
-                <TextInput
-                  placeholder="État de santé"
-                  value={formik.values.health_status}
-                  onChangeText={formik.handleChange("health_status")}
-                  onBlur={formik.handleBlur("health_status")}
-                />
-                <DatePickerInput
-                  mode="outlined"
-                  style={[
-                    styles.pickerInput,
-                    { backgroundColor: colors.surface },
-                  ]}
-                  dense
-                  outlineStyle={[
-                    styles.outlineStyle,
-                    { borderColor: colors.outlineVariant ?? colors.outline },
-                  ]}
-                  locale="fr"
-                  label="Dernier repas"
-                  saveLabel="Confirmer"
-                  withDateFormatInLabel={false}
-                  contentStyle={styles.dateContent}
-                  value={inputDate}
-                  onChange={(data) => {
-                    setInputDate(data);
-                    formik.setFieldValue("last_fed", formatYYYYMMDD(data));
-                  }}
-                  inputMode="start"
-                />
-              </CardSurface>
-              <CardSurface style={styles.sectionCard}>
-                <Text variant="labelLarge" style={styles.sectionTitle}>
-                  Santé & environnement
-                </Text>
-                <TextInput
-                  placeholder="Niveau d'humidité"
-                  value={formik.values.humidity_level?.toString() ?? ""}
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue(
-                      "humidity_level",
-                      isNaN(number) ? "" : number
-                    ); // Ne pas permettre un non-nombre
-                  }}
-                  onBlur={formik.handleBlur("humidity_level")}
-                />
-                <TextInput
-                  placeholder="Plage de température"
-                  value={formik.values.temperature_range}
-                  onChangeText={formik.handleChange("temperature_range")}
-                  onBlur={formik.handleBlur("temperature_range")}
-                />
-                <TextInput
-                  placeholder="État de santé"
-                  value={formik.values.health_status}
-                  onChangeText={formik.handleChange("health_status")}
-                  onBlur={formik.handleBlur("health_status")}
-                />
-              </CardSurface>
-
-              <Button
-                icon={"plus"}
-                loading={isPending}
-                disabled={!formik.isValid}
-                onPress={formik.submitForm}
-                mode="contained"
-                style={styles.submitButton}
-              >
-                AJOUTER
-              </Button>
-            </View>
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </ScrollView>
+                <Button
+                  icon={"plus"}
+                  loading={isPending}
+                  disabled={!formik.isValid}
+                  onPress={formik.submitForm}
+                  mode="contained"
+                  style={styles.submitButton}
+                >
+                  AJOUTER
+                </Button>
+              </View>
+            </KeyboardAvoidingView>
+          )}
+        </Formik>
+      </ScrollView>
     </Screen>
   );
 };

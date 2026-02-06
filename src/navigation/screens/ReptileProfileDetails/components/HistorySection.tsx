@@ -49,34 +49,36 @@ const HistorySection = ({
         style={styles.accordion}
       >
         {feedings && feedings.length > 0 ? (
-          <View style={styles.list}>
-            {feedings.map((feeding) => (
-              <TouchableRipple
-                key={feeding.id}
-                onLongPress={() => onDeleteFeeding(feeding.id)}
-                style={styles.item}
+          <View>
+            <View style={styles.list}>
+              {feedings.map((feeding) => (
+                <TouchableRipple
+                  key={feeding.id}
+                  onLongPress={() => onDeleteFeeding(feeding.id)}
+                  style={styles.item}
+                >
+                  <View>
+                    <Text variant="bodyMedium">
+                      {feeding.food_name || "Repas"}
+                    </Text>
+                    <Text variant="labelSmall" style={styles.meta}>
+                      {formatDDMMYYYY(feeding.fed_at)} · {feeding.quantity ?? 1}{" "}
+                      {feeding.unit ?? ""}
+                    </Text>
+                  </View>
+                </TouchableRipple>
+              ))}
+            </View>
+            {hasMoreFeedings && onLoadMoreFeedings && (
+              <Button
+                onPress={onLoadMoreFeedings}
+                mode="text"
+                style={{ alignSelf: "flex-start" }}
               >
-                <View>
-                  <Text variant="bodyMedium">
-                    {feeding.food_name || "Repas"}
-                  </Text>
-                  <Text variant="labelSmall" style={styles.meta}>
-                    {formatDDMMYYYY(feeding.fed_at)} · {feeding.quantity ?? 1}{" "}
-                    {feeding.unit ?? ""}
-                  </Text>
-                </View>
-              </TouchableRipple>
-            ))}
+                Voir plus
+              </Button>
+            )}
           </View>
-          {hasMoreFeedings && onLoadMoreFeedings && (
-            <Button
-              onPress={onLoadMoreFeedings}
-              mode="text"
-              style={{ alignSelf: "flex-start" }}
-            >
-              Voir plus
-            </Button>
-          )}
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
             Aucun repas enregistré.
@@ -100,32 +102,35 @@ const HistorySection = ({
             Ajouter une mue
           </Button>
         </View>
+
         {sheds && sheds.length > 0 ? (
-          <View style={styles.list}>
-            {sheds.map((shed) => (
-              <TouchableRipple
-                key={shed.id}
-                onLongPress={() => onDeleteShed(shed.id)}
-                style={styles.item}
+          <>
+            <View style={styles.list}>
+              {sheds.map((shed) => (
+                <TouchableRipple
+                  key={shed.id}
+                  onLongPress={() => onDeleteShed(shed.id)}
+                  style={styles.item}
+                >
+                  <View>
+                    <Text variant="bodyMedium">Mue enregistrée</Text>
+                    <Text variant="labelSmall" style={styles.meta}>
+                      {formatDDMMYYYY(shed.shed_date)}
+                    </Text>
+                  </View>
+                </TouchableRipple>
+              ))}
+            </View>
+            {hasMoreSheds && onLoadMoreSheds && (
+              <Button
+                onPress={onLoadMoreSheds}
+                mode="text"
+                style={{ alignSelf: "flex-start" }}
               >
-                <View>
-                  <Text variant="bodyMedium">Mue enregistrée</Text>
-                  <Text variant="labelSmall" style={styles.meta}>
-                    {formatDDMMYYYY(shed.shed_date)}
-                  </Text>
-                </View>
-              </TouchableRipple>
-            ))}
-          </View>
-          {hasMoreSheds && onLoadMoreSheds && (
-            <Button
-              onPress={onLoadMoreSheds}
-              mode="text"
-              style={{ alignSelf: "flex-start" }}
-            >
-              Voir plus
-            </Button>
-          )}
+                Voir plus
+              </Button>
+            )}
+          </>
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
             Aucune mue enregistrée.

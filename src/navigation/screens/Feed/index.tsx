@@ -2,8 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import ScreenNames from "@shared/declarations/screenNames";
 import { FAB, Text, useTheme, Icon } from "react-native-paper";
 import useFoodQuery from "./hooks/data/queries/useStockQuery";
-import useUpdateFoodStock from "./hooks/data/mutations/useUpdateFoodStock"; // Import de la mutation
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { useSnackbar } from "@rn-flix/snackbar";
 import useFoodStockHistoryQuery from "../FeedHistory/hooks/data/queries/useStockQuery";
@@ -15,14 +14,35 @@ import Skeleton from "@shared/components/Skeleton";
 import { FlatList, View } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
-import useFoodForecastQuery from "./hooks/data/queries/useFoodForecastQuery";
+import { executeVoid } from "@shared/local/db";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
-  const { mutate: updateStock, isPending: isUpdating } = useUpdateFoodStock(); // Utilisation de la mutation
-  const { data: forecast30 } = useFoodForecastQuery(30);
+  const updateStockMutation = useMutation({
+    mutationFn: async (vars: {
+      name: string;
+      delta: number;
+      unit?: string | null;
+    }) => {
+      const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      await executeVoid(
+        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
+         VALUES (?,?,?,?,?,?,?);`,
+        [
+          id,
+          "stock",
+          vars.name,
+          vars.delta,
+          vars.unit ?? null,
+          new Date().toISOString(),
+          "stock update",
+        ],
+      );
+      return { id };
+    },
+  });
   const { show } = useSnackbar();
   const stockStats = useMemo(() => {
     const items = data ?? [];
@@ -40,15 +60,9 @@ const Feed = () => {
 
   const queryClient = useQueryClient();
   const handleUpdateStock = useCallback(
-    (foodId, change, reason) => {
-      updateStock(
-        {
-          input: {
-            food_id: foodId,
-            quantity_change: change,
-            reason: reason,
-          },
-        },
+    (name: string, delta: number, unit?: string | null) => {
+      updateStockMutation.mutate(
+        { name, delta, unit },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
@@ -63,10 +77,10 @@ const Feed = () => {
             show("Une erreur s'est produite");
             console.error("Erreur lors de la mise à jour du stock :", error);
           },
-        }
+        },
       );
     },
-    [updateStock, queryClient, show]
+    [updateStockMutation, queryClient, show],
   );
 
   return (
@@ -82,7 +96,7 @@ const Feed = () => {
           ) : (
             <FeedCard
               food={item}
-              isLoading={isUpdating}
+              isLoading={updateStockMutation.isPending}
               handleUpdateStock={handleUpdateStock}
               colors={colors}
             />
@@ -157,27 +171,7 @@ const Feed = () => {
                   </Text>
                 </View>
               </View>
-              {forecast30 && forecast30.length > 0 ? (
-                <View style={{ marginTop: 10, gap: 6 }}>
-                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-                    Ruptures probables d&apos;ici 30 jours :
-                  </Text>
-                  {forecast30
-                    .filter((f) => f.projected_remaining_30 <= 0)
-                    .slice(0, 3)
-                    .map((f) => (
-                      <Text key={f.food_id} variant="bodySmall" style={{ color: colors.error }}>
-                        {f.name} ({f.projected_remaining_30.toFixed(1)} {f.unit})
-                      </Text>
-                    ))}
-                  {forecast30.filter((f) => f.projected_remaining_30 <= 0).length ===
-                  0 ? (
-                    <Text variant="bodySmall" style={{ opacity: 0.65 }}>
-                      Rien en rupture dans les 30 jours.
-                    </Text>
-                  ) : null}
-                </View>
-              ) : null}
+              {/* Prévision stock retirée en mode local */}
             </CardSurface>
             <HistoryChip navigate={navigate} colors={colors} />
           </>

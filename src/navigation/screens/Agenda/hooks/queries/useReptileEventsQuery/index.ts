@@ -32,6 +32,39 @@ const formatTime = (time: string): string => {
 };
 
 // Modified hook with transformation logic
+const expandRecurrence = (
+  event: LocalReptileEvent,
+  horizonDays = 90,
+): LocalReptileEvent[] => {
+  const occurrences: LocalReptileEvent[] = [];
+  const interval = event.recurrence_interval || 1;
+  const type = (event.recurrence_type || "NONE").toUpperCase();
+  const start = dayjs(event.event_date);
+  const until = event.recurrence_until
+    ? dayjs(event.recurrence_until)
+    : start.add(horizonDays, "day");
+
+  let current = start;
+  while (current.isBefore(until) || current.isSame(until, "day")) {
+    occurrences.push({
+      ...event,
+      event_date: current.format("YYYY-MM-DD"),
+    });
+    if (type === "DAILY") {
+      current = current.add(interval, "day");
+    } else if (type === "WEEKLY") {
+      current = current.add(interval, "week");
+    } else if (type === "MONTHLY") {
+      current = current.add(interval, "month");
+    } else {
+      break; // NONE
+    }
+    if (type === "NONE") break;
+  }
+
+  return occurrences;
+};
+
 const useReptileEventsQuery = Object.assign(
   () =>
     useQuery<
@@ -52,7 +85,8 @@ const useReptileEventsQuery = Object.assign(
       queryKey,
       queryFn: async () => {
         const events = await getReptileEvents();
-        return events.reduce((acc, event) => {
+        const expanded = events.flatMap((ev) => expandRecurrence(ev));
+        return expanded.reduce((acc, event) => {
           const formattedDate = formatDate(event.event_date);
           const formattedTime = formatTime(event.event_time || "");
           const item = {
@@ -70,6 +104,7 @@ const useReptileEventsQuery = Object.assign(
           return acc;
         }, {} as Record<string, LocalReptileEvent[]>);
       },
+      staleTime: 1000 * 60 * 5,
     }),
   { queryKey }
 );

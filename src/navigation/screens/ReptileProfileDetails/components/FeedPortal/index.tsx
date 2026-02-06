@@ -1,15 +1,16 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import useUpdateFoodStock from "../../../Feed/hooks/data/mutations/useUpdateFoodStock";
-import useLastFedUpdateMutation from "../../hooks/data/mutations/useLastFedUpdate";
+import { View } from "react-native";
+import { Button, Checkbox, Dialog, Portal, useTheme } from "react-native-paper";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "@rn-flix/snackbar";
 import useReptileQuery from "../../../Reptiles/hooks/queries/useReptileQuery";
 import useFoodQuery from "../../../Feed/hooks/data/queries/useStockQuery";
-import { useSnackbar } from "@rn-flix/snackbar";
-import { Button, Checkbox, Dialog, Portal, useTheme } from "react-native-paper";
-import { View } from "react-native";
-import TextInput from "@shared/components/TextInput";
-import QueriesKeys from "@shared/declarations/queriesKeys";
+import useLastFedUpdateMutation from "../../hooks/data/mutations/useLastFedUpdate";
 import useAddReptileFeedingMutation from "../../hooks/data/mutations/useAddReptileFeedingMutation";
+import QueriesKeys from "@shared/declarations/queriesKeys";
+import TextInput from "@shared/components/TextInput";
+import { executeVoid } from "@shared/local/db";
+
 type FeedPortalProps = {
   id: string;
   data: any;
@@ -17,88 +18,90 @@ type FeedPortalProps = {
   visible: boolean;
   onClose: () => void;
 };
+
 const FeedPortal: FC<FeedPortalProps> = (props) => {
   const { id, data, food, visible, onClose } = props;
-  const [selectedFood, setSelectedFood] = useState<any | null>(null); // Pour gérer l'aliment sélectionné
-  const [foodQuantity, setFoodQuantity] = useState(1); // Quantité de base (pour chaque aliment)
+  const [selectedFood, setSelectedFood] = useState<any | null>(null);
+  const [foodQuantity, setFoodQuantity] = useState(1);
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const { mutate: updateLastFed } = useLastFedUpdateMutation();
   const { mutate: addFeeding } = useAddReptileFeedingMutation();
-  const { mutate: updateStock } = useUpdateFoodStock(); // Utilisation de la mutation
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
   const { colors } = useTheme();
-  const handleNourrissage = useCallback(() => {
-    if (selectedFood) {
-      // Mettre à jour le nourrissage et le stock pour chaque aliment sélectionné
-      updateLastFed(
-        { id, last_fed: new Date().toISOString().split("T")[0] }, // Format YYYY-MM-DD
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: useReptileQuery.queryKey(id),
-            });
-            show("Nourrissage enregistré");
 
-            // Mettre à jour le stock pour chaque aliment
-            updateStock(
-              {
-                input: {
-                  food_id: selectedFood?.id,
-                  quantity_change: -foodQuantity, // Réduire la quantité dans le stock
-                  reason: `Nourrissage de ${data?.name}`,
-                },
-              },
-              {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({
-                    queryKey: useFoodQuery.queryKey,
-                  });
-                  addFeeding(
-                    {
-                      input: {
-                        reptile_id: id,
-                        food_id: selectedFood?.id,
-                        food_name: selectedFood?.name,
-                        quantity: foodQuantity,
-                        unit: selectedFood?.unit || "restant(s)",
-                        fed_at: new Date().toISOString(),
-                        notes: `Nourrissage de ${data?.name}`,
-                      },
-                    },
-                    {
-                      onSuccess: () => {
-                        queryClient.invalidateQueries({
-                          queryKey: [QueriesKeys.REPTILE_FEEDINGS, id],
-                        });
-                      },
-                    },
-                  );
-                  setModalIsVisible(false);
-                },
-                onError: () => {
-                  show("Erreur lors de la mise à jour du stock");
-                },
-              },
-            );
-          },
-          onError: () => {
-            show("Erreur lors de l'enregistrement du nourrissage");
-          },
-        },
-      );
-    } else {
+  const handleNourrissage = useCallback(() => {
+    if (!selectedFood) {
       show("Veuillez sélectionner au moins un aliment.");
+      return;
     }
+
+    const now = new Date().toISOString();
+
+    updateLastFed(
+      { id, last_fed: now.split("T")[0] },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: useReptileQuery.queryKey(id),
+          });
+          // décrémente le stock local (ligne 'stock')
+          executeVoid(
+            `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
+             VALUES (?,?,?,?,?,?,?);`,
+            [
+              `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+              "stock",
+              selectedFood?.name,
+              -foodQuantity,
+              selectedFood?.unit ?? null,
+              now,
+              `Nourrissage de ${data?.name}`,
+            ],
+          ).catch(() => {});
+
+          // Ajoute le nourrissage sur le reptile
+          addFeeding(
+            {
+              input: {
+                reptile_id: id,
+                food_name: selectedFood?.name,
+                quantity: foodQuantity,
+                unit: selectedFood?.unit || "restant(s)",
+                fed_at: now,
+                notes: `Nourrissage de ${data?.name}`,
+              },
+            },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: [QueriesKeys.REPTILE_FEEDINGS, id],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: useFoodQuery.queryKey,
+                });
+                show("Nourrissage enregistré");
+              },
+            },
+          );
+          setModalIsVisible(false);
+        },
+        onError: () => {
+          show("Erreur lors de l'enregistrement du nourrissage");
+        },
+      },
+    );
   }, [
-    id,
-    selectedFood,
+    addFeeding,
+    data?.name,
     foodQuantity,
-    updateLastFed,
-    updateStock,
+    id,
     queryClient,
+    selectedFood,
     show,
+    updateLastFed,
   ]);
+
   useEffect(() => {
     setModalIsVisible(visible);
   }, [visible]);
@@ -126,27 +129,21 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
                 <Checkbox.Android
                   status={
                     selectedFood?.id === foodItem.id ? "checked" : "unchecked"
-                  } // Vérification si cet aliment est sélectionné
-                  onPress={() => {
-                    // Si cet aliment est déjà sélectionné, le désélectionner
-                    if (selectedFood?.id === foodItem.id) {
-                      setSelectedFood(null); // Désélectionner l'aliment
-                    } else {
-                      setSelectedFood(foodItem); // Sélectionner un seul aliment
-                    }
-                  }}
+                  }
+                  onPress={() =>
+                    setSelectedFood((prev) =>
+                      prev?.id === foodItem.id ? null : foodItem,
+                    )
+                  }
                 />
                 <Button
                   mode="text"
                   textColor={colors.onSurface}
-                  onPress={() => {
-                    // Si cet aliment est déjà sélectionné, le désélectionner
-                    if (selectedFood?.id === foodItem.id) {
-                      setSelectedFood(null); // Désélectionner l'aliment
-                    } else {
-                      setSelectedFood(foodItem); // Sélectionner un seul aliment
-                    }
-                  }}
+                  onPress={() =>
+                    setSelectedFood((prev) =>
+                      prev?.id === foodItem.id ? null : foodItem,
+                    )
+                  }
                 >
                   {foodItem.name} - {foodItem.quantity}{" "}
                   {foodItem.unit || "restant(s)"}
@@ -154,7 +151,7 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
               </View>
             ))}
             <TextInput
-              placeholder="Quantité (par aliment)"
+              placeholder="Quantité"
               value={foodQuantity.toString()}
               onChangeText={(text) => {
                 const number = parseInt(text, 10);
