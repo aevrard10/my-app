@@ -14,6 +14,7 @@ import { Platform } from "react-native";
 import { appTheme } from "@shared/theme";
 import { useFonts } from "expo-font";
 import queryClient from "@shared/graphql/utils/queryClient";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 SplashScreen.preventAutoHideAsync();
 Notifications.setNotificationHandler({
@@ -88,24 +89,26 @@ const App = () => {
     return null;
   }
   return (
-    <AuthProvider>
-      <SnackbarProvider>
-        <PaperProvider theme={appTheme}>
-          <QueryClientProvider client={queryClient}>
-            <NavigationContainer
-              linking={linking}
-              onReady={() => {
-                SplashScreen.hideAsync();
-              }}
-            >
-              <ErrorBoundary>
-                <MyStack />
-              </ErrorBoundary>
-            </NavigationContainer>
-          </QueryClientProvider>
-        </PaperProvider>
-      </SnackbarProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <SnackbarProvider>
+          <PaperProvider theme={appTheme}>
+            <QueryClientProvider client={queryClient}>
+              <NavigationContainer
+                linking={linking}
+                onReady={() => {
+                  SplashScreen.hideAsync();
+                }}
+              >
+                <ErrorBoundary>
+                  <MyStack />
+                </ErrorBoundary>
+              </NavigationContainer>
+            </QueryClientProvider>
+          </PaperProvider>
+        </SnackbarProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 };
 

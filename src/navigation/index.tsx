@@ -19,10 +19,13 @@ import Feed from "./screens/Feed";
 import AddMesuarements from "./screens/AddMesuarements";
 import AddFeed from "./screens/AddFeed";
 import FeedHistory from "./screens/FeedHistory";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { spacing } from "@shared/theme/tokens";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { data: summary } = useDashboardSummaryQuery();
   const unreadCount = summary?.unread_notifications ?? 0;
   const notificationsBadge =
@@ -33,9 +36,10 @@ const HomeTabs = () => {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.outlineVariant ?? colors.outline,
-          height: 64,
-          paddingBottom: 8,
+          height: 64 + insets.bottom,
+          paddingBottom: Math.max(8, insets.bottom),
           paddingTop: 8,
+          paddingHorizontal: spacing.sm,
         },
       }}
     >
@@ -164,7 +168,7 @@ const MyStack = () => {
             //   headerTitle: (props) => <LogoTitle {...props} />,
             // },
             options={{
-              title: "",
+              headerShown: false,
             }}
           />
           <Stack.Screen

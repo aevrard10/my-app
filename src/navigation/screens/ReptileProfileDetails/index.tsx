@@ -148,9 +148,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       });
 
       if (!result.canceled && result.assets?.[0]?.uri) {
-        const response = await fetch(result.assets[0].uri);
-        const blob = await response.blob();
-        await handleImageUpload(blob, id, "gallery");
+        await handleImageUpload({ uri: result.assets[0].uri }, id, "gallery");
         refetchPhotos();
       }
     } catch (error) {

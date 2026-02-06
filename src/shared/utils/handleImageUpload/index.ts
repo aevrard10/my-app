@@ -34,7 +34,7 @@ const convertBlobToUri = async (blob: Blob) => {
 };
 
 const handleImageUpload = async (
-  file: File | Blob,
+  file: File | Blob | { uri: string },
   d: string,
   type: "profile" | "gallery" = "profile"
 ) => {

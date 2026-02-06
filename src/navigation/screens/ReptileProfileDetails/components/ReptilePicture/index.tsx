@@ -39,9 +39,7 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
 
       if (!result.canceled && result.assets?.[0]?.uri) {
         setImageUri(result.assets[0].uri); // Prévisualisation
-        const response = await fetch(result.assets[0].uri);
-        const blob = await response.blob();
-        await handleImageUpload(blob, data?.id); // Envoi au backend
+        await handleImageUpload({ uri: result.assets[0].uri }, data?.id); // Envoi au backend
       }
     }
   };

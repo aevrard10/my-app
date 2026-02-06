@@ -38,7 +38,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 
 const initialValues = {
   event_name: "",
-  event_date: "",
+  event_date: formatYYYYMMDD(new Date()),
   event_time: "",
   notes: "",
   recurrence_type: "NONE",
@@ -49,7 +49,7 @@ const Agenda = () => {
   const navigation = useNavigation();
   const route = useRoute<any>();
   const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
-  const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
+  const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -59,15 +59,23 @@ const Agenda = () => {
   const { mutate: deleteEvent, isPending: isDeleting } =
     useDeleteReptileEventMutation();
   const customTheme = {
-    agendaDayTextColor: colors.primary, // Custom color for agenda day text
-    agendaDayNumColor: colors.primary, // Custom color for agenda day number
-    agendaTodayColor: colors.primary, // Custom color for today's agenda
-    calendarBackground: colors.background,
-    backgroundColor: colors.background,
+    agendaDayTextColor: colors.primary,
+    agendaDayNumColor: colors.primary,
+    agendaTodayColor: colors.primary,
+    agendaKnobColor: colors.outlineVariant ?? colors.outline,
+    calendarBackground: colors.surface,
+    backgroundColor: "red",
     selectedDayBackgroundColor: colors.primary,
-    dotColor: colors.secondary,
+    selectedDayTextColor: colors.onPrimary,
+    todayBackgroundColor: colors.primaryContainer,
+    todayTextColor: colors.primary,
+    dotColor: colors.tertiary,
+    selectedDotColor: colors.onPrimary,
     monthTextColor: colors.onSurface,
-    textSectionTitleColor: colors.outline,
+    dayTextColor: colors.onSurface,
+    textSectionTitleColor: colors.secondary,
+    textDisabledColor: colors.outline,
+    arrowColor: colors.primary,
   };
   const { show } = useSnackbar();
   const queryClient = useQueryClient();
@@ -87,13 +95,13 @@ const Agenda = () => {
           Organisez les événements et rappels de soins.
         </Text>
       </View>
-      <View style={{ flex: 1 }}>
+      <CardSurface style={styles.calendarCard}>
         <RNCAgenda
           displayLoadingIndicator={isLoading}
           items={data}
           onRefresh={refetch}
           refreshing={isLoading}
-          showWeekNumbers
+          showWeekNumbers={false}
           renderEmptyData={() => <EmptyList />}
           theme={customTheme}
           renderItem={(item) => (
@@ -107,7 +115,7 @@ const Agenda = () => {
             </TouchableOpacity>
           )}
         />
-      </View>
+      </CardSurface>
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}
         variant="primary"
@@ -121,27 +129,33 @@ const Agenda = () => {
         enableReinitialize
         initialValues={initialValues}
         onSubmit={(values, { resetForm }) => {
+          if (!values.event_date) {
+            show("La date est obligatoire.", { label: "Ok" });
+            return;
+          }
+
           mutate(
             {
-                input: {
-                  event_name: values.event_name,
-                  event_date: values.event_date,
-                  event_time: values.event_time,
-                  notes: values.notes,
-                  recurrence_type: values.recurrence_type,
-                  recurrence_interval: values.recurrence_interval,
-                  recurrence_until: values.recurrence_until || null,
-                },
+              input: {
+                event_name: values.event_name,
+                event_date: values.event_date,
+                event_time: values.event_time,
+                notes: values.notes,
+                recurrence_type: values.recurrence_type,
+                recurrence_interval: values.recurrence_interval,
+                recurrence_until: values.recurrence_until || null,
               },
+            },
             {
               onSuccess: () => {
                 resetForm();
+                setInputDate(new Date());
 
                 queryClient.invalidateQueries({
                   queryKey: useReptileEventsQuery.queryKey,
                 });
                 setAddEvent(false);
-                show("Reptile ajouté avec succès !", {
+                show("Événement ajouté avec succès !", {
                   label: "Ok",
                 });
               },
@@ -150,7 +164,7 @@ const Agenda = () => {
                   label: "Ok",
                 });
               },
-            }
+            },
           );
         }}
         // validationSchema={schema}
@@ -233,7 +247,7 @@ const Agenda = () => {
                           setInputDate(data);
                           formik.setFieldValue(
                             "event_date",
-                            formatYYYYMMDD(data)
+                            formatYYYYMMDD(data),
                           );
                         }}
                         dense
@@ -281,7 +295,7 @@ const Agenda = () => {
                     onConfirm={(pickedDuration) => {
                       formik.setFieldValue(
                         "event_time",
-                        formatTime(pickedDuration)
+                        formatTime(pickedDuration),
                       );
                       setShowPicker(false);
                     }}
@@ -303,13 +317,13 @@ const Agenda = () => {
             gap: 10,
           }}
         >
-        <Appbar.Header
-          style={[
-            {
-              backgroundColor: colors.surface,
-            },
-          ]}
-        >
+          <Appbar.Header
+            style={[
+              {
+                backgroundColor: colors.surface,
+              },
+            ]}
+          >
             <Appbar.BackAction onPress={() => setShowEventInfo(false)} />
             <Appbar.Content title={event?.name} />
           </Appbar.Header>
@@ -319,12 +333,8 @@ const Agenda = () => {
               <TextInfo title="Date" value={event?.date} />
               <TextInfo title="Heure" value={event?.time} />
               <TextInfo title="Notes" value={event?.notes} />
-              {event?.recurrence_type &&
-              event?.recurrence_type !== "NONE" ? (
-                <TextInfo
-                  title="Récurrence"
-                  value={event?.recurrence_type}
-                />
+              {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
+                <TextInfo title="Récurrence" value={event?.recurrence_type} />
               ) : null}
             </View>
           </ScrollView>
@@ -347,7 +357,7 @@ const Agenda = () => {
                   onError: () => {
                     show("Impossible de supprimer l'événement");
                   },
-                }
+                },
               );
             }}
           >
@@ -362,10 +372,15 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 4,
     marginBottom: 12,
+    gap: 4,
   },
   headerSubtitle: {
     opacity: 0.7,
-    marginTop: 4,
+  },
+  calendarCard: {
+    flex: 1,
+    padding: 0,
+    overflow: "hidden",
   },
   verticleLine: {
     height: "70%",

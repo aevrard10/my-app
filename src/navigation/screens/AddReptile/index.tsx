@@ -168,9 +168,10 @@ const AddReptile = () => {
                     await handleImageUpload(imageUrl, data?.addReptile?.id); // Upload the image to backend
                   }
                   if (Platform.OS !== "web") {
-                    const response = await fetch(imageUri);
-                    const blob = await response.blob();
-                    await handleImageUpload(blob, data?.addReptile?.id); // Envoi au backend
+                    await handleImageUpload(
+                      { uri: imageUri },
+                      data?.addReptile?.id
+                    ); // Envoi au backend
                   }
                 }
                 queryClient.invalidateQueries({

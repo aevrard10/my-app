@@ -6,7 +6,7 @@ import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
   Button,
@@ -30,6 +30,33 @@ const Home = () => {
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
   const unreadNotifications = summary?.unread_notifications ?? 0;
+  const usefulLinks = [
+    {
+      label: "INPN (MNHN)",
+      description: "Fiches officielles des espèces en France",
+      url: "https://inpn.mnhn.fr/accueil/index/",
+    },
+    {
+      label: "Société Herpétologique de France",
+      description: "Ressources et actions pour l'herpétofaune",
+      url: "https://lashf.org/",
+    },
+    {
+      label: "SOS Serpents, Tortues, Grenouilles",
+      description: "Aide et identification en France",
+      url: "https://sosserpentstortuesgrenouilles.org/",
+    },
+    {
+      label: "The Reptile Database",
+      description: "Base taxonomique mondiale des reptiles",
+      url: "https://www.reptile-database.org/",
+    },
+    {
+      label: "iNaturalist",
+      description: "Identification communautaire via photos",
+      url: "https://www.inaturalist.org/",
+    },
+  ];
 
   return (
     <Screen>
@@ -205,6 +232,34 @@ const Home = () => {
             {reptilesCount} reptiles enregistrés.
           </Text>
         </CardSurface>
+
+        <CardSurface style={styles.linksCard}>
+          <View style={styles.linksHeader}>
+            <Text variant="titleMedium">Liens utiles</Text>
+            <Text variant="bodySmall" style={styles.linksSubtitle}>
+              Identification et ressources fiables.
+            </Text>
+          </View>
+          <View style={styles.linksList}>
+            {usefulLinks.map((link) => (
+              <TouchableRipple
+                key={link.url}
+                style={styles.linkItem}
+                onPress={() => Linking.openURL(link.url)}
+              >
+                <View style={styles.linkContent}>
+                  <View style={styles.linkText}>
+                    <Text variant="bodyMedium">{link.label}</Text>
+                    <Text variant="bodySmall" style={styles.linkMeta}>
+                      {link.description}
+                    </Text>
+                  </View>
+                  <Icon source="open-in-new" size={16} color={colors.primary} />
+                </View>
+              </TouchableRipple>
+            ))}
+          </View>
+        </CardSurface>
       </ScrollView>
     </Screen>
   );
@@ -322,6 +377,38 @@ const styles = StyleSheet.create({
   },
   reptilesSubtitle: {
     opacity: 0.7,
+  },
+  linksCard: {
+    marginTop: 12,
+    gap: 10,
+  },
+  linksHeader: {
+    gap: 4,
+  },
+  linksSubtitle: {
+    opacity: 0.6,
+  },
+  linksList: {
+    gap: 8,
+  },
+  linkItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.03)",
+  },
+  linkContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  linkText: {
+    flex: 1,
+    gap: 2,
+  },
+  linkMeta: {
+    opacity: 0.65,
   },
 });
 
