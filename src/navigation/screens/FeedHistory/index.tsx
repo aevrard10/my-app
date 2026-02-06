@@ -1,45 +1,35 @@
 import { FlatList, View } from "react-native";
-import {
-  ActivityIndicator,
-  Avatar,
-  Card,
-  Chip,
-  Icon,
-  useTheme,
-  Text,
-} from "react-native-paper";
+import { Avatar, Card, Chip, Icon, useTheme, Text } from "react-native-paper";
 
 import useFoodStockHistoryQuery from "./hooks/data/queries/useStockQuery";
 import getFoodIcon from "../Feed/utils/getFoodIcon";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import Screen from "@shared/components/Screen";
+import FeedHistorySkeleton from "./components/FeedHistorySkeleton";
+import CardSurface from "@shared/components/CardSurface";
 
 const FeedHistory = () => {
   const { colors } = useTheme();
   const { data, isPending } = useFoodStockHistoryQuery();
 
-  if (isPending) {
-    return (
-      <Screen>
-        <ActivityIndicator style={{ marginTop: 24 }} />
-      </Screen>
-    );
-  }
+  const isInitialLoading = isPending && (!data || data.length === 0);
 
   return (
     <Screen>
       <FlatList
-        data={data}
-        ListEmptyComponent={<ListEmptyComponent isLoading={isPending} />}
+        data={isInitialLoading ? [] : data}
+        ListEmptyComponent={
+          isInitialLoading ? <FeedHistorySkeleton /> : <ListEmptyComponent isLoading={isPending} />
+        }
         contentContainerStyle={{ paddingBottom: 40 }}
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
-          <View style={{ marginTop: 4, marginBottom: 12 }}>
+          <CardSurface style={{ marginTop: 4, marginBottom: 12 }}>
             <Text variant="titleLarge">Historique</Text>
             <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
               Toutes les variations de stock en un coup d&apos;œil.
             </Text>
-          </View>
+          </CardSurface>
         }
         renderItem={({ item: food }) => {
           const formattedDate = food.date

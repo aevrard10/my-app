@@ -37,6 +37,7 @@ import TextInfo from "../ReptileProfileDetails/components/TextInfo";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import AgendaSkeleton from "./components/AgendaSkeleton";
 
 const initialValues = {
   event_name: "",
@@ -123,27 +124,31 @@ const Agenda = () => {
           Organisez les événements et rappels de soins.
         </Text>
       </View>
-      <CardSurface style={styles.calendarCard}>
-        <RNCAgenda
-          displayLoadingIndicator={isLoading}
-          items={data}
-          onRefresh={refetch}
-          refreshing={isLoading}
-          showWeekNumbers={false}
-          renderEmptyData={() => <EmptyList />}
-          theme={customTheme}
-          renderItem={(item) => (
-            <TouchableOpacity
-              onPress={() => {
-                setShowEventInfo(true);
-                setEvent(item);
-              }}
-            >
-              <AgendaItem item={item} />
-            </TouchableOpacity>
-          )}
-        />
-      </CardSurface>
+      {isLoading && (!data || Object.keys(data).length === 0) ? (
+        <AgendaSkeleton />
+      ) : (
+        <CardSurface style={styles.calendarCard}>
+          <RNCAgenda
+            displayLoadingIndicator={isLoading}
+            items={data}
+            onRefresh={refetch}
+            refreshing={isLoading}
+            showWeekNumbers={false}
+            renderEmptyData={() => <EmptyList />}
+            theme={customTheme}
+            renderItem={(item) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setShowEventInfo(true);
+                  setEvent(item);
+                }}
+              >
+                <AgendaItem item={item} />
+              </TouchableOpacity>
+            )}
+          />
+        </CardSurface>
+      )}
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}
         variant="primary"

@@ -20,10 +20,10 @@ import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import ScreenNames from "@shared/declarations/screenNames";
 
 import useSearchFilter from "@shared/hooks/useSearchFilter";
-import { useState } from "react";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
+import ReptileCardSkeleton from "./components/ReptileCardSkeleton";
 
 const Reptiles = () => {
   const { navigate } = useNavigation();
@@ -37,25 +37,36 @@ const Reptiles = () => {
     undefined,
     3
   );
+  const isInitialLoading = isLoading && (!data || data.length === 0);
+  const skeletonItems = useMemo(
+    () => Array.from({ length: 3 }, (_, index) => ({ id: `sk-${index}` })),
+    []
+  );
   return (
     <Screen>
       <Portal.Host>
         <FlatList
           contentContainerStyle={styles.contentContainerStyle}
-          data={filteredData}
+          data={isInitialLoading ? skeletonItems : filteredData}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item, index }) => (
-            <Animated.View
-              entering={Platform.select({
-                android: SlideInDown,
-                default: FadeInDown,
-              }).delay(index * 50)}
-              key={item?.id}
-            >
-              <CardComponent item={item} />
-            </Animated.View>
-          )}
-          ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
+          renderItem={({ item, index }) =>
+            isInitialLoading ? (
+              <ReptileCardSkeleton />
+            ) : (
+              <Animated.View
+                entering={Platform.select({
+                  android: SlideInDown,
+                  default: FadeInDown,
+                }).delay(index * 50)}
+                key={item?.id}
+              >
+                <CardComponent item={item} />
+              </Animated.View>
+            )
+          }
+          ListEmptyComponent={
+            isInitialLoading ? null : <ListEmptyComponent isLoading={isLoading} />
+          }
           ListHeaderComponent={
             <CardSurface style={styles.headerCard}>
               <Text style={styles.headerTitle} variant="titleLarge">

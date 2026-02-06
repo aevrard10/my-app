@@ -16,18 +16,18 @@ const Skeleton = ({
   style,
 }: SkeletonProps) => {
   const { colors } = useTheme();
-  const opacity = useRef(new Animated.Value(0.5)).current;
+  const opacity = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
-          toValue: 0.9,
+          toValue: 1,
           duration: 750,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 0.45,
+          toValue: 0.55,
           duration: 750,
           useNativeDriver: true,
         }),
@@ -55,7 +55,7 @@ const Skeleton = ({
     const r = parseInt(normalized.slice(0, 2), 16);
     const g = parseInt(normalized.slice(2, 4), 16);
     const b = parseInt(normalized.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.12)`;
+    return `rgba(${r}, ${g}, ${b}, 0.28)`;
   }, [colors.onSurface]);
 
   return (

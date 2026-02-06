@@ -46,6 +46,7 @@ import useAddReptileShedMutation from "./hooks/data/mutations/useAddReptileShedM
 import useDeleteReptileShedMutation from "./hooks/data/mutations/useDeleteReptileShedMutation";
 import useDeleteReptileFeedingMutation from "./hooks/data/mutations/useDeleteReptileFeedingMutation";
 import { DatePickerInput } from "react-native-paper-dates";
+import ReptileProfileSkeleton from "./components/ReptileProfileSkeleton";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -357,6 +358,16 @@ const ReptileProfileDetails = ({ route }: Props) => {
       }
     );
   };
+  if (isLoadingReptile) {
+    return (
+      <Screen>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ReptileProfileSkeleton />
+        </ScrollView>
+      </Screen>
+    );
+  }
+
   return (
     <>
       <Formik
