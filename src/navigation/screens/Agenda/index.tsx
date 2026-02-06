@@ -27,6 +27,7 @@ import { formatTime, formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TimePicker from "@shared/components/TimePicker";
 import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMutation";
 import useDeleteReptileEventMutation from "./hooks/mutations/useDeleteReptileEventMutation";
+import useExcludeReptileEventOccurrenceMutation from "./hooks/mutations/useExcludeReptileEventOccurrenceMutation";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
 import TextInput from "@shared/components/TextInput";
@@ -50,6 +51,9 @@ const Agenda = () => {
   const route = useRoute<any>();
   const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
   const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
+  const [inputRecurrenceUntil, setInputRecurrenceUntil] = useState<
+    Date | undefined
+  >(undefined);
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -58,13 +62,17 @@ const Agenda = () => {
   const { mutate, isPending } = useAddReptileEventMutation();
   const { mutate: deleteEvent, isPending: isDeleting } =
     useDeleteReptileEventMutation();
+  const {
+    mutate: excludeOccurrence,
+    isPending: isExcluding,
+  } = useExcludeReptileEventOccurrenceMutation();
   const customTheme = {
     agendaDayTextColor: colors.primary,
     agendaDayNumColor: colors.primary,
     agendaTodayColor: colors.primary,
     agendaKnobColor: colors.outlineVariant ?? colors.outline,
     calendarBackground: colors.surface,
-    backgroundColor: "red",
+    backgroundColor: "transparent",
     selectedDayBackgroundColor: colors.primary,
     selectedDayTextColor: colors.onPrimary,
     todayBackgroundColor: colors.primaryContainer,
@@ -129,6 +137,11 @@ const Agenda = () => {
         enableReinitialize
         initialValues={initialValues}
         onSubmit={(values, { resetForm }) => {
+          if (!values.event_date) {
+            show("La date est obligatoire.", { label: "Ok" });
+            return;
+          }
+
           mutate(
             {
               input: {
@@ -144,12 +157,14 @@ const Agenda = () => {
             {
               onSuccess: () => {
                 resetForm();
+                setInputDate(new Date());
+                setInputRecurrenceUntil(undefined);
 
                 queryClient.invalidateQueries({
                   queryKey: useReptileEventsQuery.queryKey,
                 });
                 setAddEvent(false);
-                show("Reptile ajouté avec succès !", {
+                show("Événement ajouté avec succès !", {
                   label: "Ok",
                 });
               },
@@ -263,9 +278,13 @@ const Agenda = () => {
                     <Text variant="labelLarge">Récurrence</Text>
                     <SegmentedButtons
                       value={formik.values.recurrence_type}
-                      onValueChange={(value) =>
-                        formik.setFieldValue("recurrence_type", value)
-                      }
+                      onValueChange={(value) => {
+                        formik.setFieldValue("recurrence_type", value);
+                        if (value === "NONE") {
+                          setInputRecurrenceUntil(undefined);
+                          formik.setFieldValue("recurrence_until", "");
+                        }
+                      }}
                       buttons={[
                         { value: "NONE", label: "Aucune" },
                         { value: "DAILY", label: "Quotidien" },
@@ -274,6 +293,28 @@ const Agenda = () => {
                       ]}
                       style={{ marginTop: 8 }}
                     />
+                    {formik.values.recurrence_type !== "NONE" ? (
+                      <DatePickerInput
+                        mode="outlined"
+                        locale="fr"
+                        label="Fin de récurrence (optionnel)"
+                        saveLabel="Confirmer"
+                        outlineStyle={{ borderWidth: 0 }}
+                        style={styles.recurrenceInput}
+                        value={inputRecurrenceUntil}
+                        onChange={(date) => {
+                          setInputRecurrenceUntil(date);
+                          formik.setFieldValue(
+                            "recurrence_until",
+                            date ? formatYYYYMMDD(date) : "",
+                          );
+                        }}
+                        clearButtonLabel="Effacer"
+                        withDateFormatInLabel={false}
+                        inputMode="start"
+                        dense
+                      />
+                    ) : null}
                   </CardSurface>
                   <Button
                     loading={isPending}
@@ -333,31 +374,85 @@ const Agenda = () => {
               ) : null}
             </View>
           </ScrollView>
-          <Button
-            mode="outlined"
-            loading={isDeleting}
-            textColor={colors.error}
-            onPress={() => {
-              if (!event?.id) return;
-              deleteEvent(
-                { id: event.id },
-                {
-                  onSuccess: () => {
-                    queryClient.invalidateQueries({
-                      queryKey: useReptileEventsQuery.queryKey,
-                    });
-                    setShowEventInfo(false);
-                    show("Événement supprimé");
+          {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
+            <View style={styles.deleteRow}>
+              <Button
+                mode="outlined"
+                loading={isExcluding}
+                onPress={() => {
+                  if (!event?.id || !event?.date) return;
+                  excludeOccurrence(
+                    { id: event.id, date: event.date },
+                    {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({
+                          queryKey: useReptileEventsQuery.queryKey,
+                        });
+                        setShowEventInfo(false);
+                        show("Occurrence supprimée");
+                      },
+                      onError: () => {
+                        show("Impossible de supprimer l'occurrence");
+                      },
+                    },
+                  );
+                }}
+              >
+                Supprimer cette occurrence
+              </Button>
+              <Button
+                mode="outlined"
+                loading={isDeleting}
+                textColor={colors.error}
+                onPress={() => {
+                  if (!event?.id) return;
+                  deleteEvent(
+                    { id: event.id },
+                    {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({
+                          queryKey: useReptileEventsQuery.queryKey,
+                        });
+                        setShowEventInfo(false);
+                        show("Série supprimée");
+                      },
+                      onError: () => {
+                        show("Impossible de supprimer la série");
+                      },
+                    },
+                  );
+                }}
+              >
+                Supprimer toute la série
+              </Button>
+            </View>
+          ) : (
+            <Button
+              mode="outlined"
+              loading={isDeleting}
+              textColor={colors.error}
+              onPress={() => {
+                if (!event?.id) return;
+                deleteEvent(
+                  { id: event.id },
+                  {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries({
+                        queryKey: useReptileEventsQuery.queryKey,
+                      });
+                      setShowEventInfo(false);
+                      show("Événement supprimé");
+                    },
+                    onError: () => {
+                      show("Impossible de supprimer l'événement");
+                    },
                   },
-                  onError: () => {
-                    show("Impossible de supprimer l'événement");
-                  },
-                },
-              );
-            }}
-          >
-            Supprimer l&apos;événement
-          </Button>
+                );
+              }}
+            >
+              Supprimer l&apos;événement
+            </Button>
+          )}
         </Modal>
       </Portal>
     </Screen>
@@ -399,6 +494,14 @@ const styles = StyleSheet.create({
     // borderRadius: 30,
     borderColor: "#fff",
     backgroundColor: "#fff",
+  },
+  recurrenceInput: {
+    marginTop: 12,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+  },
+  deleteRow: {
+    gap: 10,
   },
 });
 export default Agenda;
