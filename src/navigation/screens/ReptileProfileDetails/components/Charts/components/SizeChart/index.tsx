@@ -92,6 +92,7 @@ export default SizeChart;
 
 const styles = StyleSheet.create({
   card: {
+    overflow: "hidden",
     marginHorizontal: 12,
     paddingVertical: 16,
     marginBottom: 16,

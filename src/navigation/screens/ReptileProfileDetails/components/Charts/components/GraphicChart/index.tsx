@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 12,
     paddingVertical: 16,
+    overflow: "hidden",
   },
   title: {
     textAlign: "center",
