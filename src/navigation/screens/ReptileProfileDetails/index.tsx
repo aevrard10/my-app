@@ -1,6 +1,15 @@
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Image, Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Linking,
+  Platform,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   ActivityIndicator,
   Button,
@@ -47,6 +56,9 @@ import useDeleteReptileShedMutation from "./hooks/data/mutations/useDeleteReptil
 import useDeleteReptileFeedingMutation from "./hooks/data/mutations/useDeleteReptileFeedingMutation";
 import { DatePickerInput } from "react-native-paper-dates";
 import ReptileProfileSkeleton from "./components/ReptileProfileSkeleton";
+import useGoveeDevicesQuery from "./hooks/data/queries/useGoveeDevicesQuery";
+import useGoveeDeviceStateQuery from "./hooks/data/queries/useGoveeDeviceStateQuery";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -76,6 +88,20 @@ const ReptileProfileDetails = ({ route }: Props) => {
     isPending: isPhotosLoading,
     refetch: refetchPhotos,
   } = useReptilePhotosQuery(id);
+  const {
+    data: goveeDevices,
+    isPending: isLoadingGoveeDevices,
+    refetch: refetchGoveeDevices,
+  } = useGoveeDevicesQuery(goveeApiKey || undefined);
+  const {
+    data: goveeReading,
+    isPending: isLoadingGoveeReading,
+    refetch: refetchGoveeReading,
+  } = useGoveeDeviceStateQuery(
+    goveeApiKey || undefined,
+    selectedGoveeDevice?.device,
+    selectedGoveeDevice?.model
+  );
 
   // Mutations
   const { mutate } = useAddNotesMutation();
@@ -95,6 +121,21 @@ const ReptileProfileDetails = ({ route }: Props) => {
   const [showShedModal, setShowShedModal] = useState(false);
   const [shedDate, setShedDate] = useState<Date | undefined>(new Date());
   const [shedNotes, setShedNotes] = useState("");
+  const [goveeApiKey, setGoveeApiKey] = useState("");
+  const [selectedGoveeDevice, setSelectedGoveeDevice] = useState<{
+    device: string;
+    model: string;
+    name?: string | null;
+  } | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<
+    | {
+        id: string;
+        url: string;
+        created_at: string;
+      }
+    | null
+  >(null);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [geneticsForm, setGeneticsForm] = useState({
     morph: "",
     mutations: "",
@@ -122,6 +163,24 @@ const ReptileProfileDetails = ({ route }: Props) => {
       notes: genetics?.notes ?? "",
     });
   }, [genetics]);
+
+  useEffect(() => {
+    (async () => {
+      const savedKey = await AsyncStorage.getItem("govee_api_key");
+      if (savedKey) setGoveeApiKey(savedKey);
+      const savedDevice = await AsyncStorage.getItem(
+        `govee_device_${id ?? "default"}`
+      );
+      if (savedDevice) {
+        try {
+          const parsed = JSON.parse(savedDevice);
+          setSelectedGoveeDevice(parsed);
+        } catch {
+          // ignore
+        }
+      }
+    })();
+  }, [id]);
 
   const addGalleryPhoto = useCallback(async () => {
     try {
@@ -189,6 +248,46 @@ const ReptileProfileDetails = ({ route }: Props) => {
       ]);
     },
     [deletePhoto, refetchPhotos, show]
+  );
+
+  const handleDownloadSelectedPhoto = useCallback(() => {
+    if (!selectedPhoto?.url) return;
+    try {
+      if (Platform.OS === "web" && typeof document !== "undefined") {
+        const link = document.createElement("a");
+        link.href = selectedPhoto.url;
+        link.download = `reptile-${data?.name || "photo"}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        Linking.openURL(selectedPhoto.url);
+      }
+    } catch (error) {
+      show("Impossible de télécharger l'image");
+    }
+  }, [selectedPhoto?.url, data?.name, show]);
+
+  const handleSaveGoveeKey = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem("govee_api_key", goveeApiKey.trim());
+      show("Clé Govee enregistrée");
+      refetchGoveeDevices();
+    } catch {
+      show("Impossible d'enregistrer la clé");
+    }
+  }, [goveeApiKey, refetchGoveeDevices, show]);
+
+  const handleSelectGoveeDevice = useCallback(
+    async (device: { device: string; model: string; deviceName?: string }) => {
+      setSelectedGoveeDevice(device);
+      await AsyncStorage.setItem(
+        `govee_device_${id ?? "default"}`,
+        JSON.stringify(device)
+      );
+      refetchGoveeReading();
+    },
+    [id, refetchGoveeReading]
   );
 
   const confirmDeleteFeeding = useCallback(
@@ -423,6 +522,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         <TouchableRipple
                           key={photo.id}
                           onLongPress={() => confirmDeletePhoto(photo.id)}
+                          onPress={() => {
+                            setSelectedPhoto(photo);
+                            setShowPhotoModal(true);
+                          }}
                           style={styles.photoItem}
                         >
                           <View>
@@ -441,6 +544,91 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 ) : (
                   <Text variant="bodySmall" style={styles.galleryEmpty}>
                     Ajoutez des photos pour garder l&apos;historique.
+                  </Text>
+                )}
+              </CardSurface>
+
+              <CardSurface style={styles.sensorCard}>
+                <View style={styles.sensorHeader}>
+                  <Text variant="titleMedium">Capteur Govee</Text>
+                  <Button
+                    mode="text"
+                    compact
+                    onPress={refetchGoveeReading}
+                    disabled={!selectedGoveeDevice || isLoadingGoveeReading}
+                    loading={isLoadingGoveeReading}
+                  >
+                    Actualiser
+                  </Button>
+                </View>
+                <TextInput
+                  placeholder="Clé API Govee"
+                  value={goveeApiKey}
+                  onChangeText={setGoveeApiKey}
+                  secureTextEntry
+                />
+                <View style={styles.sensorActions}>
+                  <Button mode="outlined" onPress={handleSaveGoveeKey}>
+                    Enregistrer la clé
+                  </Button>
+                  <Button
+                    mode="contained"
+                    onPress={refetchGoveeDevices}
+                    loading={isLoadingGoveeDevices}
+                    disabled={!goveeApiKey}
+                  >
+                    Lister mes capteurs
+                  </Button>
+                </View>
+                {goveeDevices && goveeDevices.length > 0 ? (
+                  <View style={styles.devicesList}>
+                    {goveeDevices.map((dev) => {
+                      const isSelected =
+                        selectedGoveeDevice?.device === dev.device &&
+                        selectedGoveeDevice?.model === dev.model;
+                      return (
+                        <Button
+                          key={`${dev.device}-${dev.model}`}
+                          mode={isSelected ? "contained" : "outlined"}
+                          onPress={() => handleSelectGoveeDevice(dev)}
+                          style={styles.deviceButton}
+                          compact
+                        >
+                          {dev.deviceName || dev.model}
+                        </Button>
+                      );
+                    })}
+                  </View>
+                ) : null}
+                {selectedGoveeDevice ? (
+                  <View style={styles.readingRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="labelLarge">Dernière lecture</Text>
+                      {goveeReading ? (
+                        <>
+                          <Text variant="titleMedium">
+                            {goveeReading.temperature ?? "—"} °C ·{" "}
+                            {goveeReading.humidity ?? "—"} %
+                          </Text>
+                          <Text variant="labelSmall" style={styles.readingMeta}>
+                            Batterie :{" "}
+                            {goveeReading.battery !== null &&
+                            goveeReading.battery !== undefined
+                              ? `${goveeReading.battery}%`
+                              : "—"}{" "}
+                            · {formatDDMMYYYY(goveeReading.retrieved_at)}
+                          </Text>
+                        </>
+                      ) : (
+                        <Text variant="bodySmall" style={styles.readingMeta}>
+                          Aucune donnée. Lance “Actualiser”.
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ) : (
+                  <Text variant="bodySmall" style={styles.readingMeta}>
+                    Sélectionnez un capteur pour voir les mesures.
                   </Text>
                 )}
               </CardSurface>
@@ -867,6 +1055,38 @@ const ReptileProfileDetails = ({ route }: Props) => {
             </Screen>
             <Portal>
               <Modal
+                visible={showPhotoModal}
+                onDismiss={() => setShowPhotoModal(false)}
+                contentContainerStyle={[
+                  styles.photoModalContainer,
+                  { backgroundColor: colors.surface },
+                ]}
+              >
+                <View style={styles.photoModalHeader}>
+                  <Text variant="titleMedium">
+                    Photo
+                    {selectedPhoto?.created_at
+                      ? ` · ${formatDDMMYYYY(selectedPhoto.created_at)}`
+                      : ""}
+                  </Text>
+                  <View style={styles.photoModalActions}>
+                    <Button mode="text" onPress={handleDownloadSelectedPhoto}>
+                      Télécharger
+                    </Button>
+                    <Button mode="text" onPress={() => setShowPhotoModal(false)}>
+                      Fermer
+                    </Button>
+                  </View>
+                </View>
+                {selectedPhoto?.url ? (
+                  <Image
+                    source={{ uri: selectedPhoto.url }}
+                    style={styles.photoModalImage}
+                    resizeMode="contain"
+                  />
+                ) : null}
+              </Modal>
+              <Modal
                 visible={showShedModal}
                 onDismiss={() => setShowShedModal(false)}
                 contentContainerStyle={styles.modalContainer}
@@ -1063,6 +1283,33 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: "#C33C3C",
   },
+  photoModalContainer: {
+    marginHorizontal: 12,
+    padding: 14,
+    borderRadius: 22,
+    maxHeight: Dimensions.get("window").height * 0.9,
+    width: "92%",
+    alignSelf: "center",
+  },
+  photoModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  photoModalActions: {
+    flexDirection: "row",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+  photoModalImage: {
+    width: "100%",
+    height: Math.min(420, Dimensions.get("window").height * 0.55),
+    borderRadius: 18,
+    backgroundColor: "#00000012",
+  },
   modalContainer: {
     backgroundColor: "#fff",
     marginHorizontal: 20,
@@ -1081,6 +1328,37 @@ const styles = StyleSheet.create({
   },
   notesCard: {
     marginVertical: 12,
+  },
+  sensorCard: {
+    marginVertical: 8,
+    gap: 10,
+  },
+  sensorHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  sensorActions: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  devicesList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  deviceButton: {
+    borderRadius: 999,
+  },
+  readingRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+  readingMeta: {
+    opacity: 0.6,
+    marginTop: 4,
   },
 });
 

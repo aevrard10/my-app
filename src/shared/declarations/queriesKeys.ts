@@ -12,6 +12,8 @@ enum QueriesKeys {
   REPTILE_GENETICS = "reptileGenetics",
   REPTILE_FEEDINGS = "reptileFeedings",
   REPTILE_SHEDS = "reptileSheds",
+  GOVEE_DEVICES = "goveeDevices",
+  GOVEE_STATE = "goveeState",
 }
 
 export default QueriesKeys;
