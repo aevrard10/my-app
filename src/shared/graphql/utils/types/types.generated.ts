@@ -40,7 +40,17 @@ export type AddReptileEventInput = {
   event_name: Scalars['String']['input'];
   event_time: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
+  recurrence_type?: InputMaybe<RecurrenceType>;
+  recurrence_interval?: InputMaybe<Scalars['Int']['input']>;
+  recurrence_until?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum RecurrenceType {
+  None = 'NONE',
+  Daily = 'DAILY',
+  Weekly = 'WEEKLY',
+  Monthly = 'MONTHLY'
+}
 
 export type AddReptileInput = {
   acquired_date?: InputMaybe<Scalars['String']['input']>;
@@ -276,6 +286,9 @@ export type ReptileEvent = {
   event_time: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   notes?: Maybe<Scalars['String']['output']>;
+  recurrence_type?: Maybe<RecurrenceType>;
+  recurrence_interval?: Maybe<Scalars['Int']['output']>;
+  recurrence_until?: Maybe<Scalars['String']['output']>;
 };
 
 export type ReptileInput = {
@@ -339,7 +352,7 @@ export type AddReptileEventMutation = { addReptileEvent?: { event_name: string }
 export type ReptileEventQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string, notes?: string | undefined } | undefined> | undefined };
+export type ReptileEventQuery = { reptileEvent?: Array<{ id: string, event_date: string, event_name: string, event_time: string, notes?: string | undefined, recurrence_type?: RecurrenceType | undefined, recurrence_interval?: number | undefined, recurrence_until?: string | undefined } | undefined> | undefined };
 
 export type UpdateFoodStockMutationVariables = Exact<{
   input: UpdateFoodStockInput;

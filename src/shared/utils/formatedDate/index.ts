@@ -6,27 +6,55 @@ export type DateFormatInput = string | number | Date | Dayjs | null | undefined;
 dayjs.extend(calendar);
 dayjs.locale("fr");
 
+const parseDateInput = (date?: DateFormatInput) => {
+  if (!date) return null;
+
+  if (typeof date === "string") {
+    const trimmed = date.trim();
+    if (!trimmed) return null;
+
+    if (/^\d+$/.test(trimmed)) {
+      const numeric = Number(trimmed);
+      const ms = trimmed.length <= 10 ? numeric * 1000 : numeric;
+      return dayjs(ms);
+    }
+
+    const matchYMD = trimmed.match(/^(\d{4})[/-](\d{2})[/-](\d{2})/);
+    if (matchYMD) {
+      const [, year, month, day] = matchYMD;
+      return dayjs(new Date(Number(year), Number(month) - 1, Number(day)));
+    }
+
+    const matchDMY = trimmed.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
+    if (matchDMY) {
+      const [, day, month, year] = matchDMY;
+      return dayjs(new Date(Number(year), Number(month) - 1, Number(day)));
+    }
+
+    return dayjs(trimmed);
+  }
+
+  if (typeof date === "number") {
+    const ms = date.toString().length <= 10 ? date * 1000 : date;
+    return dayjs(ms);
+  }
+
+  return dayjs(date);
+};
+
 /**
  * @example
  * formatDDMMYYYY('2022-08-01 14:31:47') // => '01/08/2022'
  * @param date
  */
 export function formatDDMMYYYY(date?: DateFormatInput) {
-  // Si le timestamp est en secondes, multipliez-le par 1000
-  const timestamp =
-    typeof date === "number" && date.toString().length <= 10
-      ? date * 1000
-      : date;
-  return dayjs(timestamp).format("DD/MM/YYYY");
+  const parsed = parseDateInput(date);
+  return parsed ? parsed.format("DD/MM/YYYY") : "";
 }
 
 export function formatYYYYMMDD(date?: DateFormatInput) {
-  // Si le timestamp est en secondes, multipliez-le par 1000
-  const timestamp =
-    typeof date === "number" && date.toString().length <= 10
-      ? date * 1000
-      : date;
-  return dayjs(timestamp).format("YYYY/MM/DD");
+  const parsed = parseDateInput(date);
+  return parsed ? parsed.format("YYYY/MM/DD") : "";
 }
 
 export const formatTime = ({
@@ -62,38 +90,39 @@ export const formatTime = ({
  * @param date
  */
 export function notificationsMultiFormat(date: DateFormatInput) {
-  if (!date) {
+  const parsed = parseDateInput(date);
+  if (!parsed) {
     return "";
   }
 
-  const diffSeconds = dayjs().diff(date, "seconds");
+  const diffSeconds = dayjs().diff(parsed, "seconds");
 
   if (diffSeconds < 60) {
     return "À l'instant";
   }
 
-  const formattedDate = dayjs(date).format("DD/MM/YYYY");
-  const HHmm = dayjs(date).format("HH:mm");
+  const formattedDate = parsed.format("DD/MM/YYYY");
+  const HHmm = parsed.format("HH:mm");
   if (formattedDate === dayjs().subtract(1, "day").format("DD/MM/YYYY")) {
     return "Hier " + HHmm;
   }
 
-  const diffMinutes = dayjs().diff(date, "minutes");
+  const diffMinutes = dayjs().diff(parsed, "minutes");
   if (diffMinutes < 60) {
     return "Il y a " + diffMinutes + " min";
   }
 
-  const diffHours = dayjs().diff(date, "hours");
+  const diffHours = dayjs().diff(parsed, "hours");
   if (diffHours < 4) {
     return "Il y a " + diffHours + " h";
   }
 
-  const diffDays = dayjs().diff(date, "days");
+  const diffDays = dayjs().diff(parsed, "days");
   if (diffDays < 1) {
     return HHmm;
   }
 
-  const ddd = dayjs(date).format("ddd");
+  const ddd = parsed.format("ddd");
   if (diffDays < 7) {
     return ddd + " " + HHmm;
   }
@@ -103,8 +132,17 @@ export function notificationsMultiFormat(date: DateFormatInput) {
 
 
 export function formatDateToYYYYMMDD(dateStr: string): string {
-  const [day, month, year] = dateStr.split("/");
-  return `${year}/${month}/${day}`;
+  if (!dateStr) return "";
+  const trimmed = dateStr.trim();
+  const matchYMD = trimmed.match(/^(\d{4})[/-](\d{2})[/-](\d{2})/);
+  if (matchYMD) {
+    return `${matchYMD[1]}/${matchYMD[2]}/${matchYMD[3]}`;
+  }
+  const matchDMY = trimmed.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
+  if (matchDMY) {
+    return `${matchDMY[3]}/${matchDMY[2]}/${matchDMY[1]}`;
+  }
+  return trimmed;
 }
 
 const month = {

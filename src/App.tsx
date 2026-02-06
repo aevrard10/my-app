@@ -29,7 +29,8 @@ const linking = {
   config: {
     screens: {
       HomeTabs: "reptiTrack",
-      Home: "my-reptiles",
+      Home: "home",
+      Reptiles: "my-reptiles",
       ReptileProfileDetails: "reptile/:id",
       AddMeasurements: "add-measurements",
       Feed: "alimentations",

@@ -2,7 +2,11 @@ import queryClient from "@shared/graphql/utils/queryClient";
 import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 import { getUploadEndpoint } from "@shared/config/api";
 
-const handleImageUpload = async (file: any, reptileId: string) => {
+const handleImageUpload = async (
+  file: any,
+  reptileId: string,
+  type: "profile" | "gallery" = "profile"
+) => {
   try {
     const token = await queryClient.ensureQueryData({
       queryKey: useCurrentTokenQuery.queryKey,
@@ -12,6 +16,7 @@ const handleImageUpload = async (file: any, reptileId: string) => {
     const formData = new FormData();
     formData.append("image", file); // "image" correspond au champ de multer
     formData.append("reptileId", reptileId); // ID du reptile pour l'update
+    formData.append("type", type);
 
     const response = await fetch(getUploadEndpoint(), {
       method: "POST",

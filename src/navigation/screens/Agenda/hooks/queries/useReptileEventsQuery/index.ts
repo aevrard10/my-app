@@ -15,6 +15,9 @@ const query = gql`
       event_name
       event_time
       notes
+      recurrence_type
+      recurrence_interval
+      recurrence_until
     }
   }
 `;
@@ -54,7 +57,16 @@ const useReptileEventsQuery = Object.assign(
       ReptileEventQueryVariables,
       Record<
         string,
-        { id: string; name: string; time: string; notes?: string; date: string }[]
+        {
+          id: string;
+          name: string;
+          time: string;
+          notes?: string;
+          date: string;
+          recurrence_type?: string;
+          recurrence_interval?: number;
+          recurrence_until?: string;
+        }[]
       >
     >({
       queryKey,
@@ -71,6 +83,9 @@ const useReptileEventsQuery = Object.assign(
               time: formattedTime,
               notes: event?.notes,
               date: formattedDate,
+              recurrence_type: event?.recurrence_type,
+              recurrence_interval: event?.recurrence_interval,
+              recurrence_until: event?.recurrence_until,
             };
 
             if (!acc[formattedDate]) {

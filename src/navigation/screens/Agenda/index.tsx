@@ -17,6 +17,7 @@ import {
   Portal,
   useTheme,
   Text,
+  SegmentedButtons,
 } from "react-native-paper";
 import EmptyList from "@shared/components/EmptyList";
 import useReptileEventsQuery from "./hooks/queries/useReptileEventsQuery";
@@ -40,6 +41,9 @@ const initialValues = {
   event_date: "",
   event_time: "",
   notes: "",
+  recurrence_type: "NONE",
+  recurrence_interval: 1,
+  recurrence_until: "",
 };
 const Agenda = () => {
   const navigation = useNavigation();
@@ -119,13 +123,16 @@ const Agenda = () => {
         onSubmit={(values, { resetForm }) => {
           mutate(
             {
-              input: {
-                event_name: values.event_name,
-                event_date: values.event_date,
-                event_time: values.event_time,
-                notes: values.notes,
+                input: {
+                  event_name: values.event_name,
+                  event_date: values.event_date,
+                  event_time: values.event_time,
+                  notes: values.notes,
+                  recurrence_type: values.recurrence_type,
+                  recurrence_interval: values.recurrence_interval,
+                  recurrence_until: values.recurrence_until || null,
+                },
               },
-            },
             {
               onSuccess: () => {
                 resetForm();
@@ -243,6 +250,22 @@ const Agenda = () => {
                       onBlur={formik.handleBlur("notes")}
                     />
                   </CardSurface>
+                  <CardSurface style={styles.inputSection}>
+                    <Text variant="labelLarge">Récurrence</Text>
+                    <SegmentedButtons
+                      value={formik.values.recurrence_type}
+                      onValueChange={(value) =>
+                        formik.setFieldValue("recurrence_type", value)
+                      }
+                      buttons={[
+                        { value: "NONE", label: "Aucune" },
+                        { value: "DAILY", label: "Quotidien" },
+                        { value: "WEEKLY", label: "Hebdo" },
+                        { value: "MONTHLY", label: "Mensuel" },
+                      ]}
+                      style={{ marginTop: 8 }}
+                    />
+                  </CardSurface>
                   <Button
                     loading={isPending}
                     disabled={!formik.isValid}
@@ -296,6 +319,13 @@ const Agenda = () => {
               <TextInfo title="Date" value={event?.date} />
               <TextInfo title="Heure" value={event?.time} />
               <TextInfo title="Notes" value={event?.notes} />
+              {event?.recurrence_type &&
+              event?.recurrence_type !== "NONE" ? (
+                <TextInfo
+                  title="Récurrence"
+                  value={event?.recurrence_type}
+                />
+              ) : null}
             </View>
           </ScrollView>
           <Button

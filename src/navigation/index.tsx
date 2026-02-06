@@ -14,6 +14,7 @@ import Register from "./screens/Register";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
 import { Reptiles } from "./screens/Reptiles";
+import Home from "./screens/Home";
 import Feed from "./screens/Feed";
 import AddMesuarements from "./screens/AddMesuarements";
 import AddFeed from "./screens/AddFeed";
@@ -40,12 +41,24 @@ const HomeTabs = () => {
     >
       <Tab.Screen
         name={ScreenNames.HOME}
-        component={Reptiles}
+        component={Home}
         options={{
           title: "Accueil",
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"home"} size={size} color={colors.primary} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name={ScreenNames.REPTILES}
+        component={Reptiles}
+        options={{
+          title: "Reptiles",
+          tabBarActiveTintColor: colors.secondary,
+          tabBarIcon: ({ size }) => (
+            <Icon source={"turtle"} size={size} color={colors.primary} />
           ),
           headerShown: false,
         }}

@@ -198,20 +198,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 12,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  headerTextContainer: {
-    flex: 1,
-  },
-  headerText: {
+  headerTitle: {
     paddingLeft: 0,
   },
   headerSubtitle: {
     opacity: 0.6,
-    marginTop: 2,
+    marginTop: 4,
   },
   searchbar: {
     borderRadius: 14,

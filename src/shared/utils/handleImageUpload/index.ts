@@ -33,7 +33,11 @@ const convertBlobToUri = async (blob: Blob) => {
   });
 };
 
-const handleImageUpload = async (file: File | Blob, d: string) => {
+const handleImageUpload = async (
+  file: File | Blob,
+  d: string,
+  type: "profile" | "gallery" = "profile"
+) => {
   try {
     const token = await queryClient.ensureQueryData({
       queryKey: useCurrentTokenQuery.queryKey,
@@ -57,6 +61,7 @@ const handleImageUpload = async (file: File | Blob, d: string) => {
       type: "image/jpeg",
     });
     formData.append("reptileId", d); // Associe l'ID du reptile à l'upload
+    formData.append("type", type);
 
     const response = await fetch(getUploadEndpoint(), {
       method: "POST",

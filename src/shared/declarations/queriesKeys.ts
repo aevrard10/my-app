@@ -9,6 +9,9 @@ enum QueriesKeys {
   STOCK = "stock",
   FEED_HISTORY = "feedHistory",
   DASHBOARD_SUMMARY = "dashboardSummary",
+  REPTILE_GENETICS = "reptileGenetics",
+  REPTILE_FEEDINGS = "reptileFeedings",
+  REPTILE_SHEDS = "reptileSheds",
 }
 
 export default QueriesKeys;
