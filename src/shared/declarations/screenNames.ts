@@ -14,6 +14,8 @@ enum ScreenNames {
   ADD_MEASUREMENTS = "AddMeasurements",
   ADD_FEED = "AddFeed",
 FEED_HISTORY = "FeedHistory",
+  FORGOT_PASSWORD = "ForgotPassword",
+  RESET_PASSWORD = "ResetPassword",
 }
 
 export default ScreenNames;

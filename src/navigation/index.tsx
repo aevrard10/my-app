@@ -21,6 +21,8 @@ import AddFeed from "./screens/AddFeed";
 import FeedHistory from "./screens/FeedHistory";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
+import ForgotPassword from "./screens/ForgotPassword";
+import ResetPassword from "./screens/ResetPassword";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -157,6 +159,16 @@ const MyStack = () => {
             name={ScreenNames.REGISTER}
             component={Register}
             options={{ title: "Inscription" }}
+          />
+          <Stack.Screen
+            name={ScreenNames.FORGOT_PASSWORD}
+            component={ForgotPassword}
+            options={{ title: "Mot de passe oublié" }}
+          />
+          <Stack.Screen
+            name={ScreenNames.RESET_PASSWORD}
+            component={ResetPassword}
+            options={{ title: "Nouveau mot de passe" }}
           />
         </>
       ) : (

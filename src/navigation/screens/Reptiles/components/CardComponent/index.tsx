@@ -18,8 +18,6 @@ import ScreenNames from "@shared/declarations/screenNames";
 import { getBackgroundColor, getIcon } from "../../utils/getSex";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useTheme } from "react-native-paper";
-import useLastFedUpdateMutation from "../../../ReptileProfileDetails/hooks/data/mutations/useLastFedUpdate";
-import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import CardSurface from "@shared/components/CardSurface";
 type CardComponentProps = {
   item?: Reptile;
@@ -30,15 +28,13 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   const { navigate } = useNavigation();
   const queryClient = useQueryClient();
   const { mutate } = useRemoveReptileMutation();
-  const { mutate: updateLastFed, isPending: isUpdatingFed } =
-    useLastFedUpdateMutation();
   const [showDialog, setShowDialog] = useState(false);
   const { show } = useSnackbar();
   const { colors } = useTheme();
   const iconSex = useMemo(() => getIcon(item?.sex), [item?.sex]);
   const backgroundColor = useMemo(
     () => getBackgroundColor(item?.sex),
-    [item?.sex]
+    [item?.sex],
   );
   const removeReptile = useCallback(() => {
     if (!item?.id) {
@@ -60,27 +56,10 @@ const CardComponent: FC<CardComponentProps> = (props) => {
             label: "Ok",
           });
         },
-      }
+      },
     );
   }, [item?.id, mutate, queryClient, show]);
 
-  const handleLastFedUpdate = useCallback(() => {
-    if (!item?.id) return;
-    updateLastFed(
-      { id: item?.id, last_fed: formatYYYYMMDD(new Date()) },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: useReptilesQuery.queryKey,
-          });
-          show("Dernier repas mis à jour");
-        },
-        onError: () => {
-          show("Erreur lors de la mise à jour");
-        },
-      }
-    );
-  }, [item?.id, updateLastFed, queryClient, show]);
   return (
     <CardSurface style={styles.card}>
       <View style={styles.media}>
@@ -134,14 +113,6 @@ const CardComponent: FC<CardComponentProps> = (props) => {
             }
           >
             Voir plus
-          </Button>
-          <Button
-            mode="outlined"
-            icon="food"
-            onPress={handleLastFedUpdate}
-            loading={isUpdatingFed}
-          >
-            Nourri aujourd&apos;hui
           </Button>
         </View>
       </View>

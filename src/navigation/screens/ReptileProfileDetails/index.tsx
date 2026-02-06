@@ -65,6 +65,7 @@ import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
+import useExportReptileQuery from "./hooks/data/queries/useExportReptileQuery";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -140,6 +141,8 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
+  const exportCsvQuery = useExportReptileQuery(id, "CSV");
+  const exportPdfQuery = useExportReptileQuery(id, "PDF");
 
   // Mutations
   const { mutate } = useAddNotesMutation();
@@ -581,6 +584,50 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       handleSharePhoto(photos[0]);
                     } else {
                       show("Ajoutez une photo pour partager la fiche");
+                    }
+                  }}
+                  onExportCsv={() => {
+                    if (exportCsvQuery.data?.exportReptile) {
+                      const { base64, filename, mime } =
+                        exportCsvQuery.data.exportReptile;
+                      if (Platform.OS === "web") {
+                        const link = document.createElement("a");
+                        link.href = `data:${mime};base64,${base64}`;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      } else {
+                        Sharing.shareAsync(`data:${mime};base64,${base64}`, {
+                          dialogTitle: filename,
+                          mimeType: mime,
+                        });
+                      }
+                    } else {
+                      exportCsvQuery.refetch();
+                      show("Génération CSV... réessaie dans un instant");
+                    }
+                  }}
+                  onExportPdf={() => {
+                    if (exportPdfQuery.data?.exportReptile) {
+                      const { base64, filename, mime } =
+                        exportPdfQuery.data.exportReptile;
+                      if (Platform.OS === "web") {
+                        const link = document.createElement("a");
+                        link.href = `data:${mime};base64,${base64}`;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      } else {
+                        Sharing.shareAsync(`data:${mime};base64,${base64}`, {
+                          dialogTitle: filename,
+                          mimeType: mime,
+                        });
+                      }
+                    } else {
+                      exportPdfQuery.refetch();
+                      show("Génération PDF... réessaie dans un instant");
                     }
                   }}
                 />

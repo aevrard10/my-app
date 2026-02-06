@@ -212,6 +212,14 @@ const Login = () => {
                   >
                     Se connecter
                   </Button>
+
+                  <Button
+                    mode="text"
+                    onPress={() => navigate(ScreenNames.FORGOT_PASSWORD as never)}
+                    style={{ marginTop: 6 }}
+                  >
+                    Mot de passe oublié ?
+                  </Button>
                 </View>
               )}
             </Formik>
