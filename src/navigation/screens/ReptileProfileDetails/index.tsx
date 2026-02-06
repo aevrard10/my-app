@@ -112,6 +112,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
     dam_name: "",
     notes: "",
   });
+  const profileSummary = useMemo(() => {
+    const species = data?.species || "?";
+    const age = data?.age ?? "?";
+    const temp = data?.temperature_range || "?";
+    return `${species} · ${age} ans · ${temp}`;
+  }, [data?.species, data?.age, data?.temperature_range]);
+
+  const foodSummary = useMemo(() => {
+    const last = data?.last_fed ? formatDDMMYYYY(data.last_fed) : "?";
+    const diet = data?.diet || "?";
+    return `Dernier repas: ${last} · Régime: ${diet}`;
+  }, [data?.last_fed, data?.diet]);
+
+  const healthSummary = useMemo(() => {
+    return data?.health_status || "État non renseigné";
+  }, [data?.health_status]);
 
   // Queries
   const { data: food } = useFoodQuery();
@@ -768,114 +784,120 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   isSaving={isSavingGenetics}
                 />
 
-                <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Profil & habitat
-                </Text>
+                <List.Section style={{ marginTop: 12 }}>
+                  <InfoAccordion
+                    title="Profil & habitat"
+                    icon="home"
+                    fields={[
+                      {
+                        key: "age",
+                        label: "Âge",
+                        value: formik.values.age,
+                        keyboardType: "numeric",
+                        onChangeText: (text) => {
+                          const number = parseInt(text, 10);
+                          formik.setFieldValue(
+                            "age",
+                            Number.isNaN(number) ? "" : number,
+                          );
+                        },
+                      },
+                      {
+                        key: "species",
+                        label: "Espèce",
+                        value: formik.values.species,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("species", text),
+                      },
+                      {
+                        key: "acquired_date",
+                        label: "Date d'acquisition",
+                        value: formik.values.acquired_date,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("acquired_date", text),
+                      },
+                      {
+                        key: "origin",
+                        label: "Origine",
+                        value: formik.values.origin,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("origin", text),
+                      },
+                      {
+                        key: "location",
+                        label: "Emplacement",
+                        value: formik.values.location,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("location", text),
+                      },
+                      {
+                        key: "humidity",
+                        label: "Humidité",
+                        value: formik.values.humidity_level,
+                        keyboardType: "numeric",
+                        onChangeText: (text) => {
+                          const number = parseInt(text, 10);
+                          formik.setFieldValue(
+                            "humidity_level",
+                            Number.isNaN(number) ? "" : number,
+                          );
+                        },
+                      },
+                      {
+                        key: "temperature",
+                        label: "Température",
+                        value: formik.values.temperature_range,
+                        keyboardType: "numeric",
+                        onChangeText: (text) =>
+                          formik.setFieldValue("temperature_range", text),
+                      },
+                    ]}
+                  />
 
-                <CardSurface style={styles.inputSection}>
-                  <TextInfo
-                    keyboardType="numeric"
-                    title="Âge"
-                    readOnly={false}
-                    value={formik.values.age?.toString()}
-                    onChangeText={(text) => {
-                      const number = parseInt(text, 10);
-                      formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                    }}
-                  />
-                  <TextInfo
-                    readOnly={false}
-                    title="Espèce"
-                    value={formik.values?.species || ""}
-                    onChangeText={(text) => {
-                      formik.setFieldValue("species", text);
-                    }}
+                  <InfoAccordion
+                    title="Alimentation"
+                    icon="food"
+                    fields={[
+                      {
+                        key: "last_fed",
+                        label: "Dernier repas",
+                        value: formik.values.last_fed,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("last_fed", text),
+                      },
+                      {
+                        key: "diet",
+                        label: "Régime alimentaire",
+                        value: formik.values.diet,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("diet", text),
+                      },
+                    ]}
                   />
 
-                  <TextInfo
-                    readOnly={false}
-                    title="Date d'acquisition"
-                    value={formik.values?.acquired_date || ""}
+                  <InfoAccordion
+                    title="Santé"
+                    icon="heart-pulse"
+                    fields={[
+                      {
+                        key: "health_status",
+                        label: "État de santé",
+                        value: formik.values.health_status,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("health_status", text),
+                      },
+                    ]}
                   />
-                  <TextInfo
-                    readOnly={false}
-                    title="Origine"
-                    value={formik.values?.origin || ""}
-                    noDivider
-                  />
-                </CardSurface>
-                <CardSurface style={styles.inputSection}>
-                  <TextInfo
-                    readOnly={false}
-                    title="Emplacement"
-                    value={formik.values?.location || ""}
-                    noDivider
-                    onChangeText={(text) => {
-                      formik.setFieldValue("location", text);
-                    }}
-                  />
-                  <TextInfo
-                    readOnly={false}
-                    title="Humidité"
-                    value={formik.values?.humidity_level || ""}
-                    noDivider
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      const number = parseInt(text, 10);
-                      formik.setFieldValue(
-                        "humidity_level",
-                        isNaN(number) ? "" : number,
-                      ); // Ne pas permettre un non-nombre
-                    }}
-                  />
-                  <TextInfo
-                    readOnly={false}
-                    title="Température"
-                    value={formik.values?.temperature_range || ""}
-                    noDivider
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      formik.setFieldValue("temperature_range", text);
-                    }}
-                  />
-                </CardSurface>
-                <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Alimentation
-                </Text>
-                <CardSurface style={styles.inputSection}>
-                  <TextInfo
-                    readOnly={false}
-                    title="Dernier repas"
-                    value={formik.values?.last_fed || ""}
-                  />
-                  <TextInfo
-                    readOnly={false}
-                    value={formik.values?.diet || ""}
-                    title="Régime alimentaire"
-                    noDivider
-                    onChangeText={(text) => {
-                      formik.setFieldValue("diet", text);
-                    }}
-                  />
-                </CardSurface>
-                <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Santé
-                </Text>
-                <CardSurface style={styles.inputSection}>
-                  <TextInfo
-                    readOnly={false}
-                    value={formik.values?.health_status || ""}
-                    title="État de santé"
-                    onChangeText={(text) => {
-                      formik.setFieldValue("health_status", text);
-                    }}
-                  />
-                </CardSurface>
-                <View style={styles.actionBlock}>
-                  <Button mode="contained" onPress={formik.submitForm}>
-                    Modifier les informations
-                  </Button>
-                </View>
+
+                  <List.Accordion
+                    title="Actions"
+                    left={(props) => <List.Icon {...props} icon="pencil" />}
+                  >
+                    <Button mode="contained" onPress={formik.submitForm}>
+                      Modifier les informations
+                    </Button>
+                  </List.Accordion>
+                </List.Section>
                 <CardSurface style={styles.notesCard}>
                   <Text variant="titleMedium" style={styles.cardTitle}>
                     Notes & observations

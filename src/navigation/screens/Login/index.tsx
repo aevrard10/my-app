@@ -1,7 +1,6 @@
 import {
   View,
   StyleSheet,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,7 +9,7 @@ import * as Yup from "yup";
 import useLoginMutation from "./hooks/data/mutations/useLoginMutation";
 import { Formik } from "formik";
 import { useSnackbar } from "@rn-flix/snackbar";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { Avatar, Button, Text, TextInput, useTheme } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@shared/contexts/AuthContext";
 import QueriesKeys from "@shared/declarations/queriesKeys";
@@ -51,7 +50,7 @@ async function registerForPushNotificationsAsync() {
     }
     if (finalStatus !== "granted") {
       handleRegistrationError(
-        "Permission not granted to get push token for push notification!"
+        "Permission not granted to get push token for push notification!",
       );
       return;
     }
@@ -112,10 +111,12 @@ const Login = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.hero}>
-            <View style={[styles.heroBadge, { backgroundColor: colors.primary }]}>
-              <Image
+            <View
+              style={[styles.heroBadge, { backgroundColor: colors.primary }]}
+            >
+              <Avatar.Image
+                size={100}
                 source={require("../../../assets/twoReptile/reptile2.png")}
-                style={styles.heroImage}
               />
             </View>
             <Text variant="headlineMedium" style={styles.title}>
@@ -153,7 +154,7 @@ const Login = () => {
                       resetForm();
                       await AsyncStorage.setItem(
                         QueriesKeys.USER_TOKEN,
-                        data?.login?.token
+                        data?.login?.token,
                       );
                       setToken(data?.login?.token);
                       show("Connexion réussi", {
@@ -161,14 +162,11 @@ const Login = () => {
                       });
                     },
                     onError: () => {
-                      show(
-                        "Une erreur est survenue, Veuillez réessayer ...",
-                        {
-                          label: "Ok",
-                        }
-                      );
+                      show("Une erreur est survenue, Veuillez réessayer ...", {
+                        label: "Ok",
+                      });
                     },
-                  }
+                  },
                 );
               }}
             >
@@ -215,7 +213,9 @@ const Login = () => {
 
                   <Button
                     mode="text"
-                    onPress={() => navigate(ScreenNames.FORGOT_PASSWORD as never)}
+                    onPress={() =>
+                      navigate(ScreenNames.FORGOT_PASSWORD as never)
+                    }
                     style={{ marginTop: 6 }}
                   >
                     Mot de passe oublié ?
@@ -229,10 +229,7 @@ const Login = () => {
             <Text variant="bodySmall" style={styles.footerText}>
               Pas encore de compte ?
             </Text>
-            <Button
-              mode="text"
-              onPress={() => navigate(ScreenNames.REGISTER)}
-            >
+            <Button mode="text" onPress={() => navigate(ScreenNames.REGISTER)}>
               Créer un compte
             </Button>
           </View>
@@ -263,9 +260,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   heroImage: {
-    width: 96,
-    height: 96,
-    resizeMode: "contain",
+    resizeMode: "cover",
   },
   title: {
     textAlign: "center",

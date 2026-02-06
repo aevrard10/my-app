@@ -1,7 +1,6 @@
 import {
   View,
   StyleSheet,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -9,7 +8,7 @@ import {
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { useSnackbar } from "@rn-flix/snackbar";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { Avatar, Button, Text, TextInput, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNames from "@shared/declarations/screenNames";
 import useRegisterMutation from "./hooks/mutations/useRegisterMutation";
@@ -48,9 +47,9 @@ const Register = () => {
             <View
               style={[styles.heroBadge, { backgroundColor: colors.secondary }]}
             >
-              <Image
+              <Avatar.Image
+                size={100}
                 source={require("../../../assets/twoReptile/reptile.png")}
-                style={styles.heroImage}
               />
             </View>
             <Text variant="headlineMedium" style={styles.title}>
@@ -91,14 +90,11 @@ const Register = () => {
                       navigate(ScreenNames.LOGIN);
                     },
                     onError: () => {
-                      show(
-                        "Une erreur est survenue, Veuillez réessayer ...",
-                        {
-                          label: "Ok",
-                        }
-                      );
+                      show("Une erreur est survenue, Veuillez réessayer ...", {
+                        label: "Ok",
+                      });
                     },
-                  }
+                  },
                 );
               }}
             >
