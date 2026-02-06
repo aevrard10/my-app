@@ -15,12 +15,14 @@ import Skeleton from "@shared/components/Skeleton";
 import { FlatList, View } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
+import useFoodForecastQuery from "./hooks/data/queries/useFoodForecastQuery";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
   const { mutate: updateStock, isPending: isUpdating } = useUpdateFoodStock(); // Utilisation de la mutation
+  const { data: forecast30 } = useFoodForecastQuery(30);
   const { show } = useSnackbar();
   const stockStats = useMemo(() => {
     const items = data ?? [];
@@ -155,6 +157,27 @@ const Feed = () => {
                   </Text>
                 </View>
               </View>
+              {forecast30 && forecast30.length > 0 ? (
+                <View style={{ marginTop: 10, gap: 6 }}>
+                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
+                    Ruptures probables d&apos;ici 30 jours :
+                  </Text>
+                  {forecast30
+                    .filter((f) => f.projected_remaining_30 <= 0)
+                    .slice(0, 3)
+                    .map((f) => (
+                      <Text key={f.food_id} variant="bodySmall" style={{ color: colors.error }}>
+                        {f.name} ({f.projected_remaining_30.toFixed(1)} {f.unit})
+                      </Text>
+                    ))}
+                  {forecast30.filter((f) => f.projected_remaining_30 <= 0).length ===
+                  0 ? (
+                    <Text variant="bodySmall" style={{ opacity: 0.65 }}>
+                      Rien en rupture dans les 30 jours.
+                    </Text>
+                  ) : null}
+                </View>
+              ) : null}
             </CardSurface>
             <HistoryChip navigate={navigate} colors={colors} />
           </>

@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import useCurrentUserQuery from "@shared/hooks/queries/useCurrentUser";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
@@ -28,12 +29,15 @@ const Home = () => {
     isPending: isSummaryLoading,
     error: summaryError,
   } = useDashboardSummaryQuery();
+  const { data: healthAlerts } = useHealthAlertsQuery();
   const { mutate: logout } = useLogoutMutation();
 
   const upcomingEvents = summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
   const unreadNotifications = summary?.unread_notifications ?? 0;
+  const alertsCount =
+    healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
   const usefulLinks = [
     {
       label: "INPN (MNHN)",
@@ -202,6 +206,22 @@ const Home = () => {
                 </View>
               );
             })}
+            {alertsCount > 0 ? (
+              <View
+                style={[
+                  styles.statPill,
+                  { backgroundColor: colors.errorContainer, flex: 1, minWidth: 90 },
+                ]}
+              >
+                <Icon source="alert" size={16} color={colors.error} />
+                <Text variant="titleMedium" style={[styles.statValue, { color: colors.error }]}>
+                  {alertsCount}
+                </Text>
+                <Text variant="labelSmall" style={[styles.statLabel, { color: colors.error }]}>
+                  Alertes santé
+                </Text>
+              </View>
+            ) : null}
           </View>
           {summaryError ? (
             <Text variant="labelSmall" style={styles.summaryError}>

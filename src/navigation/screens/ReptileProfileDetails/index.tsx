@@ -59,6 +59,7 @@ import ReptileProfileSkeleton from "./components/ReptileProfileSkeleton";
 import useGoveeDevicesQuery from "./hooks/data/queries/useGoveeDevicesQuery";
 import useGoveeDeviceStateQuery from "./hooks/data/queries/useGoveeDeviceStateQuery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -88,6 +89,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
     isPending: isPhotosLoading,
     refetch: refetchPhotos,
   } = useReptilePhotosQuery(id);
+  const { data: healthAlerts } = useHealthAlertsQuery();
   const {
     data: goveeDevices,
     isPending: isLoadingGoveeDevices,
@@ -428,6 +430,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
     navigation.setOptions({ title: data?.name ?? "Détails du reptile" });
   }, [data?.name]);
 
+  const currentAlerts = useMemo(
+    () => healthAlerts?.find((a) => String(a.reptile_id) === String(id)),
+    [healthAlerts, id]
+  );
+
   const addNotes = useCallback(() => {
     mutate(
       { id, notes },
@@ -500,6 +507,18 @@ const ReptileProfileDetails = ({ route }: Props) => {
               keyboardShouldPersistTaps="handled"
             >
               <ReptilePicture data={data} />
+              {currentAlerts && currentAlerts.alerts.length > 0 ? (
+                <CardSurface style={styles.alertCard}>
+                  <Text variant="labelLarge" style={{ color: colors.error }}>
+                    Alertes santé
+                  </Text>
+                  {currentAlerts.alerts.map((msg, idx) => (
+                    <Text key={idx} variant="bodySmall" style={styles.alertLine}>
+                      • {msg}
+                    </Text>
+                  ))}
+                </CardSurface>
+              ) : null}
 
               <CardSurface style={styles.galleryCard}>
                 <View style={styles.galleryHeader}>
@@ -1359,6 +1378,14 @@ const styles = StyleSheet.create({
   readingMeta: {
     opacity: 0.6,
     marginTop: 4,
+  },
+  alertCard: {
+    marginVertical: 8,
+    gap: 4,
+    borderColor: "rgba(195,60,60,0.25)",
+  },
+  alertLine: {
+    color: "#C33C3C",
   },
 });
 
