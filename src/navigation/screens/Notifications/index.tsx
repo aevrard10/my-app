@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import NotifItem from "./components/NotifItem";
 import useGetNotificationsQuery from "./hooks/queries/GetNotificationsQuery";
@@ -7,6 +8,7 @@ import { Button, Text, useTheme } from "react-native-paper";
 import useMarkAllNotificationsAsReadMutation from "./hooks/mutations/useMarkAllNotificationsAsReadMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import NotifItemSkeleton from "./components/NotifItemSkeleton";
 
 const renderItem = ({ item }) => <NotifItem item={item} />;
 
@@ -17,6 +19,11 @@ const Notifications = () => {
   const { mutate, isPending: isMarking } =
     useMarkAllNotificationsAsReadMutation();
   const unreadCount = data?.filter((notif) => !notif.read).length ?? 0;
+  const isInitialLoading = isPending && (!data || data.length === 0);
+  const skeletonItems = useMemo(
+    () => Array.from({ length: 4 }, (_, index) => ({ id: `sk-${index}` })),
+    []
+  );
 
   const handleMarkAllAsRead = () => {
     if (unreadCount === 0) return;
@@ -34,8 +41,11 @@ const Notifications = () => {
   return (
     <Screen>
       <FlatList
-        data={data}
-        renderItem={renderItem}
+        data={isInitialLoading ? skeletonItems : data}
+        renderItem={
+          isInitialLoading ? () => <NotifItemSkeleton /> : renderItem
+        }
+        keyExtractor={(item) => String(item.id)}
         refreshing={isPending}
         onRefresh={refetch}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -67,7 +77,9 @@ const Notifications = () => {
             ) : null}
           </View>
         }
-        ListEmptyComponent={<ListEmptyComponent isLoading={isPending} />}
+        ListEmptyComponent={
+          isInitialLoading ? null : <ListEmptyComponent isLoading={isPending} />
+        }
       />
     </Screen>
   );
