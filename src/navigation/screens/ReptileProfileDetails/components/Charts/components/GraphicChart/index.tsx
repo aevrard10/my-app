@@ -14,6 +14,15 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
   if (isPending) {
     return <ActivityIndicator animating={true} />;
   }
+  if (!data || data.length === 0) {
+    return (
+      <CardSurface style={styles.card}>
+        <Text variant="bodyMedium" style={styles.title}>
+          Pas encore de mesures de poids.
+        </Text>
+      </CardSurface>
+    );
+  }
   return (
     <CardSurface style={styles.card}>
       <Text variant="titleSmall" style={styles.title}>
@@ -53,6 +62,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
           activatePointersOnLongPress: true,
           autoAdjustPointerLabelPosition: false,
           pointerLabelComponent: (items) => {
+            if (!items?.length || !items[0]) return null;
             return (
               <View
                 style={{

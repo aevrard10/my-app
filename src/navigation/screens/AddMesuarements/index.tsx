@@ -1,5 +1,3 @@
-
-
 import React, { FC, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { Button, Divider, SegmentedButtons, Text } from "react-native-paper";
@@ -16,7 +14,6 @@ import ScreenNames from "@shared/declarations/screenNames";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import TextInput from "@shared/components/TextInput";
-
 
 const initialValues = {
   weight: 0,
@@ -35,55 +32,53 @@ type Props = StaticScreenProps<{
   id: string;
 }>;
 const AddMesuarements = ({ route }: Props) => {
-    const id = route.params.id;
-    const { show } = useSnackbar();
-  const [inputDate, setInputDate] = useState<Date | undefined>(
-    new Date()
-  );
-    const queryClient = useQueryClient();
-    const { mutate: addMeasurement } = useAddMeasurementMutation();
-const {navigate} = useNavigation();
- return (
- <Screen>
- <Formik
-      initialValues={initialValues}
-      enableReinitialize
-      onSubmit={(values) => {
-        addMeasurement(
-          {
-            input: {
-              reptile_id: id,
-              date: values.date,
-              weight: values.weight,
-              size: values.size,
-              size_mesure: values.size_mesure,
-              weight_mesure: values.weight_mesure,
+  const id = route.params.id;
+  const { show } = useSnackbar();
+  const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
+  const queryClient = useQueryClient();
+  const { mutate: addMeasurement } = useAddMeasurementMutation();
+  const { navigate } = useNavigation();
+  return (
+    <Screen>
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        onSubmit={(values) => {
+          addMeasurement(
+            {
+              input: {
+                reptile_id: id,
+                date: values.date,
+                weight: values.weight,
+                size: values.size,
+                size_mesure: values.size_mesure,
+                weight_mesure: values.weight_mesure,
+              },
             },
-          },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries({
-                queryKey: [...useMeasurementsQuery.queryKey, id],
-              });
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: [...useMeasurementsQuery.queryKey, id],
+                });
 
-              show("Mesures ajoutées avec succès!");
-              navigate(ScreenNames.REPTILE_PROFILE_DETAILS, { id });
+                console.log("Mesure ajoutée avec succès", id);
+                show("Mesures ajoutées avec succès!");
+                navigate(ScreenNames.REPTILE_PROFILE_DETAILS, { id });
+              },
+              onError: (e) => {
+                console.error("Erreur lors de l'ajout des mesures", e);
+                show("Une erreur s'est produite");
+              },
             },
-            onError: () => {
-              show("Une erreur s'est produite");
-            },
-          }
-        );
-      }}
-      // validationSchema={schema}
-    >
-      {(formik) => (
-  
-        
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
+          );
+        }}
+        // validationSchema={schema}
+      >
+        {(formik) => (
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.header}>
               <Text variant="headlineSmall">Ajouter des mesures</Text>
               <Text variant="bodySmall" style={styles.headerSubtitle}>
@@ -112,7 +107,7 @@ const {navigate} = useNavigation();
                     formik.setFieldValue("weight_mesure", value);
                   }}
                   value={formik.values.weight_mesure}
-                  style={{ flex: 1}}
+                  style={{ flex: 1 }}
                   buttons={[
                     {
                       value: "g",
@@ -131,7 +126,7 @@ const {navigate} = useNavigation();
                   flexDirection: "row",
                   justifyContent: "space-between",
                   marginVertical: 10,
-                  flexWrap: 'nowrap',
+                  flexWrap: "nowrap",
                 }}
               >
                 <TextInput
@@ -188,12 +183,10 @@ const {navigate} = useNavigation();
               <Button mode="contained" onPress={formik.submitForm}>
                 Ajouter
               </Button>
-            
             </View>
           </ScrollView>
-
-      )}
-    </Formik>
+        )}
+      </Formik>
     </Screen>
   );
 };
@@ -235,9 +228,8 @@ const styles = StyleSheet.create({
   },
   inputSection: {
     margin: 10,
-    flex:1,
+    flex: 1,
   },
 });
-
 
 export default AddMesuarements;

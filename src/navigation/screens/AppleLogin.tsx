@@ -40,7 +40,9 @@ const AppleLogin = ({ navigation }: any) => {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.container}>
-        <Text variant="titleLarge" style={styles.title}>Connexion</Text>
+        <Text variant="titleLarge" style={styles.title}>
+          Connexion
+        </Text>
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
           buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
@@ -48,9 +50,6 @@ const AppleLogin = ({ navigation }: any) => {
           style={styles.btn}
           onPress={handleApple}
         />
-        <Button onPress={() => navigation.goBack()} style={{ marginTop: 12 }}>
-          Retour
-        </Button>
       </View>
     </Screen>
   );

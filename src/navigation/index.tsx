@@ -147,7 +147,8 @@ const MyStack = () => {
         ),
       }}
     >
-      {!token ? (
+      {/* !token */}
+      {true ? (
         <>
           <Stack.Screen
             name={ScreenNames.APPLE_LOGIN}

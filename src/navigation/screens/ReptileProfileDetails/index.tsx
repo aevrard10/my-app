@@ -24,7 +24,6 @@ import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "@rn-flix/snackbar";
 import useMeasurementsQuery from "./hooks/data/queries/useMeasurementsQuery";
-import TextInfo from "./components/TextInfo";
 import ReptilePicture from "./components/ReptilePicture";
 import TextInput from "@shared/components/TextInput";
 import useReptileQuery from "../Reptiles/hooks/queries/useReptileQuery";
@@ -176,6 +175,115 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.model,
   );
   const exportPdfQuery = null;
+
+  const handleExportPdf = useCallback(async () => {
+    if (Platform.OS === "web") {
+      show("L'export PDF est disponible sur iOS/Android (build dev/release).");
+      return;
+    }
+
+    if (!data) {
+      show("Impossible d'exporter : données du reptile indisponibles.");
+      return;
+    }
+
+    try {
+      const { printToFileAsync } = await import("expo-print");
+
+      const photo = data.image_url
+        ? `<img src="${data.image_url}" style="width:180px;height:180px;border-radius:12px;object-fit:cover;margin-bottom:12px;" />`
+        : "";
+
+      const geneticsBlock = genetics
+        ? `<p><strong>Génétique :</strong> ${genetics.morph ?? "—"} | ${
+            genetics.mutations ?? ""
+          } ${genetics.lineage ? " · " + genetics.lineage : ""}</p>`
+        : "";
+
+      const html = `
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            body { font-family: -apple-system, Roboto, sans-serif; padding: 18px; color: #1c1c1c; }
+            .card { border: 1px solid #e6e6e6; border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+            h1 { margin: 0 0 6px 0; }
+            h2 { margin: 12px 0 8px 0; font-size: 16px; }
+            p { margin: 4px 0; }
+            .row { display: flex; gap: 12px; flex-wrap: wrap; }
+            .pill { padding: 6px 10px; border-radius: 12px; background: #f2f5f4; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h1>${data.name || "Reptile"}</h1>
+            <div class="row">
+              <div>${photo}</div>
+              <div>
+                <p><strong>Espèce :</strong> ${data.species || "—"}</p>
+                <p><strong>Sexe :</strong> ${data.sex || "—"}</p>
+                <p><strong>Âge :</strong> ${data.age ?? "—"} ans</p>
+                <p><strong>Localisation :</strong> ${data.location || "—"}</p>
+                <p><strong>Acquisition :</strong> ${
+                  data.acquired_date ? formatDDMMYYYY(data.acquired_date) : "—"
+                }</p>
+              </div>
+            </div>
+            ${geneticsBlock}
+          </div>
+
+          <div class="card">
+            <h2>Derniers suivis</h2>
+            <p><strong>Dernier repas :</strong> ${
+              feedings?.[0]?.fed_at
+                ? formatDDMMYYYY(feedings[0].fed_at)
+                : "—"
+            }</p>
+            <p><strong>Dernière mue :</strong> ${
+              sheds?.[0]?.shed_date
+                ? formatDDMMYYYY(sheds[0].shed_date)
+                : "—"
+            }</p>
+            <p><strong>Dernière mesure :</strong> ${
+              latestMeasurement
+                ? `${latestMeasurement.weight} ${latestMeasurement.weight_mesure} · ${latestMeasurement.size} ${latestMeasurement.size_mesure}`
+                : "—"
+            }</p>
+            <p><strong>Température/Hygro :</strong> ${
+              data.temperature_range || "—"
+            } | ${data.humidity_level ?? "—"}%</p>
+          </div>
+
+          <div class="card">
+            <h2>Notes</h2>
+            <p>${(data.notes || "Aucune note").replace(/\n/g, "<br/>")}</p>
+          </div>
+        </body>
+      </html>`;
+
+      const pdf = await printToFileAsync({ html, base64: false });
+
+      const available = await Sharing.isAvailableAsync();
+      if (!available) {
+        show("PDF généré, mais le partage n'est pas disponible sur cet appareil.");
+        return;
+      }
+
+      await Sharing.shareAsync(pdf.uri, {
+        UTI: "com.adobe.pdf",
+        mimeType: "application/pdf",
+      });
+    } catch (err: any) {
+      if (err?.message?.includes("expo-print")) {
+        show(
+          "expo-print n'est pas installé. Ajoute-le (expo install expo-print) puis rebuild.",
+        );
+        return;
+      }
+      console.error(err);
+      show("Export PDF impossible. Réessaie après redémarrage.");
+    }
+  }, [data, genetics, feedings, sheds, latestMeasurement, show]);
 
   // Mutations
   const { mutate } = useAddNotesMutation();
@@ -604,11 +712,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       openAddEvent: true,
                     })
                   }
-                  onExportPdf={() => {
-                    show(
-                      "Export PDF désactivé en mode local-first. (À réactiver si un backend de génération est disponible.)",
-                    );
-                  }}
+                  onExportPdf={handleExportPdf}
                 />
 
                 <FeedPortal
