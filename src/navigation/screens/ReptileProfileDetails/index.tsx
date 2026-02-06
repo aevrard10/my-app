@@ -11,14 +11,12 @@ import {
   View,
 } from "react-native";
 import {
-  ActivityIndicator,
   Button,
   FAB,
   Icon,
   Modal,
   Portal,
   Text,
-  TouchableRipple,
   useTheme,
 } from "react-native-paper";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
@@ -54,12 +52,18 @@ import useReptileShedsQuery from "./hooks/data/queries/useReptileShedsQuery";
 import useAddReptileShedMutation from "./hooks/data/mutations/useAddReptileShedMutation";
 import useDeleteReptileShedMutation from "./hooks/data/mutations/useDeleteReptileShedMutation";
 import useDeleteReptileFeedingMutation from "./hooks/data/mutations/useDeleteReptileFeedingMutation";
+import useLastFedUpdateMutation from "./hooks/data/mutations/useLastFedUpdate";
 import { DatePickerInput } from "react-native-paper-dates";
 import ReptileProfileSkeleton from "./components/ReptileProfileSkeleton";
 import useGoveeDevicesQuery from "./hooks/data/queries/useGoveeDevicesQuery";
 import useGoveeDeviceStateQuery from "./hooks/data/queries/useGoveeDeviceStateQuery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
+import AlertCard from "./components/AlertCard";
+import QuickActions from "./components/QuickActions";
+import GallerySection from "./components/GallerySection";
+import HistorySection from "./components/HistorySection";
+import GeneticsSection from "./components/GeneticsSection";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -71,6 +75,37 @@ const ReptileProfileDetails = ({ route }: Props) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
+
+  // States
+  const [notes, setNotes] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [showShedModal, setShowShedModal] = useState(false);
+  const [shedDate, setShedDate] = useState<Date | undefined>(new Date());
+  const [shedNotes, setShedNotes] = useState("");
+  const [goveeApiKey, setGoveeApiKey] = useState("");
+  const [selectedGoveeDevice, setSelectedGoveeDevice] = useState<{
+    device: string;
+    model: string;
+    name?: string | null;
+  } | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{
+    id: string;
+    url: string;
+    created_at: string;
+  } | null>(null);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [geneticsForm, setGeneticsForm] = useState({
+    morph: "",
+    mutations: "",
+    hets: "",
+    traits: "",
+    lineage: "",
+    breeder: "",
+    hatch_date: "",
+    sire_name: "",
+    dam_name: "",
+    notes: "",
+  });
 
   // Queries
   const { data: food } = useFoodQuery();
@@ -102,7 +137,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
   } = useGoveeDeviceStateQuery(
     goveeApiKey || undefined,
     selectedGoveeDevice?.device,
-    selectedGoveeDevice?.model
+    selectedGoveeDevice?.model,
   );
 
   // Mutations
@@ -115,41 +150,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
     useAddReptileShedMutation();
   const { mutate: deleteShed } = useDeleteReptileShedMutation();
   const { mutate: deleteFeeding } = useDeleteReptileFeedingMutation();
+  const { mutate: updateLastFed, isPending: isUpdatingFed } =
+    useLastFedUpdateMutation();
 
-  // States
-
-  const [notes, setNotes] = useState(data?.notes || "");
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [showShedModal, setShowShedModal] = useState(false);
-  const [shedDate, setShedDate] = useState<Date | undefined>(new Date());
-  const [shedNotes, setShedNotes] = useState("");
-  const [goveeApiKey, setGoveeApiKey] = useState("");
-  const [selectedGoveeDevice, setSelectedGoveeDevice] = useState<{
-    device: string;
-    model: string;
-    name?: string | null;
-  } | null>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<
-    | {
-        id: string;
-        url: string;
-        created_at: string;
-      }
-    | null
-  >(null);
-  const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [geneticsForm, setGeneticsForm] = useState({
-    morph: "",
-    mutations: "",
-    hets: "",
-    traits: "",
-    lineage: "",
-    breeder: "",
-    hatch_date: "",
-    sire_name: "",
-    dam_name: "",
-    notes: "",
-  });
+  useEffect(() => {
+    if (data?.notes !== undefined && data?.notes !== null) {
+      setNotes(data.notes);
+    }
+  }, [data?.notes]);
 
   useEffect(() => {
     setGeneticsForm({
@@ -171,7 +179,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       const savedKey = await AsyncStorage.getItem("govee_api_key");
       if (savedKey) setGoveeApiKey(savedKey);
       const savedDevice = await AsyncStorage.getItem(
-        `govee_device_${id ?? "default"}`
+        `govee_device_${id ?? "default"}`,
       );
       if (savedDevice) {
         try {
@@ -233,7 +241,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             onError: () => {
               show("Erreur lors de la suppression");
             },
-          }
+          },
         );
       };
 
@@ -249,7 +257,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         { text: "Supprimer", style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deletePhoto, refetchPhotos, show]
+    [deletePhoto, refetchPhotos, show],
   );
 
   const handleDownloadSelectedPhoto = useCallback(() => {
@@ -285,11 +293,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
       setSelectedGoveeDevice(device);
       await AsyncStorage.setItem(
         `govee_device_${id ?? "default"}`,
-        JSON.stringify(device)
+        JSON.stringify(device),
       );
       refetchGoveeReading();
     },
-    [id, refetchGoveeReading]
+    [id, refetchGoveeReading],
   );
 
   const confirmDeleteFeeding = useCallback(
@@ -305,7 +313,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             onError: () => {
               show("Erreur lors de la suppression");
             },
-          }
+          },
         );
       };
 
@@ -321,7 +329,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         { text: "Supprimer", style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deleteFeeding, refetchFeedings, show]
+    [deleteFeeding, refetchFeedings, show],
   );
 
   const confirmDeleteShed = useCallback(
@@ -337,7 +345,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
             onError: () => {
               show("Erreur lors de la suppression");
             },
-          }
+          },
         );
       };
 
@@ -353,7 +361,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         { text: "Supprimer", style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deleteShed, refetchSheds, show]
+    [deleteShed, refetchSheds, show],
   );
 
   const trendData = useMemo(() => {
@@ -372,14 +380,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
     const sorted = [...measurements].sort(
       (a, b) =>
         parseMeasurementDate(a.date).getTime() -
-        parseMeasurementDate(b.date).getTime()
+        parseMeasurementDate(b.date).getTime(),
     );
 
     const now = new Date();
     const recentThreshold = new Date();
     recentThreshold.setDate(now.getDate() - 30);
     const recent = sorted.filter(
-      (m) => parseMeasurementDate(m.date) >= recentThreshold
+      (m) => parseMeasurementDate(m.date) >= recentThreshold,
     );
 
     const base = recent.length >= 2 ? recent : sorted;
@@ -421,7 +429,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
     const sorted = [...measurements].sort(
       (a, b) =>
         parseMeasurementDate(b.date).getTime() -
-        parseMeasurementDate(a.date).getTime()
+        parseMeasurementDate(a.date).getTime(),
     );
     return sorted[0];
   }, [measurements]);
@@ -432,7 +440,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
   const currentAlerts = useMemo(
     () => healthAlerts?.find((a) => String(a.reptile_id) === String(id)),
-    [healthAlerts, id]
+    [healthAlerts, id],
   );
 
   const addNotes = useCallback(() => {
@@ -445,7 +453,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
           });
           show("Notes enregistrées");
         },
-      }
+      },
     );
   }, [id, notes, mutate]);
   const handleUpdateReptile = (values: any) => {
@@ -461,9 +469,26 @@ const ReptileProfileDetails = ({ route }: Props) => {
         onError: () => {
           show("Erreur lors de la mise à jour");
         },
-      }
+      },
     );
   };
+  const handleQuickFeed = useCallback(() => {
+    if (!id) return;
+    updateLastFed(
+      { id, last_fed: formatYYYYMMDD(new Date()) },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: useReptileQuery.queryKey(id),
+          });
+          show("Dernier repas mis à jour");
+        },
+        onError: () => {
+          show("Erreur lors de la mise à jour");
+        },
+      },
+    );
+  }, [id, updateLastFed, queryClient, show]);
   if (isLoadingReptile) {
     return (
       <Screen>
@@ -502,575 +527,404 @@ const ReptileProfileDetails = ({ route }: Props) => {
         {(formik) => (
           <>
             <Screen>
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-            >
-              <ReptilePicture data={data} />
-              {currentAlerts && currentAlerts.alerts.length > 0 ? (
-                <CardSurface style={styles.alertCard}>
-                  <Text variant="labelLarge" style={{ color: colors.error }}>
-                    Alertes santé
-                  </Text>
-                  {currentAlerts.alerts.map((msg, idx) => (
-                    <Text key={idx} variant="bodySmall" style={styles.alertLine}>
-                      • {msg}
-                    </Text>
-                  ))}
-                </CardSurface>
-              ) : null}
+              <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+              >
+                <ReptilePicture data={data} />
+                <AlertCard alerts={currentAlerts?.alerts} />
 
-              <CardSurface style={styles.galleryCard}>
-                <View style={styles.galleryHeader}>
-                  <Text variant="titleMedium">Galerie</Text>
-                  <Button
-                    mode="outlined"
-                    compact
-                    onPress={addGalleryPhoto}
-                    loading={isUploadingPhoto}
-                  >
-                    Ajouter
-                  </Button>
-                </View>
-                {isPhotosLoading ? (
-                  <ActivityIndicator style={styles.galleryLoader} />
-                ) : photos && photos.length > 0 ? (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.galleryRow}>
-                      {photos.map((photo) => (
-                        <TouchableRipple
-                          key={photo.id}
-                          onLongPress={() => confirmDeletePhoto(photo.id)}
-                          onPress={() => {
-                            setSelectedPhoto(photo);
-                            setShowPhotoModal(true);
-                          }}
-                          style={styles.photoItem}
-                        >
-                          <View>
-                            <Image
-                              source={{ uri: photo.url }}
-                              style={styles.photoImage}
-                            />
-                            <Text variant="labelSmall" style={styles.photoDate}>
-                              {formatDDMMYYYY(photo.created_at)}
-                            </Text>
-                          </View>
-                        </TouchableRipple>
-                      ))}
-                    </View>
-                  </ScrollView>
-                ) : (
-                  <Text variant="bodySmall" style={styles.galleryEmpty}>
-                    Ajoutez des photos pour garder l&apos;historique.
-                  </Text>
-                )}
-              </CardSurface>
-
-              <CardSurface style={styles.sensorCard}>
-                <View style={styles.sensorHeader}>
-                  <Text variant="titleMedium">Capteur Govee</Text>
-                  <Button
-                    mode="text"
-                    compact
-                    onPress={refetchGoveeReading}
-                    disabled={!selectedGoveeDevice || isLoadingGoveeReading}
-                    loading={isLoadingGoveeReading}
-                  >
-                    Actualiser
-                  </Button>
-                </View>
-                <TextInput
-                  placeholder="Clé API Govee"
-                  value={goveeApiKey}
-                  onChangeText={setGoveeApiKey}
-                  secureTextEntry
+                <QuickActions
+                  onAddFeed={() =>
+                    navigation.navigate(ScreenNames.ADD_FEED as never)
+                  }
+                  onAddMeasure={() =>
+                    navigation.navigate(ScreenNames.ADD_MEASUREMENTS as never, {
+                      id,
+                    })
+                  }
+                  onAddEvent={() =>
+                    navigation.navigate(ScreenNames.AGENDA as never, {
+                      openAddEvent: true,
+                    })
+                  }
+                  onQuickFeed={handleQuickFeed}
+                  loadingQuickFeed={isUpdatingFed}
                 />
-                <View style={styles.sensorActions}>
-                  <Button mode="outlined" onPress={handleSaveGoveeKey}>
-                    Enregistrer la clé
-                  </Button>
-                  <Button
-                    mode="contained"
-                    onPress={refetchGoveeDevices}
-                    loading={isLoadingGoveeDevices}
-                    disabled={!goveeApiKey}
-                  >
-                    Lister mes capteurs
-                  </Button>
-                </View>
-                {goveeDevices && goveeDevices.length > 0 ? (
-                  <View style={styles.devicesList}>
-                    {goveeDevices.map((dev) => {
-                      const isSelected =
-                        selectedGoveeDevice?.device === dev.device &&
-                        selectedGoveeDevice?.model === dev.model;
-                      return (
-                        <Button
-                          key={`${dev.device}-${dev.model}`}
-                          mode={isSelected ? "contained" : "outlined"}
-                          onPress={() => handleSelectGoveeDevice(dev)}
-                          style={styles.deviceButton}
-                          compact
-                        >
-                          {dev.deviceName || dev.model}
-                        </Button>
-                      );
-                    })}
+
+                <FeedPortal id={id} food={food} data={data} />
+
+                <CardSurface style={styles.reportCard}>
+                  <Text variant="titleMedium">Rapport d&apos;élevage</Text>
+                  <View style={styles.reportList}>
+                    <Text variant="bodySmall">
+                      Espèce : {data?.species || "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Sexe : {data?.sex || "—"} · Âge : {data?.age ?? "—"} ans
+                    </Text>
+                    <Text variant="bodySmall">
+                      Morph : {genetics?.morph || "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Mutations : {genetics?.mutations || "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Lignée : {genetics?.lineage || "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Dernier repas :{" "}
+                      {feedings?.[0]?.fed_at
+                        ? formatDDMMYYYY(feedings[0].fed_at)
+                        : "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Dernière mue :{" "}
+                      {sheds?.[0]?.shed_date
+                        ? formatDDMMYYYY(sheds[0].shed_date)
+                        : "—"}
+                    </Text>
+                    <Text variant="bodySmall">
+                      Dernière mesure :{" "}
+                      {latestMeasurement
+                        ? `${latestMeasurement.weight} ${latestMeasurement.weight_mesure} · ${latestMeasurement.size} ${latestMeasurement.size_mesure}`
+                        : "—"}
+                    </Text>
                   </View>
-                ) : null}
-                {selectedGoveeDevice ? (
-                  <View style={styles.readingRow}>
-                    <View style={{ flex: 1 }}>
-                      <Text variant="labelLarge">Dernière lecture</Text>
-                      {goveeReading ? (
-                        <>
-                          <Text variant="titleMedium">
-                            {goveeReading.temperature ?? "—"} °C ·{" "}
-                            {goveeReading.humidity ?? "—"} %
+                </CardSurface>
+                <CardSurface style={styles.trendCard}>
+                  <Text variant="titleMedium">Tendances</Text>
+                  {trendData ? (
+                    <View style={styles.trendRows}>
+                      <View style={styles.trendRow}>
+                        <Icon
+                          source={
+                            trendData.weightDelta >= 0
+                              ? "trending-up"
+                              : "trending-down"
+                          }
+                          size={20}
+                          color={
+                            trendData.weightAlert
+                              ? colors.error
+                              : colors.primary
+                          }
+                        />
+                        <View style={styles.trendText}>
+                          <Text variant="bodyMedium">
+                            Poids {trendData.weightDelta >= 0 ? "+" : ""}
+                            {trendData.weightDelta.toFixed(1)} (
+                            {trendData.weightPercent.toFixed(1)}%)
                           </Text>
-                          <Text variant="labelSmall" style={styles.readingMeta}>
-                            Batterie :{" "}
-                            {goveeReading.battery !== null &&
-                            goveeReading.battery !== undefined
-                              ? `${goveeReading.battery}%`
-                              : "—"}{" "}
-                            · {formatDDMMYYYY(goveeReading.retrieved_at)}
+                          <Text variant="labelSmall" style={styles.trendMeta}>
+                            30 derniers jours (ou historique complet)
                           </Text>
-                        </>
-                      ) : (
-                        <Text variant="bodySmall" style={styles.readingMeta}>
-                          Aucune donnée. Lance “Actualiser”.
+                        </View>
+                      </View>
+                      <View style={styles.trendRow}>
+                        <Icon
+                          source={
+                            trendData.sizeDelta >= 0
+                              ? "trending-up"
+                              : "trending-down"
+                          }
+                          size={20}
+                          color={
+                            trendData.sizeAlert ? colors.error : colors.primary
+                          }
+                        />
+                        <View style={styles.trendText}>
+                          <Text variant="bodyMedium">
+                            Taille {trendData.sizeDelta >= 0 ? "+" : ""}
+                            {trendData.sizeDelta.toFixed(1)} (
+                            {trendData.sizePercent.toFixed(1)}%)
+                          </Text>
+                          <Text variant="labelSmall" style={styles.trendMeta}>
+                            30 derniers jours (ou historique complet)
+                          </Text>
+                        </View>
+                      </View>
+                      {(trendData.weightAlert || trendData.sizeAlert) && (
+                        <Text variant="labelSmall" style={styles.trendAlert}>
+                          Variation importante détectée. Vérifiez l&apos;état de
+                          santé.
                         </Text>
                       )}
                     </View>
-                  </View>
-                ) : (
-                  <Text variant="bodySmall" style={styles.readingMeta}>
-                    Sélectionnez un capteur pour voir les mesures.
-                  </Text>
-                )}
-              </CardSurface>
+                  ) : (
+                    <Text variant="bodySmall" style={styles.mutedText}>
+                      Ajoutez au moins 2 mesures pour voir une tendance.
+                    </Text>
+                  )}
+                </CardSurface>
+                <GallerySection
+                  photos={photos}
+                  isLoading={isPhotosLoading}
+                  isAdding={isUploadingPhoto}
+                  onAdd={addGalleryPhoto}
+                  onDelete={confirmDeletePhoto}
+                  onOpen={(photo) => {
+                    setSelectedPhoto(photo);
+                    setShowPhotoModal(true);
+                  }}
+                />
 
-              <FeedPortal id={id} food={food} data={data} />
+                <HistorySection
+                  feedings={feedings}
+                  sheds={sheds}
+                  onDeleteFeeding={confirmDeleteFeeding}
+                  onDeleteShed={confirmDeleteShed}
+                  onAddShed={() => setShowShedModal(true)}
+                />
 
-              <CardSurface style={styles.geneticsCard}>
-                <View style={styles.geneticsHeader}>
-                  <Text variant="titleMedium">Génétique</Text>
-                  <Button
-                    mode="outlined"
-                    compact
-                    onPress={() => {
-                      saveGenetics(
-                        {
-                          input: {
-                            reptile_id: id,
-                            ...geneticsForm,
-                          },
+                <GeneticsSection
+                  geneticsForm={geneticsForm}
+                  setGeneticsForm={setGeneticsForm}
+                  onSave={() =>
+                    saveGenetics(
+                      {
+                        input: {
+                          reptile_id: id,
+                          ...geneticsForm,
                         },
-                        {
-                          onSuccess: () => {
-                            refetchGenetics();
-                            show("Génétique enregistrée");
-                          },
-                          onError: () => {
-                            show("Erreur lors de l'enregistrement");
-                          },
-                        }
-                      );
+                      },
+                      {
+                        onSuccess: () => {
+                          refetchGenetics();
+                          show("Génétique enregistrée");
+                        },
+                        onError: () => {
+                          show("Erreur lors de l'enregistrement");
+                        },
+                      },
+                    )
+                  }
+                  isSaving={isSavingGenetics}
+                />
+
+                <CardSurface style={styles.inputSection}>
+                  <TextInfo
+                    keyboardType="numeric"
+                    title="Âge"
+                    readOnly={false}
+                    value={formik.values.age?.toString()}
+                    onChangeText={(text) => {
+                      const number = parseInt(text, 10);
+                      formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
                     }}
-                    loading={isSavingGenetics}
-                  >
-                    Enregistrer
+                  />
+                  <TextInfo
+                    readOnly={false}
+                    title="Espèce"
+                    value={formik.values?.species || ""}
+                    onChangeText={(text) => {
+                      formik.setFieldValue("species", text);
+                    }}
+                  />
+
+                  <TextInfo
+                    readOnly={false}
+                    title="Date d'acquisition"
+                    value={formik.values?.acquired_date || ""}
+                  />
+                  <TextInfo
+                    readOnly={false}
+                    title="Origine"
+                    value={formik.values?.origin || ""}
+                    noDivider
+                  />
+                </CardSurface>
+                <CardSurface style={styles.inputSection}>
+                  <TextInfo
+                    readOnly={false}
+                    title="Emplacement"
+                    value={formik.values?.location || ""}
+                    noDivider
+                    onChangeText={(text) => {
+                      formik.setFieldValue("location", text);
+                    }}
+                  />
+                  <TextInfo
+                    readOnly={false}
+                    title="Humidité"
+                    value={formik.values?.humidity_level || ""}
+                    noDivider
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      const number = parseInt(text, 10);
+                      formik.setFieldValue(
+                        "humidity_level",
+                        isNaN(number) ? "" : number,
+                      ); // Ne pas permettre un non-nombre
+                    }}
+                  />
+                  <TextInfo
+                    readOnly={false}
+                    title="Température"
+                    value={formik.values?.temperature_range || ""}
+                    noDivider
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      formik.setFieldValue("temperature_range", text);
+                    }}
+                  />
+                </CardSurface>
+                <CardSurface style={styles.inputSection}>
+                  <TextInfo
+                    readOnly={false}
+                    title="Dernier repas"
+                    value={formik.values?.last_fed || ""}
+                  />
+                  <TextInfo
+                    readOnly={false}
+                    value={formik.values?.diet || ""}
+                    title="Régime alimentaire"
+                    noDivider
+                    onChangeText={(text) => {
+                      formik.setFieldValue("diet", text);
+                    }}
+                  />
+                </CardSurface>
+
+                <CardSurface style={styles.inputSection}>
+                  <TextInfo
+                    readOnly={false}
+                    value={formik.values?.health_status || ""}
+                    title="État de santé"
+                    onChangeText={(text) => {
+                      formik.setFieldValue("health_status", text);
+                    }}
+                  />
+                </CardSurface>
+                <View style={styles.actionBlock}>
+                  <Button mode="contained" onPress={formik.submitForm}>
+                    Modifier les informations
                   </Button>
                 </View>
-                <View style={styles.geneticsGrid}>
+                <CardSurface style={styles.notesCard}>
                   <TextInput
-                    placeholder="Morph"
-                    value={geneticsForm.morph}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, morph: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Mutations (ex: Albinos, Hypo)"
-                    value={geneticsForm.mutations}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, mutations: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Hets (ex: 50% het albinos)"
-                    value={geneticsForm.hets}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, hets: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Traits (couleurs, motifs)"
-                    value={geneticsForm.traits}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, traits: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Lignée"
-                    value={geneticsForm.lineage}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, lineage: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Éleveur"
-                    value={geneticsForm.breeder}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, breeder: text }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Date d'éclosion (YYYY-MM-DD)"
-                    value={geneticsForm.hatch_date}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({
-                        ...prev,
-                        hatch_date: text,
-                      }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Nom du père"
-                    value={geneticsForm.sire_name}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({
-                        ...prev,
-                        sire_name: text,
-                      }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Nom de la mère"
-                    value={geneticsForm.dam_name}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({
-                        ...prev,
-                        dam_name: text,
-                      }))
-                    }
-                  />
-                  <TextInput
-                    placeholder="Notes génétiques"
-                    value={geneticsForm.notes}
-                    onChangeText={(text) =>
-                      setGeneticsForm((prev) => ({ ...prev, notes: text }))
-                    }
                     multiline
+                    style={styles.input}
+                    value={notes}
+                    onChange={(e) => setNotes(e.nativeEvent.text)}
+                    placeholder="Informations"
                   />
-                </View>
-              </CardSurface>
 
-              <CardSurface style={styles.reportCard}>
-                <Text variant="titleMedium">Rapport d&apos;élevage</Text>
-                <View style={styles.reportList}>
-                  <Text variant="bodySmall">
-                    Espèce : {data?.species || "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Sexe : {data?.sex || "—"} · Âge : {data?.age ?? "—"} ans
-                  </Text>
-                  <Text variant="bodySmall">
-                    Morph : {genetics?.morph || "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Mutations : {genetics?.mutations || "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Lignée : {genetics?.lineage || "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Dernier repas :{" "}
-                    {feedings?.[0]?.fed_at
-                      ? formatDDMMYYYY(feedings[0].fed_at)
-                      : "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Dernière mue :{" "}
-                    {sheds?.[0]?.shed_date
-                      ? formatDDMMYYYY(sheds[0].shed_date)
-                      : "—"}
-                  </Text>
-                  <Text variant="bodySmall">
-                    Dernière mesure :{" "}
-                    {latestMeasurement
-                      ? `${latestMeasurement.weight} ${latestMeasurement.weight_mesure} · ${latestMeasurement.size} ${latestMeasurement.size_mesure}`
-                      : "—"}
-                  </Text>
-                </View>
-              </CardSurface>
-
-              <CardSurface style={styles.historyCard}>
-                <View style={styles.historyHeader}>
-                  <Text variant="titleMedium">Historique</Text>
-                  <Button
-                    mode="outlined"
-                    compact
-                    onPress={() => setShowShedModal(true)}
-                  >
-                    Ajouter une mue
-                  </Button>
-                </View>
-                <View style={styles.historySection}>
-                  <Text variant="labelLarge">Repas récents</Text>
-                  {feedings && feedings.length > 0 ? (
-                    <View style={styles.historyList}>
-                      {feedings.slice(0, 5).map((feeding) => (
-                        <TouchableRipple
-                          key={feeding.id}
-                          onLongPress={() => confirmDeleteFeeding(feeding.id)}
-                          style={styles.historyItem}
-                        >
-                          <View>
-                            <Text variant="bodyMedium">
-                              {feeding.food_name || "Repas"}
-                            </Text>
-                            <Text variant="labelSmall" style={styles.historyMeta}>
-                              {formatDDMMYYYY(feeding.fed_at)} ·{" "}
-                              {feeding.quantity ?? 1} {feeding.unit ?? ""}
-                            </Text>
-                          </View>
-                        </TouchableRipple>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text variant="bodySmall" style={styles.historyEmpty}>
-                      Aucun repas enregistré.
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.historySection}>
-                  <Text variant="labelLarge">Mues récentes</Text>
-                  {sheds && sheds.length > 0 ? (
-                    <View style={styles.historyList}>
-                      {sheds.slice(0, 5).map((shed) => (
-                        <TouchableRipple
-                          key={shed.id}
-                          onLongPress={() => confirmDeleteShed(shed.id)}
-                          style={styles.historyItem}
-                        >
-                          <View>
-                            <Text variant="bodyMedium">
-                              Mue enregistrée
-                            </Text>
-                            <Text variant="labelSmall" style={styles.historyMeta}>
-                              {formatDDMMYYYY(shed.shed_date)}
-                            </Text>
-                          </View>
-                        </TouchableRipple>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text variant="bodySmall" style={styles.historyEmpty}>
-                      Aucune mue enregistrée.
-                    </Text>
-                  )}
-                </View>
-              </CardSurface>
-
-              <CardSurface style={styles.inputSection}>
-                <TextInfo
-                  keyboardType="numeric"
-                  title="Âge"
-                  readOnly={false}
-                  value={formik.values.age?.toString()}
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                  }}
-                />
-                <TextInfo
-                  readOnly={false}
-                  title="Espèce"
-                  value={formik.values?.species || ""}
-                  onChangeText={(text) => {
-                    formik.setFieldValue("species", text);
-                  }}
-                />
-
-                <TextInfo
-                  readOnly={false}
-                  title="Date d'acquisition"
-                  value={formik.values?.acquired_date || ""}
-                />
-                <TextInfo
-                  readOnly={false}
-                  title="Origine"
-                  value={formik.values?.origin || ""}
-                  noDivider
-                />
-              </CardSurface>
-              <CardSurface style={styles.inputSection}>
-                <TextInfo
-                  readOnly={false}
-                  title="Emplacement"
-                  value={formik.values?.location || ""}
-                  noDivider
-                  onChangeText={(text) => {
-                    formik.setFieldValue("location", text);
-                  }}
-                />
-                <TextInfo
-                  readOnly={false}
-                  title="Humidité"
-                  value={formik.values?.humidity_level || ""}
-                  noDivider
-                  keyboardType="numeric"
-                  onChangeText={(text) => {
-                    const number = parseInt(text, 10);
-                    formik.setFieldValue(
-                      "humidity_level",
-                      isNaN(number) ? "" : number
-                    ); // Ne pas permettre un non-nombre
-                  }}
-                />
-                <TextInfo
-                  readOnly={false}
-                  title="Température"
-                  value={formik.values?.temperature_range || ""}
-                  noDivider
-                  keyboardType="numeric"
-                  onChangeText={(text) => {
-                    formik.setFieldValue("temperature_range", text);
-                  }}
-                />
-              </CardSurface>
-              <CardSurface style={styles.inputSection}>
-                <TextInfo
-                  readOnly={false}
-                  title="Dernier repas"
-                  value={formik.values?.last_fed || ""}
-                />
-                <TextInfo
-                  readOnly={false}
-                  value={formik.values?.diet || ""}
-                  title="Régime alimentaire"
-                  noDivider
-                  onChangeText={(text) => {
-                    formik.setFieldValue("diet", text);
-                  }}
-                />
-              </CardSurface>
-
-              <CardSurface style={styles.inputSection}>
-                <TextInfo
-                  readOnly={false}
-                  value={formik.values?.health_status || ""}
-                  title="État de santé"
-                  onChangeText={(text) => {
-                    formik.setFieldValue("health_status", text);
-                  }}
-                />
-              </CardSurface>
-              <View style={styles.actionBlock}>
-
-              <Button mode="contained" onPress={formik.submitForm}>
-                Modifier les informations
-              </Button>
-              </View>
-              <CardSurface style={styles.notesCard}>
-                <TextInput
-                  multiline
-                  style={styles.input}
-                  value={notes}
-                  onChange={(e) => setNotes(e.nativeEvent.text)}
-                  placeholder="Informations"
-                />
-
-                <View style={{ marginTop: 10 }}>
-                  <Button mode="contained" onPress={addNotes}>
-                    Enregistrer les notes
-                  </Button>
-                </View>
-              </CardSurface>
-              <CardSurface style={styles.trendCard}>
-                <Text variant="titleMedium">Tendances</Text>
-                {trendData ? (
-                  <View style={styles.trendRows}>
-                    <View style={styles.trendRow}>
-                      <Icon
-                        source={trendData.weightDelta >= 0 ? "trending-up" : "trending-down"}
-                        size={20}
-                        color={
-                          trendData.weightAlert
-                            ? colors.error
-                            : colors.primary
-                        }
-                      />
-                      <View style={styles.trendText}>
-                        <Text variant="bodyMedium">
-                          Poids{" "}
-                          {trendData.weightDelta >= 0 ? "+" : ""}
-                          {trendData.weightDelta.toFixed(1)} (
-                          {trendData.weightPercent.toFixed(1)}%)
-                        </Text>
-                        <Text variant="labelSmall" style={styles.trendMeta}>
-                          30 derniers jours (ou historique complet)
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.trendRow}>
-                      <Icon
-                        source={trendData.sizeDelta >= 0 ? "trending-up" : "trending-down"}
-                        size={20}
-                        color={
-                          trendData.sizeAlert
-                            ? colors.error
-                            : colors.primary
-                        }
-                      />
-                      <View style={styles.trendText}>
-                        <Text variant="bodyMedium">
-                          Taille{" "}
-                          {trendData.sizeDelta >= 0 ? "+" : ""}
-                          {trendData.sizeDelta.toFixed(1)} (
-                          {trendData.sizePercent.toFixed(1)}%)
-                        </Text>
-                        <Text variant="labelSmall" style={styles.trendMeta}>
-                          30 derniers jours (ou historique complet)
-                        </Text>
-                      </View>
-                    </View>
-                    {(trendData.weightAlert || trendData.sizeAlert) && (
-                      <Text variant="labelSmall" style={styles.trendAlert}>
-                        Variation importante détectée. Vérifiez l&apos;état de santé.
-                      </Text>
-                    )}
+                  <View style={{ marginTop: 10 }}>
+                    <Button mode="contained" onPress={addNotes}>
+                      Enregistrer les notes
+                    </Button>
                   </View>
-                ) : (
-                  <Text variant="bodySmall" style={styles.galleryEmpty}>
-                    Ajoutez au moins 2 mesures pour voir une tendance.
-                  </Text>
-                )}
-              </CardSurface>
-              <Charts
-                data={data}
-                measurements={measurements}
-                isPending={isPending}
+                </CardSurface>
+
+                <CardSurface style={styles.sensorCard}>
+                  <View style={styles.sensorHeader}>
+                    <Text variant="titleMedium">Capteur Govee</Text>
+                    <Button
+                      mode="text"
+                      compact
+                      onPress={refetchGoveeReading}
+                      disabled={!selectedGoveeDevice || isLoadingGoveeReading}
+                      loading={isLoadingGoveeReading}
+                    >
+                      Actualiser
+                    </Button>
+                  </View>
+                  <TextInput
+                    placeholder="Clé API Govee"
+                    value={goveeApiKey}
+                    onChangeText={setGoveeApiKey}
+                    secureTextEntry
+                  />
+                  <View style={styles.sensorActions}>
+                    <Button mode="outlined" onPress={handleSaveGoveeKey}>
+                      Enregistrer la clé
+                    </Button>
+                    <Button
+                      mode="contained"
+                      onPress={refetchGoveeDevices}
+                      loading={isLoadingGoveeDevices}
+                      disabled={!goveeApiKey}
+                    >
+                      Lister mes capteurs
+                    </Button>
+                  </View>
+                  {goveeDevices && goveeDevices.length > 0 ? (
+                    <View style={styles.devicesList}>
+                      {goveeDevices.map((dev) => {
+                        const isSelected =
+                          selectedGoveeDevice?.device === dev.device &&
+                          selectedGoveeDevice?.model === dev.model;
+                        return (
+                          <Button
+                            key={`${dev.device}-${dev.model}`}
+                            mode={isSelected ? "contained" : "outlined"}
+                            onPress={() => handleSelectGoveeDevice(dev)}
+                            style={styles.deviceButton}
+                            compact
+                          >
+                            {dev.deviceName || dev.model}
+                          </Button>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                  {selectedGoveeDevice ? (
+                    <View style={styles.readingRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="labelLarge">Dernière lecture</Text>
+                        {goveeReading ? (
+                          <>
+                            <Text variant="titleMedium">
+                              {goveeReading.temperature ?? "—"} °C ·{" "}
+                              {goveeReading.humidity ?? "—"} %
+                            </Text>
+                            <Text
+                              variant="labelSmall"
+                              style={styles.readingMeta}
+                            >
+                              Batterie :{" "}
+                              {goveeReading.battery !== null &&
+                              goveeReading.battery !== undefined
+                                ? `${goveeReading.battery}%`
+                                : "—"}{" "}
+                              · {formatDDMMYYYY(goveeReading.retrieved_at)}
+                            </Text>
+                          </>
+                        ) : (
+                          <Text variant="bodySmall" style={styles.readingMeta}>
+                            Aucune donnée. Lance “Actualiser”.
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ) : (
+                    <Text variant="bodySmall" style={styles.readingMeta}>
+                      Sélectionnez un capteur pour voir les mesures.
+                    </Text>
+                  )}
+                </CardSurface>
+                <Charts
+                  data={data}
+                  measurements={measurements}
+                  isPending={isPending}
+                />
+              </ScrollView>
+              <FAB
+                style={{
+                  position: "absolute",
+                  margin: 16,
+                  right: 0,
+                  bottom: 0,
+                }}
+                theme={{ colors: { primaryContainer: colors.primary } }}
+                variant="primary"
+                color="#fff"
+                icon="weight-kilogram"
+                onPress={() =>
+                  navigation.navigate(ScreenNames.ADD_MEASUREMENTS, { id })
+                }
               />
-            </ScrollView>
-            <FAB
-              style={{
-                position: "absolute",
-                margin: 16,
-                right: 0,
-                bottom: 0,
-              }}
-              theme={{ colors: { primaryContainer: colors.primary } }}
-              variant="primary"
-              color="#fff"
-              icon="weight-kilogram"
-              onPress={() =>
-                navigation.navigate(ScreenNames.ADD_MEASUREMENTS, { id })
-              }
-            />
             </Screen>
             <Portal>
               <Modal
@@ -1092,7 +946,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     <Button mode="text" onPress={handleDownloadSelectedPhoto}>
                       Télécharger
                     </Button>
-                    <Button mode="text" onPress={() => setShowPhotoModal(false)}>
+                    <Button
+                      mode="text"
+                      onPress={() => setShowPhotoModal(false)}
+                    >
                       Fermer
                     </Button>
                   </View>
@@ -1128,10 +985,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   multiline
                 />
                 <View style={styles.modalActions}>
-                  <Button
-                    mode="text"
-                    onPress={() => setShowShedModal(false)}
-                  >
+                  <Button mode="text" onPress={() => setShowShedModal(false)}>
                     Annuler
                   </Button>
                   <Button
@@ -1160,7 +1014,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                           onError: () => {
                             show("Erreur lors de l'ajout");
                           },
-                        }
+                        },
                       );
                     }}
                   >
@@ -1199,79 +1053,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderTopColor: "transparent",
   },
-  galleryCard: {
-    marginBottom: 12,
-    gap: 10,
-  },
-  galleryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  galleryRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  photoItem: {
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  photoImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 14,
-  },
-  photoDate: {
-    marginTop: 6,
-    opacity: 0.6,
-    textAlign: "center",
-  },
-  galleryEmpty: {
-    opacity: 0.6,
-  },
-  galleryLoader: {
-    alignSelf: "center",
-    marginVertical: 12,
-  },
-  geneticsCard: {
-    marginVertical: 8,
-    gap: 12,
-  },
-  geneticsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  geneticsGrid: {
-    gap: 10,
-  },
-  historyCard: {
-    marginVertical: 8,
-    gap: 12,
-  },
-  historyHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  historySection: {
-    gap: 6,
-  },
-  historyList: {
-    gap: 8,
-  },
-  historyItem: {
-    borderRadius: 12,
-    padding: 10,
-    backgroundColor: "rgba(0,0,0,0.03)",
-  },
-  historyMeta: {
-    opacity: 0.6,
-    marginTop: 2,
-  },
-  historyEmpty: {
-    opacity: 0.6,
-  },
   reportCard: {
     marginVertical: 8,
     gap: 8,
@@ -1301,6 +1082,9 @@ const styles = StyleSheet.create({
   trendAlert: {
     marginTop: 6,
     color: "#C33C3C",
+  },
+  mutedText: {
+    opacity: 0.6,
   },
   photoModalContainer: {
     marginHorizontal: 12,
@@ -1378,14 +1162,6 @@ const styles = StyleSheet.create({
   readingMeta: {
     opacity: 0.6,
     marginTop: 4,
-  },
-  alertCard: {
-    marginVertical: 8,
-    gap: 4,
-    borderColor: "rgba(195,60,60,0.25)",
-  },
-  alertLine: {
-    color: "#C33C3C",
   },
 });
 

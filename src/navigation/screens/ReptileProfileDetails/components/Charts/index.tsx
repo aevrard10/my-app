@@ -1,29 +1,29 @@
-import { View, StyleSheet } from "react-native"
-import TemperatureChart from "./components/TemperatureChart"
-import HumidityChart from "./components/HumidityChart"
-import GraphicChart from "./components/GraphicChart"
-import SizeChart from "./components/SizeChart"
-import { FC } from "react"
+import { View, StyleSheet } from "react-native";
+import TemperatureChart from "./components/TemperatureChart";
+import HumidityChart from "./components/HumidityChart";
+import GraphicChart from "./components/GraphicChart";
+import SizeChart from "./components/SizeChart";
+import { FC } from "react";
 type ChartsProps = {
-    data: {
-        temperature_range: number,
-        humidity_level: number
-    },
-    measurements: {
-        date: string,
-        weight: number,
-        weight_mesure: string,
-        size: number,
-        size_mesure: string
-    }[],
-    isPending: boolean
-}
+  data: {
+    temperature_range: number;
+    humidity_level: number;
+  };
+  measurements: {
+    date: string;
+    weight: number;
+    weight_mesure: string;
+    size: number;
+    size_mesure: string;
+  }[];
+  isPending: boolean;
+};
 
-const Charts:FC<ChartsProps> = (props) => {
-    const { data, measurements, isPending } = props
-    return (
-        <>
-        <View style={styles.topRow}>
+const Charts: FC<ChartsProps> = (props) => {
+  const { data, measurements, isPending } = props;
+  return (
+    <>
+      <View style={styles.topRow}>
         <TemperatureChart
           data={[
             {
@@ -80,10 +80,9 @@ const Charts:FC<ChartsProps> = (props) => {
           isPending={isPending}
         />
       </View>
-      </>
-    )
-
-}
+    </>
+  );
+};
 
 export default Charts;
 

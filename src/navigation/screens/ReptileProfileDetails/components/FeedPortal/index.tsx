@@ -102,7 +102,6 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
       <Button
         mode="contained"
         onPress={() => setModalIsVisible(true)}
-        style={{ marginTop: 8 }}
       >
         Nourrissage
       </Button>
