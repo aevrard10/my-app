@@ -8,8 +8,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useSnackbar } from "@rn-flix/snackbar";
 import useFoodStockHistoryQuery from "../FeedHistory/hooks/data/queries/useStockQuery";
 import FeedCard from "./components/FeedCard";
+import FeedCardSkeleton from "./components/FeedCardSkeleton";
 import HistoryChip from "./components/HistoryChip";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
+import Skeleton from "@shared/components/Skeleton";
 import { FlatList, View } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
@@ -17,8 +19,8 @@ import CardSurface from "@shared/components/CardSurface";
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { data } = useFoodQuery();
-  const { mutate: updateStock, isPending: isLoading } = useUpdateFoodStock(); // Utilisation de la mutation
+  const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
+  const { mutate: updateStock, isPending: isUpdating } = useUpdateFoodStock(); // Utilisation de la mutation
   const { show } = useSnackbar();
   const stockStats = useMemo(() => {
     const items = data ?? [];
@@ -28,6 +30,11 @@ const Feed = () => {
       lowStock,
     };
   }, [data]);
+  const isInitialLoading = isFoodLoading && (!data || data.length === 0);
+  const skeletonItems = useMemo(
+    () => Array.from({ length: 3 }, (_, index) => ({ id: `sk-${index}` })),
+    []
+  );
 
   const queryClient = useQueryClient();
   const handleUpdateStock = useCallback(
@@ -63,24 +70,37 @@ const Feed = () => {
   return (
     <Screen>
       <FlatList
-        ListEmptyComponent={<ListEmptyComponent isLoading={isLoading} />}
-        data={data}
-        renderItem={({ item }) => (
-          <FeedCard
-            food={item}
-            isLoading={isLoading}
-            handleUpdateStock={handleUpdateStock}
-            colors={colors}
-          />
-        )}
+        ListEmptyComponent={
+          isInitialLoading ? null : <ListEmptyComponent isLoading={isFoodLoading} />
+        }
+        data={isInitialLoading ? skeletonItems : data}
+        renderItem={({ item }) =>
+          isInitialLoading ? (
+            <FeedCardSkeleton />
+          ) : (
+            <FeedCard
+              food={item}
+              isLoading={isUpdating}
+              handleUpdateStock={handleUpdateStock}
+              colors={colors}
+            />
+          )
+        }
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
           <>
             <CardSurface style={{ marginTop: 4, marginBottom: 12 }}>
               <Text variant="titleLarge">Stock alimentaire</Text>
-              <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
-                Ajustez rapidement les quantités et suivez l&apos;historique.
-              </Text>
+              {isFoodLoading ? (
+                <Skeleton height={12} width="70%" style={{ marginTop: 8 }} />
+              ) : (
+                <Text
+                  variant="bodySmall"
+                  style={{ opacity: 0.7, marginTop: 4 }}
+                >
+                  Ajustez rapidement les quantités et suivez l&apos;historique.
+                </Text>
+              )}
             </CardSurface>
             <CardSurface style={{ marginBottom: 12 }}>
               <Text variant="labelLarge">Aperçu rapide</Text>
@@ -102,9 +122,13 @@ const Feed = () => {
                   }}
                 >
                   <Icon source="archive" size={16} color={colors.secondary} />
-                  <Text variant="titleMedium" style={{ marginTop: 6 }}>
-                    {stockStats.total}
-                  </Text>
+                  {isFoodLoading ? (
+                    <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                  ) : (
+                    <Text variant="titleMedium" style={{ marginTop: 6 }}>
+                      {stockStats.total}
+                    </Text>
+                  )}
                   <Text variant="labelSmall" style={{ opacity: 0.7 }}>
                     Articles
                   </Text>
@@ -119,9 +143,13 @@ const Feed = () => {
                   }}
                 >
                   <Icon source="alert" size={16} color={colors.primary} />
-                  <Text variant="titleMedium" style={{ marginTop: 6 }}>
-                    {stockStats.lowStock}
-                  </Text>
+                  {isFoodLoading ? (
+                    <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                  ) : (
+                    <Text variant="titleMedium" style={{ marginTop: 6 }}>
+                      {stockStats.lowStock}
+                    </Text>
+                  )}
                   <Text variant="labelSmall" style={{ opacity: 0.7 }}>
                     Faible stock
                   </Text>
@@ -132,6 +160,8 @@ const Feed = () => {
           </>
         }
         contentContainerStyle={{ paddingBottom: 120 }}
+        refreshing={isFoodLoading}
+        onRefresh={refetch}
       />
       <FAB
         theme={{ colors: { primaryContainer: colors.primary } }}

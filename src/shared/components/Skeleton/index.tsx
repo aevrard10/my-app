@@ -16,19 +16,19 @@ const Skeleton = ({
   style,
 }: SkeletonProps) => {
   const { colors } = useTheme();
-  const opacity = useRef(new Animated.Value(0.4)).current;
+  const opacity = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
-          toValue: 1,
-          duration: 800,
+          toValue: 0.9,
+          duration: 750,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 0.4,
-          duration: 800,
+          toValue: 0.45,
+          duration: 750,
           useNativeDriver: true,
         }),
       ])
@@ -39,10 +39,24 @@ const Skeleton = ({
     };
   }, [opacity]);
 
-  const backgroundColor = useMemo(
-    () => colors.surfaceVariant ?? colors.outlineVariant ?? colors.outline,
-    [colors.surfaceVariant, colors.outlineVariant, colors.outline]
-  );
+  const backgroundColor = useMemo(() => {
+    const hex = colors.onSurface ?? "#1E2A24";
+    const cleaned = hex.replace("#", "");
+    const normalized =
+      cleaned.length === 3
+        ? cleaned
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : cleaned;
+    if (normalized.length !== 6) {
+      return "rgba(30, 42, 36, 0.16)";
+    }
+    const r = parseInt(normalized.slice(0, 2), 16);
+    const g = parseInt(normalized.slice(2, 4), 16);
+    const b = parseInt(normalized.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.12)`;
+  }, [colors.onSurface]);
 
   return (
     <Animated.View

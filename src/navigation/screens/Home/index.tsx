@@ -5,6 +5,7 @@ import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
+import Skeleton from "@shared/components/Skeleton";
 import React from "react";
 import { Alert, Linking, Platform, ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -158,48 +159,49 @@ const Home = () => {
             </Text>
           </View>
           <View style={styles.statsRow}>
-            <View
-              style={[
-                styles.statPill,
-                { backgroundColor: colors.secondaryContainer },
-              ]}
-            >
-              <Icon source="turtle" size={16} color={colors.secondary} />
-              <Text variant="titleMedium" style={styles.statValue}>
-                {isSummaryLoading || summaryError ? "—" : reptilesCount}
-              </Text>
-              <Text variant="labelSmall" style={styles.statLabel}>
-                Reptiles
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.statPill,
-                { backgroundColor: colors.primaryContainer },
-              ]}
-            >
-              <Icon source="calendar" size={16} color={colors.primary} />
-              <Text variant="titleMedium" style={styles.statValue}>
-                {isSummaryLoading || summaryError ? "—" : eventsToday}
-              </Text>
-              <Text variant="labelSmall" style={styles.statLabel}>
-                Événements
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.statPill,
-                { backgroundColor: colors.tertiaryContainer },
-              ]}
-            >
-              <Icon source="bell" size={16} color={colors.tertiary} />
-              <Text variant="titleMedium" style={styles.statValue}>
-                {isSummaryLoading || summaryError ? "—" : unreadNotifications}
-              </Text>
-              <Text variant="labelSmall" style={styles.statLabel}>
-                Alertes
-              </Text>
-            </View>
+            {[0, 1, 2].map((index) => {
+              const pillColors = [
+                colors.secondaryContainer,
+                colors.primaryContainer,
+                colors.tertiaryContainer,
+              ];
+              const icons = ["turtle", "calendar", "bell"] as const;
+              const labels = ["Reptiles", "Événements", "Alertes"];
+              return (
+                <View
+                  key={index}
+                  style={[styles.statPill, { backgroundColor: pillColors[index] }]}
+                >
+                  <Icon
+                    source={icons[index]}
+                    size={16}
+                    color={
+                      index === 0
+                        ? colors.secondary
+                        : index === 1
+                        ? colors.primary
+                        : colors.tertiary
+                    }
+                  />
+                  {isSummaryLoading ? (
+                    <Skeleton height={18} width={36} style={styles.statSkeleton} />
+                  ) : (
+                    <Text variant="titleMedium" style={styles.statValue}>
+                      {summaryError
+                        ? "—"
+                        : index === 0
+                        ? reptilesCount
+                        : index === 1
+                        ? eventsToday
+                        : unreadNotifications}
+                    </Text>
+                  )}
+                  <Text variant="labelSmall" style={styles.statLabel}>
+                    {labels[index]}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
           {summaryError ? (
             <Text variant="labelSmall" style={styles.summaryError}>
@@ -208,7 +210,19 @@ const Home = () => {
           ) : null}
           <View style={styles.upcomingSection}>
             <Text variant="labelLarge">Prochains événements</Text>
-            {upcomingEvents.length === 0 ? (
+            {isSummaryLoading ? (
+              <View style={styles.upcomingList}>
+                {[0, 1].map((item) => (
+                  <View key={item} style={styles.upcomingItem}>
+                    <View style={styles.upcomingDot} />
+                    <View style={styles.upcomingText}>
+                      <Skeleton height={12} width="60%" />
+                      <Skeleton height={10} width="40%" style={{ marginTop: 6 }} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : upcomingEvents.length === 0 ? (
               <Text variant="bodySmall" style={styles.upcomingEmpty}>
                 Aucun événement prévu pour le moment.
               </Text>
@@ -353,6 +367,9 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     opacity: 0.7,
+  },
+  statSkeleton: {
+    marginTop: 6,
   },
   summaryError: {
     marginTop: 6,
