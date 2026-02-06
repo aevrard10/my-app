@@ -1,10 +1,11 @@
 import {
   Avatar,
   Button,
-  Divider,
   SegmentedButtons,
   TouchableRipple,
   Text,
+  useTheme,
+  Icon,
 } from "react-native-paper";
 import { Formik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
@@ -68,6 +69,7 @@ const AddReptile = () => {
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
   const { goBack } = useNavigation();
+  const { colors } = useTheme();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
     undefined
@@ -106,36 +108,38 @@ const AddReptile = () => {
   };
   return (
     <Screen>
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.scrollContent}
-    >
-      <View style={styles.header}>
-        <Text variant="headlineSmall">Nouveau reptile</Text>
-        <Text variant="bodySmall" style={styles.headerSubtitle}>
-          Ajoutez un compagnon et commencez le suivi.
-        </Text>
-      </View>
-      <View style={styles.container}>
-        <View style={styles.avatarContainer}>
-          <TouchableRipple
-            style={styles.avatarTouch}
-            onPress={pickImage}
-          >
-            <Avatar.Image
-              size={150}
-              source={
-                imageUri
-                  ? { uri: imageUri }
-                  : require("../../../assets/twoReptile/reptile2.png")
-              }
-            />
-          </TouchableRipple>
-          <Text variant="bodySmall" style={styles.avatarHint}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+      >
+        <CardSurface style={styles.heroCard}>
+          <View style={styles.heroHeader}>
+            <View style={styles.heroText}>
+              <Text variant="titleLarge">Nouveau reptile</Text>
+              <Text variant="bodySmall" style={styles.headerSubtitle}>
+                Ajoutez un compagnon et commencez le suivi.
+              </Text>
+            </View>
+            <TouchableRipple style={styles.avatarTouch} onPress={pickImage}>
+              <View>
+                <Avatar.Image
+                  size={120}
+                  source={
+                    imageUri
+                      ? { uri: imageUri }
+                      : require("../../../assets/twoReptile/reptile2.png")
+                  }
+                />
+                <View style={styles.avatarBadge}>
+                  <Icon source="camera" size={16} color={colors.onPrimary} />
+                </View>
+              </View>
+            </TouchableRipple>
+          </View>
+          <Text variant="labelSmall" style={styles.avatarHint}>
             Appuyez pour ajouter une photo.
           </Text>
-        </View>
-      </View>
+        </CardSurface>
 
       <Formik
         initialValues={initialValues}
@@ -197,60 +201,90 @@ const AddReptile = () => {
             style={{ flex: 1 }}
           >
             <View style={styles.formContainer}>
-              <CardSurface style={styles.inputSection}>
+              <CardSurface style={styles.sectionCard}>
+                <Text variant="labelLarge" style={styles.sectionTitle}>
+                  Identité
+                </Text>
                 <TextInput
                   placeholder="Nom"
                   value={formik.values.name}
                   onChangeText={formik.handleChange("name")}
                   onBlur={formik.handleBlur("name")}
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
                 <TextInput
                   placeholder="Espèce"
                   onBlur={formik.handleBlur("species")}
                   value={formik.values.species}
                   onChangeText={formik.handleChange("species")}
                 />
+                <View style={styles.row}>
+                  <TextInput
+                    placeholder="Âge"
+                    value={formik.values.age?.toString()}
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      const number = parseInt(text, 10);
+                      formik.setFieldValue("age", isNaN(number) ? "" : number);
+                    }}
+                    onBlur={formik.handleBlur("age")}
+                    inputMode="numeric"
+                    style={styles.rowInput}
+                  />
+                  <SegmentedButtons
+                    value={formik.values.snake}
+                    onValueChange={formik.handleChange("snake")}
+                    style={[styles.rowInput, styles.segmentCompact]}
+                    buttons={[
+                      { value: "snake", label: "Serpent" },
+                      { value: "lizard", label: "Varan" },
+                    ]}
+                  />
+                </View>
+                <SegmentedButtons
+                  value={formik.values.sex}
+                  onValueChange={formik.handleChange("sex")}
+                  style={styles.segmentCompact}
+                  buttons={[
+                    { value: "Femelle", icon: "gender-female" },
+                    { value: "Mâle", icon: "gender-male" },
+                  ]}
+                />
               </CardSurface>
-              <CardSurface style={styles.inputSection}>
+              <CardSurface style={styles.sectionCard}>
+                <Text variant="labelLarge" style={styles.sectionTitle}>
+                  Origine
+                </Text>
                 <TextInput
                   placeholder="Origine"
                   value={formik.values.origin}
                   onChangeText={formik.handleChange("origin")}
                   onBlur={formik.handleBlur("origin")}
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
                 <TextInput
                   placeholder="Emplacement"
                   value={formik.values.location}
                   onChangeText={formik.handleChange("location")}
                   onBlur={formik.handleBlur("location")}
                 />
-              </CardSurface>
-              <CardSurface style={[styles.inputSection]}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                  <TextInput
-                    placeholder="Age"
-                    value={formik.values.age?.toString()}
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      const number = parseInt(text, 10);
-                      formik.setFieldValue("age", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
-                    }}
-                    onBlur={formik.handleBlur("age")}
-                    inputMode="numeric"
-                  />
-                  <View style={styles.verticleLine} />
+                <View style={styles.row}>
                   <DatePickerInput
                     placeholderTextColor="gray" // Assurez-vous que la couleur est visible
                     mode="outlined"
-                    style={styles.pickerInput}
+                    style={[
+                      styles.pickerInput,
+                      styles.rowInput,
+                      { backgroundColor: colors.surface },
+                    ]}
                     dense
-                    outlineStyle={styles.outlineStyle}
+                    outlineStyle={[
+                      styles.outlineStyle,
+                      { borderColor: colors.outlineVariant ?? colors.outline },
+                    ]}
                     locale="fr"
-                    label="Date d'acquisition"
+                    label="Acquisition"
                     saveLabel="Confirmer"
                     withDateFormatInLabel={false}
+                    contentStyle={styles.dateContent}
                     value={inputDateAcquired}
                     onChange={(data) => {
                       setInputDateAcquired(data);
@@ -264,42 +298,44 @@ const AddReptile = () => {
                 </View>
               </CardSurface>
 
-              <CardSurface style={styles.inputSection}>
+              <CardSurface style={styles.sectionCard}>
+                <Text variant="labelLarge" style={styles.sectionTitle}>
+                  Alimentation
+                </Text>
                 <TextInput
                   placeholder="Régime alimentaire"
                   value={formik.values.diet}
                   onChangeText={formik.handleChange("diet")}
                   onBlur={formik.handleBlur("diet")}
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
                 <TextInput
                   placeholder="Fréquence de repas"
                   value={formik.values.feeding_schedule}
                   onChangeText={formik.handleChange("feeding_schedule")}
                   onBlur={formik.handleBlur("feeding_schedule")}
                 />
-
-                <Divider style={{ marginHorizontal: 8 }} />
                 <TextInput
                   placeholder="État de santé"
                   value={formik.values.health_status}
                   onChangeText={formik.handleChange("health_status")}
                   onBlur={formik.handleBlur("health_status")}
                 />
-
-                <Divider style={{ marginHorizontal: 8 }} />
-        
-
-                <Divider style={{ marginHorizontal: 8 }} />
                 <DatePickerInput
                   mode="outlined"
-                  style={styles.pickerInput}
+                  style={[
+                    styles.pickerInput,
+                    { backgroundColor: colors.surface },
+                  ]}
                   dense
-                  outlineStyle={styles.outlineStyle}
+                  outlineStyle={[
+                    styles.outlineStyle,
+                    { borderColor: colors.outlineVariant ?? colors.outline },
+                  ]}
                   locale="fr"
                   label="Dernier repas"
                   saveLabel="Confirmer"
                   withDateFormatInLabel={false}
+                  contentStyle={styles.dateContent}
                   value={inputDate}
                   onChange={(data) => {
                     setInputDate(data);
@@ -307,9 +343,11 @@ const AddReptile = () => {
                   }}
                   inputMode="start"
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
               </CardSurface>
-              <CardSurface style={styles.inputSection}>
+              <CardSurface style={styles.sectionCard}>
+                <Text variant="labelLarge" style={styles.sectionTitle}>
+                  Santé & environnement
+                </Text>
                 <TextInput
                   placeholder="Niveau d'humidité"
                   value={formik.values.humidity_level?.toString() ?? ""}
@@ -322,48 +360,18 @@ const AddReptile = () => {
                   }}
                   onBlur={formik.handleBlur("humidity_level")}
                 />
-                <Divider style={{ marginHorizontal: 8 }} />
                 <TextInput
                   placeholder="Plage de température"
                   value={formik.values.temperature_range}
                   onChangeText={formik.handleChange("temperature_range")}
                   onBlur={formik.handleBlur("temperature_range")}
                 />
-              </CardSurface>
-
-              <CardSurface>
-                <View style={styles.segmentRow}>
-                  <SegmentedButtons
-                    value={formik.values.snake}
-                    onValueChange={formik.handleChange("snake")}
-                    style={{ flex: 1 }}
-                    buttons={[
-                      {
-                        value: "snake",
-                        label: "Serpent",
-                      },
-                      {
-                        value: "lizard",
-                        label: "Varan",
-                      },
-                    ]}
-                  />
-                  <SegmentedButtons
-                    style={{ flex: 1 }}
-                    value={formik.values.sex}
-                    onValueChange={formik.handleChange("sex")}
-                    buttons={[
-                      {
-                        value: "Femelle",
-                        icon: "gender-female",
-                      },
-                      {
-                        value: "Mâle",
-                        icon: "gender-male",
-                      },
-                    ]}
-                  />
-                </View>
+                <TextInput
+                  placeholder="État de santé"
+                  value={formik.values.health_status}
+                  onChangeText={formik.handleChange("health_status")}
+                  onBlur={formik.handleBlur("health_status")}
+                />
               </CardSurface>
 
               <Button
@@ -372,6 +380,7 @@ const AddReptile = () => {
                 disabled={!formik.isValid}
                 onPress={formik.submitForm}
                 mode="contained"
+                style={styles.submitButton}
               >
                 AJOUTER
               </Button>
@@ -386,66 +395,73 @@ const AddReptile = () => {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
-  },
-  header: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 12,
+    gap: 12,
   },
   headerSubtitle: {
     opacity: 0.7,
+  },
+  heroCard: {
     marginTop: 4,
+    gap: 12,
   },
-  container: {
-    justifyContent: "center",
+  heroHeader: {
+    flexDirection: "row",
+    gap: 16,
     alignItems: "center",
-    gap: 10,
   },
-  avatarContainer: { padding: 10 },
-  avatarTouch: {
-    borderRadius: 100,
-    overflow: "hidden",
+  heroText: {
+    flex: 1,
+  },
+  avatarTouch: { borderRadius: 16, overflow: "hidden" },
+  avatarBadge: {
+    position: "absolute",
+    right: 6,
+    bottom: 6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#2A5D52",
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarHint: {
-    marginTop: 6,
     opacity: 0.6,
   },
   outlineStyle: {
-    borderWidth: 0,
+    borderWidth: 1,
+    borderRadius: 12,
+  },
+  dateContent: {
+    fontSize: 13,
+    paddingVertical: 6,
   },
   pickerInput: {
-    borderWidth: 0,
-    borderColor: "transparent",
-    backgroundColor: "transparent",
-    borderTopColor: "transparent",
     position: "relative",
   },
   formContainer: {
-    gap: 10,
+    gap: 12,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
-  inputSection: {
-    marginVertical: 8,
+  sectionCard: {
+    gap: 12,
+    paddingTop: 16,
   },
-  segmentRow: {
+  row: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
-  verticleLine: {
-    height: "70%",
-    justifyContent: "center",
-    alignSelf: "center",
-    alignItems: "center",
-    width: 1,
-    backgroundColor: "rgb(202, 196, 208)",
+  rowInput: {
+    flex: 1,
   },
-  input: {
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 0,
-    borderColor: "transparent",
-    backgroundColor: "transparent",
+  segmentCompact: {
+    alignSelf: "stretch",
+  },
+  sectionTitle: {
+    opacity: 0.7,
+  },
+  submitButton: {
+    marginTop: 8,
   },
 });
 export default AddReptile;

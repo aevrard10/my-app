@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { Platform, StyleSheet, ViewStyle } from "react-native";
 import { Surface, useTheme } from "react-native-paper";
+import { radius } from "@shared/theme/tokens";
 
 type CardSurfaceProps = PropsWithChildren<{
   style?: ViewStyle;
@@ -27,24 +28,24 @@ const CardSurface = ({ children, style }: CardSurfaceProps) => {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 20,
+    borderRadius: radius.md,
     padding: 16,
     borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: "#1A1A1A",
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
       },
       android: {
         elevation: 2,
       },
       default: {
         shadowColor: "#1A1A1A",
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
       },
     }),
   },

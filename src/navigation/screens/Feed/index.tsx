@@ -20,7 +20,6 @@ const Feed = () => {
   const { data } = useFoodQuery();
   const { mutate: updateStock, isPending: isLoading } = useUpdateFoodStock(); // Utilisation de la mutation
   const { show } = useSnackbar();
-  const [quantity, setQuantity] = useState(1);
   const stockStats = useMemo(() => {
     const items = data ?? [];
     const lowStock = items.filter((item) => item.quantity <= 3).length;
@@ -71,8 +70,6 @@ const Feed = () => {
             food={item}
             isLoading={isLoading}
             handleUpdateStock={handleUpdateStock}
-            quantity={quantity}
-            setQuantity={setQuantity}
             colors={colors}
           />
         )}

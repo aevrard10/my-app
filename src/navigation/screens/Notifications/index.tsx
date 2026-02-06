@@ -67,9 +67,7 @@ const Notifications = () => {
             ) : null}
           </View>
         }
-        ListEmptyComponent={
-          <ListEmptyComponent isLoading={isPending} disabled={isPending} />
-        }
+        ListEmptyComponent={<ListEmptyComponent isLoading={isPending} />}
       />
     </Screen>
   );

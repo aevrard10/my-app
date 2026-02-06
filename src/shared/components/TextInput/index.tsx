@@ -5,13 +5,22 @@ import {
   TextInputProps,
 } from "react-native";
 import { useTheme } from "react-native-paper";
+import { radius } from "@shared/theme/tokens";
 
 const TextInput: FC<TextInputProps> = (props) => {
   const { colors } = useTheme();
   return (
     <RNTextInput
       {...props}
-      style={[styles.input, props.style]}
+      style={[
+        styles.input,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.outlineVariant ?? colors.outline,
+          color: colors.onSurface,
+        },
+        props.style,
+      ]}
       placeholderTextColor={props.placeholderTextColor ?? colors.outline}
       selectionColor={colors.primary}
     />
@@ -20,11 +29,11 @@ const TextInput: FC<TextInputProps> = (props) => {
 
 const styles = StyleSheet.create({
   input: {
-    padding: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     outlineStyle: "none",
-    borderColor: "#fff",
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    borderWidth: 1,
+    borderRadius: radius.sm,
     fontFamily: "JetBrainsMono-Regular",
   },
 });

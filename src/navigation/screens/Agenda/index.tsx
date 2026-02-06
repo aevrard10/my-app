@@ -28,6 +28,7 @@ import TimePicker from "@shared/components/TimePicker";
 import useAddReptileEventMutation from "./hooks/mutations/useAddReptileEventMutation";
 import useDeleteReptileEventMutation from "./hooks/mutations/useDeleteReptileEventMutation";
 import useExcludeReptileEventOccurrenceMutation from "./hooks/mutations/useExcludeReptileEventOccurrenceMutation";
+import useUpdateReptileEventMutation from "./hooks/mutations/useUpdateReptileEventMutation";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useQueryClient } from "@tanstack/react-query";
 import TextInput from "@shared/components/TextInput";
@@ -57,8 +58,14 @@ const Agenda = () => {
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [showEditPicker, setShowEditPicker] = useState(false);
   const [showEventInfo, setShowEventInfo] = useState<boolean>(false);
   const [event, setEvent] = useState<any>();
+  const [editEvent, setEditEvent] = useState<any>(null);
+  const [editDate, setEditDate] = useState<Date | undefined>(undefined);
+  const [editRecurrenceUntil, setEditRecurrenceUntil] = useState<
+    Date | undefined
+  >(undefined);
   const { mutate, isPending } = useAddReptileEventMutation();
   const { mutate: deleteEvent, isPending: isDeleting } =
     useDeleteReptileEventMutation();
@@ -66,6 +73,8 @@ const Agenda = () => {
     mutate: excludeOccurrence,
     isPending: isExcluding,
   } = useExcludeReptileEventOccurrenceMutation();
+  const { mutate: updateEvent, isPending: isUpdating } =
+    useUpdateReptileEventMutation();
   const customTheme = {
     agendaDayTextColor: colors.primary,
     agendaDayNumColor: colors.primary,
@@ -94,6 +103,17 @@ const Agenda = () => {
       navigation.setParams({ openAddEvent: false });
     }
   }, [route.params?.openAddEvent, navigation]);
+
+  const parseDateForPicker = (value?: string) => {
+    if (!value) return undefined;
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const [, year, month, day] = match;
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  };
 
   return (
     <Screen>
@@ -342,6 +362,221 @@ const Agenda = () => {
           </Portal>
         )}
       </Formik>
+      <Formik
+        enableReinitialize
+        initialValues={{
+          event_name: editEvent?.name ?? "",
+          event_date: editEvent?.date ?? formatYYYYMMDD(new Date()),
+          event_time: editEvent?.time ?? "",
+          notes: editEvent?.notes ?? "",
+          recurrence_type: editEvent?.recurrence_type ?? "NONE",
+          recurrence_interval: editEvent?.recurrence_interval ?? 1,
+          recurrence_until: editEvent?.recurrence_until ?? "",
+        }}
+        onSubmit={(values) => {
+          if (!editEvent?.id) return;
+          if (!values.event_date) {
+            show("La date est obligatoire.", { label: "Ok" });
+            return;
+          }
+
+          updateEvent(
+            {
+              id: editEvent.id,
+              input: {
+                event_name: values.event_name,
+                event_date: values.event_date,
+                event_time: values.event_time,
+                notes: values.notes,
+                recurrence_type: values.recurrence_type,
+                recurrence_interval: values.recurrence_interval,
+                recurrence_until: values.recurrence_until || null,
+              },
+            },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: useReptileEventsQuery.queryKey,
+                });
+                setEditEvent(null);
+                setEditDate(undefined);
+                setEditRecurrenceUntil(undefined);
+                show("Événement mis à jour", { label: "Ok" });
+              },
+              onError: () => {
+                show("Impossible de modifier l'événement", { label: "Ok" });
+              },
+            },
+          );
+        }}
+      >
+        {(formik) => (
+          <Portal>
+            <Modal
+              visible={!!editEvent}
+              onDismiss={() => setEditEvent(null)}
+              contentContainerStyle={{
+                backgroundColor: colors.surface,
+                marginHorizontal: 20,
+                padding: 18,
+                borderRadius: 50,
+              }}
+            >
+              <Appbar.Header
+                style={[
+                  {
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              >
+                <Appbar.BackAction onPress={() => setEditEvent(null)} />
+                <Appbar.Content title="Modifier l'événement" />
+              </Appbar.Header>
+              <ScrollView>
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === "ios" ? "padding" : "height"}
+                  style={{ flex: 1 }}
+                >
+                  {editEvent?.recurrence_type &&
+                  editEvent?.recurrence_type !== "NONE" ? (
+                    <Text variant="labelSmall" style={styles.editHint}>
+                      Cette modification s&apos;applique à toute la série.
+                    </Text>
+                  ) : null}
+                  <CardSurface style={styles.inputSection}>
+                    <TextInput
+                      placeholder="Titre"
+                      value={formik.values.event_name}
+                      onChangeText={formik.handleChange("event_name")}
+                    />
+                    <Divider style={{ marginHorizontal: 8 }} />
+                    <TextInput
+                      placeholder="Lieu"
+                      // champ optionnel non stocké
+                    />
+                  </CardSurface>
+                  <CardSurface style={styles.inputSection}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 10,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        alignContent: "center",
+                        alignSelf: "center",
+                      }}
+                    >
+                      <TouchableOpacity onPress={() => setShowEditPicker(true)}>
+                        <TextInput
+                          style={styles.input}
+                          value={formik.values.event_time}
+                          placeholder="Heure"
+                          onPress={() => setShowEditPicker(true)}
+                        />
+                      </TouchableOpacity>
+                      <View style={styles.verticleLine} />
+                      <DatePickerInput
+                        mode="outlined"
+                        locale="fr"
+                        label="Date"
+                        saveLabel="Confirmer"
+                        outlineStyle={{ borderWidth: 0 }}
+                        style={{
+                          borderWidth: 0,
+                          borderColor: "#fff",
+                          backgroundColor: "#fff",
+                          borderTopColor: "#fff",
+                        }}
+                        value={editDate}
+                        onChange={(data) => {
+                          setEditDate(data);
+                          formik.setFieldValue(
+                            "event_date",
+                            formatYYYYMMDD(data),
+                          );
+                        }}
+                        dense
+                        inputMode="start"
+                      />
+                    </View>
+                  </CardSurface>
+                  <CardSurface style={styles.inputSection}>
+                    <TextInput
+                      multiline
+                      style={styles.input}
+                      placeholder="Notes"
+                      onChangeText={formik.handleChange("notes")}
+                      onBlur={formik.handleBlur("notes")}
+                      value={formik.values.notes}
+                    />
+                  </CardSurface>
+                  <CardSurface style={styles.inputSection}>
+                    <Text variant="labelLarge">Récurrence</Text>
+                    <SegmentedButtons
+                      value={formik.values.recurrence_type}
+                      onValueChange={(value) => {
+                        formik.setFieldValue("recurrence_type", value);
+                        if (value === "NONE") {
+                          setEditRecurrenceUntil(undefined);
+                          formik.setFieldValue("recurrence_until", "");
+                        }
+                      }}
+                      buttons={[
+                        { value: "NONE", label: "Aucune" },
+                        { value: "DAILY", label: "Quotidien" },
+                        { value: "WEEKLY", label: "Hebdo" },
+                        { value: "MONTHLY", label: "Mensuel" },
+                      ]}
+                      style={{ marginTop: 8 }}
+                    />
+                    {formik.values.recurrence_type !== "NONE" ? (
+                      <DatePickerInput
+                        mode="outlined"
+                        locale="fr"
+                        label="Fin de récurrence (optionnel)"
+                        saveLabel="Confirmer"
+                        outlineStyle={{ borderWidth: 0 }}
+                        style={styles.recurrenceInput}
+                        value={editRecurrenceUntil}
+                        onChange={(date) => {
+                          setEditRecurrenceUntil(date);
+                          formik.setFieldValue(
+                            "recurrence_until",
+                            date ? formatYYYYMMDD(date) : "",
+                          );
+                        }}
+                        clearButtonLabel="Effacer"
+                        withDateFormatInLabel={false}
+                        inputMode="start"
+                        dense
+                      />
+                    ) : null}
+                  </CardSurface>
+                  <Button
+                    loading={isUpdating}
+                    icon={"content-save"}
+                    onPress={formik.submitForm}
+                    mode="contained"
+                  >
+                    Enregistrer
+                  </Button>
+                  <TimePicker
+                    showPicker={showEditPicker}
+                    setShowPicker={setShowEditPicker}
+                    onConfirm={(pickedDuration) => {
+                      formik.setFieldValue(
+                        "event_time",
+                        formatTime(pickedDuration),
+                      );
+                      setShowEditPicker(false);
+                    }}
+                  />
+                </KeyboardAvoidingView>
+              </ScrollView>
+            </Modal>
+          </Portal>
+        )}
+      </Formik>
       <Portal>
         <Modal
           visible={showEventInfo}
@@ -374,6 +609,18 @@ const Agenda = () => {
               ) : null}
             </View>
           </ScrollView>
+          <Button
+            mode="contained"
+            icon="pencil"
+            onPress={() => {
+              setEditEvent(event);
+              setEditDate(parseDateForPicker(event?.date));
+              setEditRecurrenceUntil(parseDateForPicker(event?.recurrence_until));
+              setShowEventInfo(false);
+            }}
+          >
+            Modifier l&apos;événement
+          </Button>
           {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
             <View style={styles.deleteRow}>
               <Button
@@ -499,6 +746,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
     backgroundColor: "#fff",
     borderRadius: 12,
+  },
+  editHint: {
+    marginBottom: 8,
+    opacity: 0.7,
   },
   deleteRow: {
     gap: 10,

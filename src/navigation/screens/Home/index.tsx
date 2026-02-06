@@ -6,15 +6,17 @@ import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import React from "react";
-import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Linking, Platform, ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
   Button,
   Icon,
+  IconButton,
   Text,
   TouchableRipple,
   useTheme,
 } from "react-native-paper";
+import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 
 const Home = () => {
   const { navigate } = useNavigation();
@@ -25,6 +27,7 @@ const Home = () => {
     isPending: isSummaryLoading,
     error: summaryError,
   } = useDashboardSummaryQuery();
+  const { mutate: logout } = useLogoutMutation();
 
   const upcomingEvents = summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
@@ -70,6 +73,21 @@ const Home = () => {
                 Bienvenue sur votre tableau de bord.
               </Text>
             </View>
+            <IconButton
+              icon="logout-variant"
+              onPress={() => {
+                if (Platform.OS === "web" && typeof window !== "undefined") {
+                  if (window.confirm("Se déconnecter ?")) {
+                    logout();
+                  }
+                  return;
+                }
+                Alert.alert("Déconnexion", "Se déconnecter ?", [
+                  { text: "Annuler", style: "cancel" },
+                  { text: "Déconnexion", style: "destructive", onPress: () => logout() },
+                ]);
+              }}
+            />
           </View>
         </CardSurface>
 
@@ -79,7 +97,7 @@ const Home = () => {
             <TouchableRipple
               style={[
                 styles.quickAction,
-                { backgroundColor: colors.primaryContainer },
+                { backgroundColor: colors.primary },
               ]}
               onPress={() => navigate(ScreenNames.ADD_REPTILE)}
             >

@@ -2,15 +2,17 @@ import { View, StyleSheet } from "react-native";
 import {
   Avatar,
   Button,
-  Card,
   Chip,
   Icon,
+  IconButton,
   ProgressBar,
   useTheme,
 } from "react-native-paper";
 import getFoodIcon, { FoodType } from "../../utils/getFoodIcon"
 import TextInput from "@shared/components/TextInput"
-import { FC } from "react"
+import CardSurface from "@shared/components/CardSurface";
+import { FC, useEffect, useState } from "react"
+import { Text } from "react-native";
 
 type FoodCardProps = {
     food: {
@@ -22,88 +24,148 @@ type FoodCardProps = {
     },
     isLoading: boolean;
     handleUpdateStock: (id: string, quantity: number, reason: string) => void;
-    quantity: number;
-    setQuantity: (quantity: number) => void;
     colors: any;
 
 }
 const FeedCard :FC<FoodCardProps> = (props) => {
-   const { food, isLoading, handleUpdateStock, quantity, setQuantity, colors } = props;
+   const { food, isLoading, handleUpdateStock, colors } = props;
    const { colors: themeColors } = useTheme();
    const stockLow = food.quantity < 10;
    const stockCritical = food.quantity === 0;
+  const [quantityText, setQuantityText] = useState("1");
 
-   const progress = Math.min(
-     Math.floor(food.quantity) / 200,
-     1
-   ); // Par exemple 100 comme valeur max
+  useEffect(() => {
+    setQuantityText("1");
+  }, [food.id]);
+
+  const progress = Math.min(
+    Math.floor(food.quantity) / 200,
+    1
+  ); // Par exemple 100 comme valeur max
+  const quantityValue = Math.max(1, parseInt(quantityText, 10) || 1);
     return (
         <View style={styles.wrapper} key={food.id}>
-        <Card style={styles.card}>
-          <Card.Title
-            title={food.name}
-            subtitle={food.type || "Nourriture"}
-            left={({ size }) => (
-              <Avatar.Icon
-                size={size}
-                icon={getFoodIcon(food.type)}
-                color="#fff"
-              />
-            )}
-            right={() => (
-              <Chip
-                icon={() => (
-                  <Icon source={getFoodIcon(food.type)} size={16} color="white" />
-                )}
-                style={[
-                  styles.chip,
-                  {
-                    backgroundColor: stockCritical
-                      ? "#C33C3C"
-                      : stockLow
-                      ? "#B67A2E"
-                      : themeColors.primary,
-                  },
-                ]}
-                textStyle={{ color: "#fff", fontWeight: "bold" }}
-              >
-                {food.quantity} {food.unit || "restant(s)"}
-              </Chip>
-            )}
-          />
-          <Card.Content>
+        <CardSurface style={styles.card}>
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <View style={styles.titleRow}>
+                <Avatar.Icon
+                  size={42}
+                  icon={getFoodIcon(food.type)}
+                  color="#fff"
+                  style={{ backgroundColor: themeColors.primary }}
+                />
+                <View style={styles.titleBlock}>
+                  <View style={styles.titleLine}>
+                    <Text style={styles.title}>{food.name}</Text>
+                    <Chip
+                      icon={() => (
+                        <Icon
+                          source={getFoodIcon(food.type)}
+                          size={14}
+                          color="white"
+                        />
+                      )}
+                      style={[
+                        styles.chip,
+                        {
+                          backgroundColor: stockCritical
+                            ? "#C33C3C"
+                            : stockLow
+                            ? "#B67A2E"
+                            : themeColors.primary,
+                        },
+                      ]}
+                      textStyle={{ color: "#fff", fontWeight: "bold" }}
+                    >
+                      {food.quantity} {food.unit || "restant(s)"}
+                    </Chip>
+                  </View>
+                  <Text style={styles.subtitle}>
+                    {food.type || "Nourriture"}
+                  </Text>
+                </View>
+              </View>
+            </View>
             <ProgressBar
               progress={progress}
               color={stockLow ? "#B67A2E" : colors.primary}
               style={styles.progress}
             />
-          </Card.Content>
-         
+          </View>
 
-          <Card.Actions style={styles.actions}>
-          <TextInput
-            label="Quantité"
-            keyboardType="numeric"
-            value={String(quantity)}
-            onChangeText={(text) => setQuantity(parseInt(text) || 1)}  // Mettre à jour la quantité
-            style={[styles.quantityInput, { backgroundColor: colors.surface }]}
-          />
-            <Button
-              mode="contained"
-              disabled={food.quantity === 0 || isLoading}
-              onPress={() => handleUpdateStock(food.id, -quantity, `Mise à jour de ${food.name}`)}
+          <View style={styles.footer}>
+            <View style={styles.stepperWrapper}>
+              <View style={styles.stepper}>
+                <IconButton
+                  icon="minus"
+                  size={18}
+                  onPress={() =>
+                    setQuantityText(String(Math.max(1, quantityValue - 1)))
+                  }
+                  style={styles.stepperButton}
+                  iconColor={colors.primary}
+                />
+                <TextInput
+                  keyboardType="numeric"
+                  inputMode="numeric"
+                  value={quantityText}
+                  onChangeText={(text) => {
+                    if (text === "") {
+                      setQuantityText("");
+                      return;
+                    }
+                    if (!/^\d+$/.test(text)) return;
+                    setQuantityText(text);
+                  }}
+                  style={[
+                    styles.stepperInput,
+                    { backgroundColor: colors.surface },
+                  ]}
+                />
+                <IconButton
+                  icon="plus"
+                  size={18}
+                  onPress={() =>
+                    setQuantityText(String(Math.max(1, quantityValue + 1)))
+                  }
+                  style={styles.stepperButton}
+                  iconColor={colors.primary}
+                />
+              </View>
+            </View>
+            <View style={styles.actionRow}>
+              <Button
+                mode="outlined"
+                icon="minus"
+                disabled={food.quantity === 0 || isLoading}
+                onPress={() =>
+                  handleUpdateStock(
+                    food.id,
+                    -quantityValue,
+                    `Mise à jour de ${food.name}`,
+                  )
+                }
               >
-              -
-            </Button>
-            <Button
-              mode="contained"
-              disabled={isLoading}
-              onPress={() => handleUpdateStock(food.id, quantity, `Ajout de ${food.name}`)}
-            >
-              +
-            </Button>
-          </Card.Actions>
-        </Card>
+                Retirer
+              </Button>
+              <Button
+                mode="contained"
+                icon="plus"
+                disabled={isLoading}
+                onPress={() =>
+                  handleUpdateStock(
+                    food.id,
+                    quantityValue,
+                    `Ajout de ${food.name}`,
+                  )
+                }
+              >
+                Ajouter
+              </Button>
+            </View>
+          </View>
+        </CardSurface>
       </View>
     )
 }
@@ -113,8 +175,37 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   card: {
-    borderRadius: 18,
+    padding: 0,
     overflow: "hidden",
+  },
+  content: {
+    padding: 16,
+    gap: 12,
+  },
+  header: {
+    gap: 8,
+  },
+  titleRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+  titleBlock: {
+    flex: 1,
+    gap: 4,
+  },
+  titleLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  subtitle: {
+    opacity: 0.6,
   },
   chip: {
     marginRight: 8,
@@ -122,19 +213,41 @@ const styles = StyleSheet.create({
   progress: {
     height: 6,
     borderRadius: 6,
-    marginTop: 6,
   },
-  actions: {
-    justifyContent: "space-between",
+  footer: {
+    padding: 16,
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.06)",
+    backgroundColor: "rgba(255,255,255,0.6)",
+  },
+  stepperWrapper: {
+    alignItems: "flex-start",
+  },
+  stepper: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 8,
-    paddingBottom: 12,
+    gap: 6,
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    backgroundColor: "rgba(0,0,0,0.03)",
   },
-  quantityInput: {
-    margin: 8,
-    borderRadius: 12,
-    paddingHorizontal: 12,
+  stepperButton: {
+    margin: 0,
+  },
+  stepperInput: {
+    minWidth: 56,
+    textAlign: "center",
+    borderWidth: 0,
+    paddingVertical: 6,
+    outlineStyle: "none",
+  },
+  actionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
 });
 

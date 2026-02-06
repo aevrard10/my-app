@@ -1,12 +1,12 @@
 import {
-  Card,
   Button,
   Dialog,
   Portal,
   Text,
   Avatar,
+  IconButton,
 } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { FC, useCallback, useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Reptile } from "@shared/graphql/utils/types/types.generated";
@@ -20,6 +20,7 @@ import { useSnackbar } from "@rn-flix/snackbar";
 import { useTheme } from "react-native-paper";
 import useLastFedUpdateMutation from "../../../ReptileProfileDetails/hooks/data/mutations/useLastFedUpdate";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
+import CardSurface from "@shared/components/CardSurface";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -81,66 +82,69 @@ const CardComponent: FC<CardComponentProps> = (props) => {
     );
   }, [item?.id, updateLastFed, queryClient, show]);
   return (
-    <Card style={styles.card} mode="elevated">
-      {item?.sex && (
-        <View
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            overflow: "hidden",
-          }}
-        >
-          <Avatar.Icon
-            size={40}
-            style={{
-              borderRadius: 0,
-              backgroundColor: backgroundColor,
-              borderTopLeftRadius: 24,
-              borderBottomRightRadius: 24,
-            }}
-            icon={iconSex}
-            color={"#fff"}
+    <CardSurface style={styles.card}>
+      <View style={styles.media}>
+        <Image
+          source={
+            item?.image_url
+              ? { uri: item?.image_url }
+              : require("../../../../../../assets/cobra.png")
+          }
+          resizeMode="cover"
+          style={styles.cover}
+        />
+        {item?.sex && (
+          <View style={styles.sexBadge}>
+            <Avatar.Icon
+              size={32}
+              style={{ backgroundColor, borderRadius: 12 }}
+              icon={iconSex}
+              color={"#fff"}
+            />
+          </View>
+        )}
+      </View>
+      <View style={styles.body}>
+        <View style={styles.titleRow}>
+          <View style={styles.titleBlock}>
+            <Text variant="titleMedium">{capitalize(item?.name)}</Text>
+            <Text variant="bodySmall" style={styles.subtitle}>
+              {(item?.species || "Espèce inconnue") +
+                (item?.age !== null && item?.age !== undefined
+                  ? ` · ${item.age} ans`
+                  : "")}
+            </Text>
+          </View>
+          <IconButton
+            icon="trash-can-outline"
+            size={20}
+            iconColor={colors.error}
+            onPress={() => setShowDialog(true)}
+            style={styles.deleteButton}
           />
         </View>
-      )}
-      <Card.Cover
-        source={
-          item?.image_url
-            ? {
-                uri: item?.image_url,
-              }
-            : require("../../../../../../assets/cobra.png")
-        }
-        resizeMode="cover"
-        style={[styles.cover, { backgroundColor: colors.primary }]}
-      />
-      <Card.Title
-        title={capitalize(item?.name)}
-        subtitle={item?.age + " ans"}
-        titleStyle={styles.title}
-        subtitleStyle={styles.subtitle}
-      />
-      <Card.Actions style={styles.actions}>
-        <Button
-          onPress={() =>
-            navigate(ScreenNames.REPTILE_PROFILE_DETAILS, {
-              id: item?.id,
-            })
-          }
-        >
-          Voir plus
-        </Button>
-        <Button
-          mode="outlined"
-          onPress={handleLastFedUpdate}
-          loading={isUpdatingFed}
-        >
-          Nourri aujourd&apos;hui
-        </Button>
-        <Button mode="contained" onPress={() => setShowDialog(true)}>
-          Supprimer
-        </Button>
-      </Card.Actions>
+        <View style={styles.actions}>
+          <Button
+            mode="contained"
+            icon="chevron-right"
+            onPress={() =>
+              navigate(ScreenNames.REPTILE_PROFILE_DETAILS, {
+                id: item?.id,
+              })
+            }
+          >
+            Voir plus
+          </Button>
+          <Button
+            mode="outlined"
+            icon="food"
+            onPress={handleLastFedUpdate}
+            loading={isUpdatingFed}
+          >
+            Nourri aujourd&apos;hui
+          </Button>
+        </View>
+      </View>
       <Portal>
         <Dialog
           visible={showDialog}
@@ -155,37 +159,61 @@ const CardComponent: FC<CardComponentProps> = (props) => {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setShowDialog(false)}>Annuler</Button>
-            <Button onPress={removeReptile}>Supprimer</Button>
+            <Button onPress={removeReptile} textColor={colors.error}>
+              Supprimer
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </Card>
+    </CardSurface>
   );
 };
 const styles = StyleSheet.create({
   card: {
     marginTop: 16,
     marginBottom: 16,
-    borderRadius: 18,
-    overflow: "hidden",
-    backgroundColor: "#fff",
+    padding: 0,
   },
-  cover: {
+  media: {
     height: 180,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    overflow: "hidden",
     backgroundColor: "#2F5D50",
   },
-  title: {
-    fontSize: 16,
+  cover: {
+    width: "100%",
+    height: "100%",
+  },
+  sexBadge: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+  },
+  body: {
+    padding: 16,
+    gap: 12,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  titleBlock: {
+    flex: 1,
+    gap: 4,
   },
   subtitle: {
     opacity: 0.6,
   },
+  deleteButton: {
+    margin: 0,
+  },
   actions: {
-    justifyContent: "space-between",
-    paddingHorizontal: 8,
-    paddingBottom: 8,
-    gap: 8,
+    flexDirection: "row",
     flexWrap: "wrap",
+    gap: 8,
   },
 });
 export default CardComponent;

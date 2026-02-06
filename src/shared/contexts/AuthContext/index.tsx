@@ -15,6 +15,7 @@ const AuthContext = createContext<any>(null);
 const AuthProvider: FC<PropsWithChildren> = (props) => {
   const { children } = props;
   const [token, setToken] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   // Récupérer le token au chargement de l'application
   useEffect(() => {
@@ -23,13 +24,14 @@ const AuthProvider: FC<PropsWithChildren> = (props) => {
       if (storedToken) {
         setToken(storedToken);
       }
+      setIsReady(true);
     };
     fetchToken();
   }, []);
 
   // Fournir le token et une fonction pour mettre à jour
   return (
-    <AuthContext.Provider value={{ token, setToken }}>
+    <AuthContext.Provider value={{ token, setToken, isReady }}>
       {children}
     </AuthContext.Provider>
   );
