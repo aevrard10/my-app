@@ -64,6 +64,7 @@ import QuickActions from "./components/QuickActions";
 import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
+import * as Sharing from "expo-sharing";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -277,6 +278,31 @@ const ReptileProfileDetails = ({ route }: Props) => {
       show("Impossible de télécharger l'image");
     }
   }, [selectedPhoto?.url, data?.name, show]);
+
+  const handleSharePhoto = useCallback(
+    async (photo: { url: string; created_at: string; id: string }) => {
+      if (Platform.OS === "web") {
+        // fallback web: ouvrir l'image (l'utilisateur peut télécharger)
+        setSelectedPhoto(photo);
+        setShowPhotoModal(true);
+        return;
+      }
+      try {
+        const canShare = await Sharing.isAvailableAsync();
+        if (!canShare) {
+          show("Partage non disponible sur cet appareil");
+          return;
+        }
+        await Sharing.shareAsync(photo.url, {
+          dialogTitle: `Partager ${data?.name || "reptile"}`,
+          mimeType: "image/jpeg",
+        });
+      } catch (e) {
+        show("Impossible de partager cette photo");
+      }
+    },
+    [data?.name, show],
+  );
 
   const handleSaveGoveeKey = useCallback(async () => {
     try {
@@ -550,6 +576,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   }
                   onQuickFeed={handleQuickFeed}
                   loadingQuickFeed={isUpdatingFed}
+                  onShare={() => {
+                    if (photos?.[0]) {
+                      handleSharePhoto(photos[0]);
+                    } else {
+                      show("Ajoutez une photo pour partager la fiche");
+                    }
+                  }}
                 />
 
                 <FeedPortal id={id} food={food} data={data} />
@@ -667,6 +700,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     setSelectedPhoto(photo);
                     setShowPhotoModal(true);
                   }}
+                  onShare={handleSharePhoto}
                 />
 
                 <HistorySection

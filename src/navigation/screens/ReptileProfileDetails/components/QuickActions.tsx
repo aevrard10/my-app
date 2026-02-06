@@ -9,6 +9,7 @@ type QuickActionsProps = {
   onAddEvent: () => void;
   onQuickFeed: () => void;
   loadingQuickFeed?: boolean;
+  onShare?: () => void;
 };
 
 const QuickActions = ({
@@ -17,6 +18,7 @@ const QuickActions = ({
   onAddEvent,
   onQuickFeed,
   loadingQuickFeed,
+  onShare,
 }: QuickActionsProps) => {
   return (
     <CardSurface style={styles.card}>
@@ -39,6 +41,11 @@ const QuickActions = ({
         >
           Nourri aujourd&apos;hui
         </Button>
+        {onShare && (
+          <Button mode="outlined" icon="share-variant" onPress={onShare}>
+            Partager la fiche
+          </Button>
+        )}
       </View>
     </CardSurface>
   );

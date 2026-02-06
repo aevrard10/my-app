@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Button, Text, TouchableRipple } from "react-native-paper";
+import { ActivityIndicator, Button, IconButton, Text, TouchableRipple } from "react-native-paper";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import CardSurface from "@shared/components/CardSurface";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
@@ -17,6 +17,7 @@ type GallerySectionProps = {
   onDelete: (id: string) => void;
   onOpen: (photo: Photo) => void;
   isAdding?: boolean;
+  onShare?: (photo: Photo) => void;
 };
 
 const GallerySection = ({
@@ -26,6 +27,7 @@ const GallerySection = ({
   onDelete,
   onOpen,
   isAdding,
+  onShare,
 }: GallerySectionProps) => {
   return (
     <CardSurface style={styles.card}>
@@ -49,9 +51,19 @@ const GallerySection = ({
               >
                 <View>
                   <Image source={{ uri: photo.url }} style={styles.image} />
-                  <Text variant="labelSmall" style={styles.date}>
-                    {formatDDMMYYYY(photo.created_at)}
-                  </Text>
+                  <View style={styles.footer}>
+                    <Text variant="labelSmall" style={styles.date}>
+                      {formatDDMMYYYY(photo.created_at)}
+                    </Text>
+                    {onShare && (
+                      <IconButton
+                        icon="share-variant"
+                        size={16}
+                        onPress={() => onShare(photo)}
+                        style={styles.shareBtn}
+                      />
+                    )}
+                  </View>
                 </View>
               </TouchableRipple>
             ))}
@@ -89,10 +101,17 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 14,
   },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
   date: {
-    marginTop: 6,
     opacity: 0.6,
-    textAlign: "center",
+  },
+  shareBtn: {
+    margin: 0,
   },
   empty: {
     opacity: 0.6,
