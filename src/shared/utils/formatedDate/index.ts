@@ -1,10 +1,68 @@
 import dayjs, { Dayjs } from "dayjs";
 import calendar from "dayjs/plugin/calendar";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/fr";
 export type DateFormatInput = string | number | Date | Dayjs | null | undefined;
 
 dayjs.extend(calendar);
+dayjs.extend(customParseFormat);
 dayjs.locale("fr");
+
+const strictFormats = [
+  "YYYY-MM-DD",
+  "YYYY/MM/DD",
+  "YYYY-MM-DD HH:mm:ss",
+  "YYYY/MM/DD HH:mm:ss",
+  "YYYY-MM-DDTHH:mm:ss.SSSZ",
+  "YYYY-MM-DDTHH:mm:ssZ",
+  "YYYY-MM-DDTHH:mm:ss",
+  "YYYY/MM/DDTHH:mm:ss",
+  "DD/MM/YYYY",
+  "DD-MM-YYYY",
+  "DD/MM/YYYY HH:mm:ss",
+  "DD-MM-YYYY HH:mm:ss",
+];
+
+const month: Record<string, string> = {
+  janvier: "01",
+  février: "02",
+  mars: "03",
+  avril: "04",
+  mai: "05",
+  juin: "06",
+  juillet: "07",
+  août: "08",
+  septembre: "09",
+  octobre: "10",
+  novembre: "11",
+  décembre: "12",
+};
+
+const parseLongFrenchDate = (value: string) => {
+  const cleaned = value
+    .replace(",", " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+  const parts = cleaned.split(" ");
+  if (parts.length < 4) return null;
+
+  const dayNumber = parts[1];
+  const monthName = parts[2];
+  const year = parts[3];
+
+  if (!/^\d{1,2}$/.test(dayNumber) || !/^\d{4}$/.test(year)) {
+    return null;
+  }
+
+  const monthIndex = month[monthName];
+  if (!monthIndex) return null;
+
+  return dayjs(
+    new Date(Number(year), Number(monthIndex) - 1, Number(dayNumber))
+  );
+};
 
 const parseDateInput = (date?: DateFormatInput) => {
   if (!date) return null;
@@ -19,16 +77,14 @@ const parseDateInput = (date?: DateFormatInput) => {
       return dayjs(ms);
     }
 
-    const matchYMD = trimmed.match(/^(\d{4})[/-](\d{2})[/-](\d{2})/);
-    if (matchYMD) {
-      const [, year, month, day] = matchYMD;
-      return dayjs(new Date(Number(year), Number(month) - 1, Number(day)));
+    const strictParsed = dayjs(trimmed, strictFormats, "fr", true);
+    if (strictParsed.isValid()) {
+      return strictParsed;
     }
 
-    const matchDMY = trimmed.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
-    if (matchDMY) {
-      const [, day, month, year] = matchDMY;
-      return dayjs(new Date(Number(year), Number(month) - 1, Number(day)));
+    const longParsed = parseLongFrenchDate(trimmed);
+    if (longParsed) {
+      return longParsed;
     }
 
     return dayjs(trimmed);
@@ -54,7 +110,7 @@ export function formatDDMMYYYY(date?: DateFormatInput) {
 
 export function formatYYYYMMDD(date?: DateFormatInput) {
   const parsed = parseDateInput(date);
-  return parsed ? parsed.format("YYYY/MM/DD") : "";
+  return parsed ? parsed.format("YYYY-MM-DD") : "";
 }
 
 export const formatTime = ({
@@ -136,32 +192,23 @@ export function formatDateToYYYYMMDD(dateStr: string): string {
   const trimmed = dateStr.trim();
   const matchYMD = trimmed.match(/^(\d{4})[/-](\d{2})[/-](\d{2})/);
   if (matchYMD) {
-    return `${matchYMD[1]}/${matchYMD[2]}/${matchYMD[3]}`;
+    return `${matchYMD[1]}-${matchYMD[2]}-${matchYMD[3]}`;
   }
   const matchDMY = trimmed.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
   if (matchDMY) {
-    return `${matchDMY[3]}/${matchDMY[2]}/${matchDMY[1]}`;
+    return `${matchDMY[3]}-${matchDMY[2]}-${matchDMY[1]}`;
+  }
+  const longParsed = parseLongFrenchDate(trimmed);
+  if (longParsed && longParsed.isValid()) {
+    return longParsed.format("YYYY-MM-DD");
   }
   return trimmed;
 }
 
-const month = {
-  janvier: "01",
-  février: "02",
-  mars: "03",
-  avril: "04",
-  mai: "05",
-  juin: "06",
-  juillet: "07",
-  août: "08",
-  septembre: "09",
-  octobre: "10",
-  novembre: "11",
-  décembre: "12",
-}
-
 // format date "samedi 15 février 2025" => "2025-02-15"
 export const formatLongDateToYYYYMMDD = (date: string) => {
-  const [day, dayNumber, monthName, year] = date.split(" ");
-  return `${year}-${month[monthName]}-${dayNumber}`;
-}
+  if (!date) return "";
+  const parsed = parseLongFrenchDate(date);
+  if (!parsed || !parsed.isValid()) return "";
+  return parsed.format("YYYY-MM-DD");
+};
