@@ -18,6 +18,7 @@ import {
   Portal,
   Text,
   useTheme,
+  List,
 } from "react-native-paper";
 import useAddNotesMutation from "./hooks/data/mutations/useAddNotesMutation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -52,7 +53,6 @@ import useReptileShedsQuery from "./hooks/data/queries/useReptileShedsQuery";
 import useAddReptileShedMutation from "./hooks/data/mutations/useAddReptileShedMutation";
 import useDeleteReptileShedMutation from "./hooks/data/mutations/useDeleteReptileShedMutation";
 import useDeleteReptileFeedingMutation from "./hooks/data/mutations/useDeleteReptileFeedingMutation";
-import useLastFedUpdateMutation from "./hooks/data/mutations/useLastFedUpdate";
 import { DatePickerInput } from "react-native-paper-dates";
 import ReptileProfileSkeleton from "./components/ReptileProfileSkeleton";
 import useGoveeDevicesQuery from "./hooks/data/queries/useGoveeDevicesQuery";
@@ -67,7 +67,8 @@ import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
 import useQuery from "@shared/graphql/hooks/useQuery";
 import { gql } from "graphql-request";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
+import InfoAccordion from "./components/InfoAccordion";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -87,6 +88,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
   const [shedDate, setShedDate] = useState<Date | undefined>(new Date());
   const [shedNotes, setShedNotes] = useState("");
   const [goveeApiKey, setGoveeApiKey] = useState("");
+  const [showFeedPortal, setShowFeedPortal] = useState(false);
   const [selectedGoveeDevice, setSelectedGoveeDevice] = useState<{
     device: string;
     model: string;
@@ -143,7 +145,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
-  const exportPdfQuery = useQuery<{ exportReptile: { filename: string; mime: string; base64: string } }, { id: string; format: string }>({
+  const exportPdfQuery = useQuery<
+    { exportReptile: { filename: string; mime: string; base64: string } },
+    { id: string; format: string }
+  >({
     queryKey: ["exportReptile", id, "PDF"],
     query: gql`
       query ExportReptile($id: ID!, $format: ExportFormat!) {
@@ -171,8 +176,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
     useAddReptileShedMutation();
   const { mutate: deleteShed } = useDeleteReptileShedMutation();
   const { mutate: deleteFeeding } = useDeleteReptileFeedingMutation();
-  const { mutate: updateLastFed, isPending: isUpdatingFed } =
-    useLastFedUpdateMutation();
 
   useEffect(() => {
     if (data?.notes !== undefined && data?.notes !== null) {
@@ -518,23 +521,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       },
     );
   };
-  const handleQuickFeed = useCallback(() => {
-    if (!id) return;
-    updateLastFed(
-      { id, last_fed: formatYYYYMMDD(new Date()) },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: useReptileQuery.queryKey(id),
-          });
-          show("Dernier repas mis à jour");
-        },
-        onError: () => {
-          show("Erreur lors de la mise à jour");
-        },
-      },
-    );
-  }, [id, updateLastFed, queryClient, show]);
+
   if (isLoadingReptile) {
     return (
       <Screen>
@@ -581,9 +568,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 <AlertCard alerts={currentAlerts?.alerts} />
 
                 <QuickActions
-                  onAddFeed={() =>
-                    navigation.navigate(ScreenNames.ADD_FEED as never)
-                  }
+                  onAddFeed={() => setShowFeedPortal(true)}
                   onAddMeasure={() =>
                     navigation.navigate(ScreenNames.ADD_MEASUREMENTS as never, {
                       id,
@@ -594,15 +579,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       openAddEvent: true,
                     })
                   }
-                  onQuickFeed={handleQuickFeed}
-                  loadingQuickFeed={isUpdatingFed}
-                  onShare={() => {
-                    if (photos?.[0]) {
-                      handleSharePhoto(photos[0]);
-                    } else {
-                      show("Ajoutez une photo pour partager la fiche");
-                    }
-                  }}
                   onExportPdf={() => {
                     if (exportPdfQuery.data?.exportReptile) {
                       const { base64, filename, mime } =
@@ -616,11 +592,17 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         document.body.removeChild(link);
                       } else {
                         const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+                        const encoding: any =
+                          (FileSystem as any).EncodingType?.Base64 || "base64";
                         FileSystem.writeAsStringAsync(fileUri, base64, {
-                          encoding: FileSystem.EncodingType.Base64,
+                          encoding,
                         })
                           .then(() => Sharing.shareAsync(fileUri))
-                          .catch(() => show("Impossible de partager le PDF"));
+                          .catch((e) => {
+                            console.log(e);
+
+                            show("Impossible de partager le PDF");
+                          });
                       }
                     } else {
                       exportPdfQuery.refetch();
@@ -629,7 +611,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   }}
                 />
 
-                <FeedPortal id={id} food={food} data={data} />
+                <FeedPortal
+                  id={id}
+                  food={food}
+                  data={data}
+                  visible={showFeedPortal}
+                  onClose={() => setShowFeedPortal(false)}
+                />
 
                 <CardSurface style={styles.reportCard}>
                   <Text variant="titleMedium">Rapport d&apos;élevage</Text>
@@ -780,6 +768,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   isSaving={isSavingGenetics}
                 />
 
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  Profil & habitat
+                </Text>
+
                 <CardSurface style={styles.inputSection}>
                   <TextInfo
                     keyboardType="numeric"
@@ -847,6 +839,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     }}
                   />
                 </CardSurface>
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  Alimentation
+                </Text>
                 <CardSurface style={styles.inputSection}>
                   <TextInfo
                     readOnly={false}
@@ -863,7 +858,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     }}
                   />
                 </CardSurface>
-
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  Santé
+                </Text>
                 <CardSurface style={styles.inputSection}>
                   <TextInfo
                     readOnly={false}
@@ -880,6 +877,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   </Button>
                 </View>
                 <CardSurface style={styles.notesCard}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Notes & observations
+                  </Text>
                   <TextInput
                     multiline
                     style={styles.input}
@@ -896,8 +896,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 </CardSurface>
 
                 <CardSurface style={styles.sensorCard}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Capteur Govee
+                  </Text>
                   <View style={styles.sensorHeader}>
-                    <Text variant="titleMedium">Capteur Govee</Text>
                     <Button
                       mode="text"
                       compact
@@ -1209,6 +1211,7 @@ const styles = StyleSheet.create({
   },
   notesCard: {
     marginVertical: 12,
+    gap: 8,
   },
   sensorCard: {
     marginVertical: 8,
@@ -1240,6 +1243,15 @@ const styles = StyleSheet.create({
   readingMeta: {
     opacity: 0.6,
     marginTop: 4,
+  },
+  sectionTitle: {
+    marginTop: 12,
+    marginHorizontal: 4,
+    fontWeight: "600",
+  },
+  cardTitle: {
+    fontWeight: "600",
+    marginBottom: 4,
   },
 });
 

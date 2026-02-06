@@ -8,9 +8,7 @@ type QuickActionsProps = {
   onAddFeed: () => void;
   onAddMeasure: () => void;
   onAddEvent: () => void;
-  onQuickFeed: () => void;
-  loadingQuickFeed?: boolean;
-  onShare?: () => void;
+
   onExportPdf?: () => void;
 };
 
@@ -18,9 +16,6 @@ const QuickActions = ({
   onAddFeed,
   onAddMeasure,
   onAddEvent,
-  onQuickFeed,
-  loadingQuickFeed,
-  onShare,
   onExportPdf,
 }: QuickActionsProps) => {
   const { colors } = useTheme();
@@ -63,29 +58,6 @@ const QuickActions = ({
         >
           Événement
         </Button>
-        <Button
-          mode="contained"
-          icon="check"
-          onPress={onQuickFeed}
-          loading={loadingQuickFeed}
-          style={[styles.action, styles.actionWide]}
-          contentStyle={styles.actionContent}
-          labelStyle={styles.actionLabel}
-        >
-          Nourri aujourd&apos;hui
-        </Button>
-        {onShare && (
-          <Button
-            mode="outlined"
-            icon="share-variant"
-            onPress={onShare}
-            style={[styles.action, styles.actionWide]}
-            contentStyle={styles.actionContent}
-            labelStyle={styles.actionLabel}
-          >
-            Partager la fiche
-          </Button>
-        )}
         {onExportPdf && (
           <Button
             mode="outlined"

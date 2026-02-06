@@ -10,7 +10,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import AuthProvider, { useAuth } from "@shared/contexts/AuthContext";
 import ErrorBoundary from "@shared/components/ErrorBoundary";
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
+import { Platform, type ViewStyle } from "react-native";
 import { appTheme } from "@shared/theme";
 import { useFonts } from "expo-font";
 import queryClient from "@shared/graphql/utils/queryClient";
@@ -69,7 +69,12 @@ const linking = {
   },
 };
 
-const App = () => {
+const SnackbarProviderCompat =
+  SnackbarProvider as unknown as React.ComponentType<
+    React.PropsWithChildren<{ style?: ViewStyle }>
+  >;
+
+const App: React.FC = () => {
   const [fontsLoaded] = useFonts({
     "JetBrainsMono-Regular": require("../assets/fonts/JetBrainsMono-Regular.ttf"),
     "JetBrainsMono-Medium": require("../assets/fonts/JetBrainsMono-Medium.ttf"),
@@ -129,7 +134,7 @@ const App = () => {
     <SafeAreaProvider>
       <AuthProvider>
         <AuthGate>
-          <SnackbarProvider>
+          <SnackbarProviderCompat>
             <PaperProvider theme={appTheme}>
               <QueryClientProvider client={queryClient}>
                 <NavigationContainer
@@ -144,7 +149,7 @@ const App = () => {
                 </NavigationContainer>
               </QueryClientProvider>
             </PaperProvider>
-          </SnackbarProvider>
+          </SnackbarProviderCompat>
         </AuthGate>
       </AuthProvider>
     </SafeAreaProvider>
