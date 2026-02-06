@@ -67,6 +67,7 @@ import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
 import useQuery from "@shared/graphql/hooks/useQuery";
 import { gql } from "graphql-request";
+import * as FileSystem from "expo-file-system";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -614,10 +615,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         link.click();
                         document.body.removeChild(link);
                       } else {
-                        Sharing.shareAsync(`data:${mime};base64,${base64}`, {
-                          dialogTitle: filename,
-                          mimeType: mime,
-                        });
+                        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+                        FileSystem.writeAsStringAsync(fileUri, base64, {
+                          encoding: FileSystem.EncodingType.Base64,
+                        })
+                          .then(() => Sharing.shareAsync(fileUri))
+                          .catch(() => show("Impossible de partager le PDF"));
                       }
                     } else {
                       exportPdfQuery.refetch();
