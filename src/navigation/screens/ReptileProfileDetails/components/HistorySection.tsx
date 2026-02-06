@@ -23,6 +23,10 @@ type HistorySectionProps = {
   onDeleteFeeding: (id: string) => void;
   onDeleteShed: (id: string) => void;
   onAddShed: () => void;
+  onLoadMoreFeedings?: () => void;
+  onLoadMoreSheds?: () => void;
+  hasMoreFeedings?: boolean;
+  hasMoreSheds?: boolean;
 };
 
 const HistorySection = ({
@@ -31,6 +35,10 @@ const HistorySection = ({
   onDeleteFeeding,
   onDeleteShed,
   onAddShed,
+  onLoadMoreFeedings,
+  onLoadMoreSheds,
+  hasMoreFeedings,
+  hasMoreSheds,
 }: HistorySectionProps) => {
   return (
     <CardSurface style={styles.card}>
@@ -42,7 +50,7 @@ const HistorySection = ({
       >
         {feedings && feedings.length > 0 ? (
           <View style={styles.list}>
-            {feedings.slice(0, 5).map((feeding) => (
+            {feedings.map((feeding) => (
               <TouchableRipple
                 key={feeding.id}
                 onLongPress={() => onDeleteFeeding(feeding.id)}
@@ -60,6 +68,15 @@ const HistorySection = ({
               </TouchableRipple>
             ))}
           </View>
+          {hasMoreFeedings && onLoadMoreFeedings && (
+            <Button
+              onPress={onLoadMoreFeedings}
+              mode="text"
+              style={{ alignSelf: "flex-start" }}
+            >
+              Voir plus
+            </Button>
+          )}
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
             Aucun repas enregistré.
@@ -85,7 +102,7 @@ const HistorySection = ({
         </View>
         {sheds && sheds.length > 0 ? (
           <View style={styles.list}>
-            {sheds.slice(0, 5).map((shed) => (
+            {sheds.map((shed) => (
               <TouchableRipple
                 key={shed.id}
                 onLongPress={() => onDeleteShed(shed.id)}
@@ -100,6 +117,15 @@ const HistorySection = ({
               </TouchableRipple>
             ))}
           </View>
+          {hasMoreSheds && onLoadMoreSheds && (
+            <Button
+              onPress={onLoadMoreSheds}
+              mode="text"
+              style={{ alignSelf: "flex-start" }}
+            >
+              Voir plus
+            </Button>
+          )}
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
             Aucune mue enregistrée.

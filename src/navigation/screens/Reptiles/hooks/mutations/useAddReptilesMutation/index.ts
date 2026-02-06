@@ -1,20 +1,16 @@
-import useMutation from "@shared/graphql/useMutation";
-import {
-  AddReptilesMutation,
-  AddReptilesMutationVariables,
-} from "@shared/graphql/utils/types/types.generated";
-import { gql } from "graphql-request";
-const mutation = gql`
-  mutation addReptilesMutation($input: AddReptileInput!) {
-    addReptile(input: $input) {
-      id
-      name
-    }
-  }
-`;
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { upsertReptile, UpsertReptileInput } from "@shared/local/reptileStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
+
 const useAddReptilesMutation = () => {
-  return useMutation<AddReptilesMutation, AddReptilesMutationVariables>({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (variables: { input: UpsertReptileInput }) => {
+      return await upsertReptile(variables.input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueriesKeys.REPTILES] });
+    },
   });
 };
 

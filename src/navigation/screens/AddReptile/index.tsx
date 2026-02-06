@@ -25,7 +25,6 @@ import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TextInput from "@shared/components/TextInput";
 import * as ImagePicker from "expo-image-picker";
-import handleImageUpload from "@shared/utils/handleImageUpload";
 import useAddReptilesMutation from "../Reptiles/hooks/mutations/useAddReptilesMutation";
 import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
 import Screen from "@shared/components/Screen";
@@ -74,8 +73,7 @@ const AddReptile = () => {
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
     undefined
   );
-  const [imageUri, setImageUri] = useState<string | null>();
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const pickImage = async () => {
     try {
@@ -87,7 +85,6 @@ const AddReptile = () => {
           const file = event.target.files[0];
           if (file) {
             setImageUri(URL.createObjectURL(file)); // Prévisualisation
-            setImageUrl(file);
           }
         };
         input.click();
@@ -163,21 +160,11 @@ const AddReptile = () => {
                 acquired_date: values.acquired_date,
                 origin: values.origin,
                 location: values.location,
+                image_url: imageUri ?? null,
               },
             },
             {
-              onSuccess: async (data) => {
-                if (imageUrl || imageUri) {
-                  if (Platform.OS === "web") {
-                    await handleImageUpload(imageUrl, data?.addReptile?.id); // Upload the image to backend
-                  }
-                  if (Platform.OS !== "web") {
-                    await handleImageUpload(
-                      { uri: imageUri },
-                      data?.addReptile?.id
-                    ); // Envoi au backend
-                  }
-                }
+              onSuccess: () => {
                 queryClient.invalidateQueries({
                   queryKey: useReptilesQuery.queryKey,
                 });
@@ -186,7 +173,7 @@ const AddReptile = () => {
                   label: "Ok",
                 });
               },
-              onError: (e) => {
+              onError: () => {
                 show("Une erreur est survenue, Veuillez réessayer ...", {
                   label: "Ok",
                 });

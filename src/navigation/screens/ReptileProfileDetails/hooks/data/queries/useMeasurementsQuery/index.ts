@@ -1,42 +1,16 @@
-import { gql } from "graphql-request";
-import useQuery from "@shared/graphql/hooks/useQuery";
-import {
-  MeasurementsQuery,
-  MeasurementsQueryVariables,
-} from "@shared/graphql/utils/types/types.generated";
+import { useQuery } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
+import { getMeasurements, LocalMeasurement } from "@shared/local/measurementsStore";
 
-const query = gql`
-  query MeasurementsQuery($reptileId: ID!) {
-    measurements(reptile_id: $reptileId) {
-      id
-      reptile_id
-      date
-      weight
-      size
-      size_mesure
-      weight_mesure
-    }
-  }
-`;
-const queryKey = [QueriesKeys.MESUAREMENTS];
+const baseKey = [QueriesKeys.MESUAREMENTS];
 
 const useMeasurementsQuery = Object.assign(
-  (id: string) => {
-    return useQuery<
-      MeasurementsQuery,
-      MeasurementsQueryVariables,
-      MeasurementsQuery["measurements"]
-    >({
-      queryKey, //TODO: add id in queryKey
-      query,
-      variables: { reptileId: id },
-      options: {
-        select: (data) => data?.measurements || [],
-      },
-    });
-  },
-  { query, queryKey }
+  (id: string, limit = 200) =>
+    useQuery<LocalMeasurement[]>({
+      queryKey: [...baseKey, id, limit],
+      queryFn: () => getMeasurements(id, { limit }),
+    }),
+  { queryKey: baseKey }
 );
 
 export default useMeasurementsQuery;

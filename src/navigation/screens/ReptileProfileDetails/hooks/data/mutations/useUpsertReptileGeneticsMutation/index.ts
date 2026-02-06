@@ -1,44 +1,19 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
-
-type UpsertReptileGeneticsMutation = {
-  upsertReptileGenetics: {
-    id: string;
-    reptile_id: string;
-  };
-};
-
-type UpsertReptileGeneticsVariables = {
-  input: {
-    reptile_id: string;
-    morph?: string;
-    mutations?: string;
-    hets?: string;
-    traits?: string;
-    lineage?: string;
-    breeder?: string;
-    hatch_date?: string;
-    sire_name?: string;
-    dam_name?: string;
-    notes?: string;
-  };
-};
-
-const mutation = gql`
-  mutation UpsertReptileGeneticsMutation($input: ReptileGeneticsInput!) {
-    upsertReptileGenetics(input: $input) {
-      id
-      reptile_id
-    }
-  }
-`;
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  upsertReptileGenetics,
+  LocalReptileGenetics,
+} from "@shared/local/reptileGeneticsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 const useUpsertReptileGeneticsMutation = () => {
-  return useMutation<
-    UpsertReptileGeneticsMutation,
-    UpsertReptileGeneticsVariables
-  >({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (variables: { input: Partial<LocalReptileGenetics> & { reptile_id: string } }) => {
+      return await upsertReptileGenetics(variables.input);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QueriesKeys.REPTILE_GENETICS, variables.input.reptile_id] });
+    },
   });
 };
 

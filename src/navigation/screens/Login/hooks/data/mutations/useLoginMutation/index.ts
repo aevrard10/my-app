@@ -1,27 +1,23 @@
-import useMutation from "@shared/graphql/useMutation";
-import {
-  LoginMutation,
-  LoginMutationVariables,
-} from "@shared/graphql/utils/types/types.generated";
-import { gql } from "graphql-request";
-const mutation = gql`
-  mutation LoginMutation($input: LoginInput!) {
-    login(input: $input) {
-      success
-      message
-      token
-      user {
-        id
-        username
-        email
-      }
-    }
-  }
-`;
-const useLoginMutation = () => {
-  return useMutation<LoginMutation, LoginMutationVariables>({
-    mutation,
-  });
+import { useMutation } from "@tanstack/react-query";
+
+type Variables = {
+  input: { email: string; password: string };
 };
+
+type LoginResult = {
+  login: {
+    success: boolean;
+    message?: string;
+    token?: string;
+    user?: { id: string; username: string; email: string };
+  };
+};
+
+const useLoginMutation = () =>
+  useMutation<LoginResult, Error, Variables>({
+    mutationFn: async (vars) => {
+      throw new Error("Connexion email désactivée. Utilise \"Se connecter avec Apple\".");
+    },
+  });
 
 export default useLoginMutation;

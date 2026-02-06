@@ -1,18 +1,5 @@
-import {
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
-import * as Yup from "yup";
-import useLoginMutation from "./hooks/data/mutations/useLoginMutation";
-import { Formik } from "formik";
-import { useSnackbar } from "@rn-flix/snackbar";
-import { Avatar, Button, Text, TextInput, useTheme } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "@shared/contexts/AuthContext";
-import QueriesKeys from "@shared/declarations/queriesKeys";
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Avatar, Button, Text, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
@@ -21,6 +8,7 @@ import Constants from "expo-constants";
 import ScreenNames from "@shared/declarations/screenNames";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 function handleRegistrationError(errorMessage: string) {
   alert(errorMessage);
@@ -75,23 +63,9 @@ async function registerForPushNotificationsAsync() {
   }
 }
 
-const initialValues = {
-  email: "",
-  password: "",
-};
-
-const schema = Yup.object().shape({
-  email: Yup.string().required(),
-  password: Yup.string().required(),
-});
-
 const Login = () => {
-  const { mutate, isPending } = useLoginMutation();
-  const { show } = useSnackbar();
-  const { setToken } = useAuth();
   const { navigate } = useNavigation();
   const { colors } = useTheme();
-  const [showPassword, setShowPassword] = useState(false);
   const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
@@ -133,106 +107,22 @@ const Login = () => {
               Connexion
             </Text>
             <Text variant="bodySmall" style={styles.formSubtitle}>
-              Accédez à votre suivi personnalisé.
+              Utilise ton identifiant Apple pour accéder à ReptiTrack.
             </Text>
-
-            <Formik
-              initialValues={initialValues}
-              validationSchema={schema}
-              enableReinitialize
-              onSubmit={(values, { resetForm }) => {
-                mutate(
-                  {
-                    input: {
-                      email: values.email,
-                      password: values.password,
-                      expo_token: expoPushToken,
-                    },
-                  },
-                  {
-                    onSuccess: async (data) => {
-                      resetForm();
-                      await AsyncStorage.setItem(
-                        QueriesKeys.USER_TOKEN,
-                        data?.login?.token,
-                      );
-                      setToken(data?.login?.token);
-                      show("Connexion réussi", {
-                        label: "Ok",
-                      });
-                    },
-                    onError: () => {
-                      show("Une erreur est survenue, Veuillez réessayer ...", {
-                        label: "Ok",
-                      });
-                    },
-                  },
-                );
-              }}
-            >
-              {(formik) => (
-                <View style={styles.formContainer}>
-                  <TextInput
-                    mode="outlined"
-                    keyboardType="email-address"
-                    style={styles.input}
-                    placeholder="Email"
-                    value={formik.values.email}
-                    onChangeText={formik.handleChange("email")}
-                    onBlur={formik.handleBlur("email")}
-                    error={!!formik.errors.email}
-                    left={<TextInput.Icon icon="email-outline" />}
-                  />
-                  <TextInput
-                    mode="outlined"
-                    style={styles.input}
-                    secureTextEntry={!showPassword}
-                    placeholder="Mot de passe"
-                    value={formik.values.password}
-                    onChangeText={formik.handleChange("password")}
-                    onBlur={formik.handleBlur("password")}
-                    error={!!formik.errors.password}
-                    left={<TextInput.Icon icon="lock-outline" />}
-                    right={
-                      <TextInput.Icon
-                        icon={!showPassword ? "eye-off-outline" : "eye-outline"}
-                        onPress={() => setShowPassword(!showPassword)}
-                      />
-                    }
-                  />
-
-                  <Button
-                    loading={isPending}
-                    disabled={!formik.isValid}
-                    onPress={formik.submitForm}
-                    mode="contained"
-                    contentStyle={styles.primaryButtonContent}
-                  >
-                    Se connecter
-                  </Button>
-
-                  <Button
-                    mode="text"
-                    onPress={() =>
-                      navigate(ScreenNames.FORGOT_PASSWORD as never)
-                    }
-                    style={{ marginTop: 6 }}
-                  >
-                    Mot de passe oublié ?
-                  </Button>
-                </View>
-              )}
-            </Formik>
+            <View style={{ marginTop: 16 }}>
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={
+                  AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
+                }
+                buttonStyle={
+                  AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+                }
+                cornerRadius={8}
+                style={{ width: "100%", height: 48 }}
+                onPress={() => navigate(ScreenNames.APPLE_LOGIN as never)}
+              />
+            </View>
           </CardSurface>
-
-          <View style={styles.footer}>
-            <Text variant="bodySmall" style={styles.footerText}>
-              Pas encore de compte ?
-            </Text>
-            <Button mode="text" onPress={() => navigate(ScreenNames.REGISTER)}>
-              Créer un compte
-            </Button>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

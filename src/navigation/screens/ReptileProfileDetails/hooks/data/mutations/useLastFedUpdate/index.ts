@@ -1,19 +1,20 @@
-import useMutation from "@shared/graphql/useMutation";
-import { LastFedUpdateMutation, LastFedUpdateMutationVariables } from "@shared/graphql/utils/types/types.generated";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateReptileFields } from "@shared/local/reptileStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
-import { gql } from "graphql-request";
-
-const mutation = gql`
-  mutation LastFedUpdateMutation($id: ID!, $last_fed: String!) {
-    lastFedUpdate(id: $id, last_fed: $last_fed) {
-      success
-      message
-    }
-  }
-`;
 const useLastFedUpdateMutation = () => {
-  return useMutation<LastFedUpdateMutation, LastFedUpdateMutationVariables>({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, last_fed }: { id: string; last_fed: string }) =>
+      updateReptileFields(id, { last_fed }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE, variables.id],
+      });
+    },
   });
 };
 

@@ -16,6 +16,7 @@ enum ScreenNames {
 FEED_HISTORY = "FeedHistory",
   FORGOT_PASSWORD = "ForgotPassword",
   RESET_PASSWORD = "ResetPassword",
+  APPLE_LOGIN = "AppleLogin",
 }
 
 export default ScreenNames;

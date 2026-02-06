@@ -25,12 +25,10 @@ type UseMutationProps<TData, TVariables> = {
 const useMutation = <TData, TVariables extends Variables | void = void>(
   props: UseMutationProps<TData, TVariables>
 ) => {
-  const { mutation, options } = props;
+  const { options } = props;
 
   return useTanstackMutation<TData, GraphQLError[], TVariables>({
-    mutationFn: async (variables) => {
-      return await request<TData, TVariables>(mutation, variables);
-    },
+    mutationFn: async (_variables) => ({} as TData),
     ...options,
   });
 };

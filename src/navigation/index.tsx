@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
 import ForgotPassword from "./screens/ForgotPassword";
 import ResetPassword from "./screens/ResetPassword";
+import AppleLogin from "./screens/AppleLogin";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -169,6 +170,11 @@ const MyStack = () => {
             name={ScreenNames.RESET_PASSWORD}
             component={ResetPassword}
             options={{ title: "Nouveau mot de passe" }}
+          />
+          <Stack.Screen
+            name={ScreenNames.APPLE_LOGIN}
+            component={AppleLogin}
+            options={{ title: "Apple", headerShown: false }}
           />
         </>
       ) : (

@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import QueriesKeys from "@shared/declarations/queriesKeys";
-import useCurrentTokenQuery from "@shared/hooks/queries/useCurrentTokenQuery";
 import React, {
   createContext,
   FC,

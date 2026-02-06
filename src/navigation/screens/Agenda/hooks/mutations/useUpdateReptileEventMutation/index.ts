@@ -1,18 +1,6 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
-
-type UpdateReptileEventMutation = {
-  updateReptileEvent: {
-    id: string;
-    event_name: string;
-    event_date: string;
-    event_time: string;
-    notes?: string | null;
-    recurrence_type?: string | null;
-    recurrence_interval?: number | null;
-    recurrence_until?: string | null;
-  };
-};
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { upsertReptileEvent } from "@shared/local/reptileEventsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 type UpdateReptileEventMutationVariables = {
   id: string;
@@ -27,30 +15,14 @@ type UpdateReptileEventMutationVariables = {
   };
 };
 
-const mutation = gql`
-  mutation UpdateReptileEventMutation(
-    $id: ID!
-    $input: UpdateReptileEventInput!
-  ) {
-    updateReptileEvent(id: $id, input: $input) {
-      id
-      event_name
-      event_date
-      event_time
-      notes
-      recurrence_type
-      recurrence_interval
-      recurrence_until
-    }
-  }
-`;
-
 const useUpdateReptileEventMutation = () => {
-  return useMutation<
-    UpdateReptileEventMutation,
-    UpdateReptileEventMutationVariables
-  >({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (variables: UpdateReptileEventMutationVariables) =>
+      upsertReptileEvent({ id: variables.id, ...variables.input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueriesKeys.REPTILES_EVENTS] });
+    },
   });
 };
 

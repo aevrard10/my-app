@@ -1,17 +1,10 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
-
-type AddReptileFeedingMutation = {
-  addReptileFeeding: {
-    id: string;
-    reptile_id: string;
-  };
-};
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addReptileFeeding } from "@shared/local/reptileFeedingsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 type AddReptileFeedingVariables = {
   input: {
     reptile_id: string;
-    food_id?: string;
     food_name?: string;
     quantity?: number;
     unit?: string;
@@ -20,18 +13,24 @@ type AddReptileFeedingVariables = {
   };
 };
 
-const mutation = gql`
-  mutation AddReptileFeedingMutation($input: AddReptileFeedingInput!) {
-    addReptileFeeding(input: $input) {
-      id
-      reptile_id
-    }
-  }
-`;
-
 const useAddReptileFeedingMutation = () => {
-  return useMutation<AddReptileFeedingMutation, AddReptileFeedingVariables>({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (variables: AddReptileFeedingVariables) =>
+      addReptileFeeding({
+        reptile_id: variables.input.reptile_id,
+        food_name: variables.input.food_name,
+        quantity: variables.input.quantity,
+        unit: variables.input.unit,
+        fed_at: variables.input.fed_at,
+        notes: variables.input.notes,
+        created_at: new Date().toISOString(),
+      }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE_FEEDINGS, variables.input.reptile_id],
+      });
+    },
   });
 };
 

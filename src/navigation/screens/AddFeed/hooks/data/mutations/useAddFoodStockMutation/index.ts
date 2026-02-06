@@ -1,20 +1,39 @@
-import useMutation from "@shared/graphql/useMutation";
-import {
- AddFoodStockMutation,
-  AddFoodStockMutationVariables,
-} from "@shared/graphql/utils/types/types.generated";
-import { gql } from "graphql-request";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import QueriesKeys from "@shared/declarations/queriesKeys";
+import { executeVoid } from "@shared/local/db";
 
-const mutation = gql`
-  mutation AddFoodStockMutation($input: AddFoodStockInput!) {
-    addFoodStock(input: $input) {
-      id
-    }
-  }
-`;
+type Variables = {
+  input: {
+    name: string;
+    quantity: number;
+    unit?: string | null;
+  };
+};
+
+// Stock minimal en local : on insère dans feedings avec reptile_id "stock" (sentinel)
 const useAddFoodStockMutation = () => {
-  return useMutation<AddFoodStockMutation, AddFoodStockMutationVariables>({
-    mutation,
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (variables: Variables) => {
+      const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      await executeVoid(
+        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
+         VALUES (?,?,?,?,?,?,?);`,
+        [
+          id,
+          "stock",
+          variables.input.name,
+          variables.input.quantity,
+          variables.input.unit ?? null,
+          new Date().toISOString(),
+          "stock entry",
+        ],
+      );
+      return { id };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QueriesKeys.REPTILE_FEEDINGS] });
+    },
   });
 };
 

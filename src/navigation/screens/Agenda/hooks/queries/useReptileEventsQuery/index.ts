@@ -1,26 +1,8 @@
-import { gql } from "graphql-request";
-import useQuery from "@shared/graphql/hooks/useQuery";
-import {
-  ReptileEventQuery,
-  ReptileEventQueryVariables,
-} from "@shared/graphql/utils/types/types.generated";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import dayjs from "dayjs";
+import { useQuery } from "@tanstack/react-query";
+import { getReptileEvents, LocalReptileEvent } from "@shared/local/reptileEventsStore";
 
-const query = gql`
-  query ReptileEventQuery {
-    reptileEvent {
-      id
-      event_date
-      event_name
-      event_time
-      notes
-      recurrence_type
-      recurrence_interval
-      recurrence_until
-    }
-  }
-`;
 const queryKey = [QueriesKeys.REPTILES_EVENTS];
 
 // Helper functions to format date and time
@@ -51,10 +33,8 @@ const formatTime = (time: string): string => {
 
 // Modified hook with transformation logic
 const useReptileEventsQuery = Object.assign(
-  () => {
-    return useQuery<
-      ReptileEventQuery,
-      ReptileEventQueryVariables,
+  () =>
+    useQuery<
       Record<
         string,
         {
@@ -70,36 +50,28 @@ const useReptileEventsQuery = Object.assign(
       >
     >({
       queryKey,
-      query,
-      options: {
-        select: (data: ReptileEventQuery) => {
-          // Transform the response into the desired format
-          return data?.reptileEvent?.reduce((acc, event) => {
-            const formattedDate = formatDate(event.event_date);
-            const formattedTime = formatTime(event.event_time);
-            const item = {
-              id: event?.id,
-              name: event?.event_name,
-              time: formattedTime,
-              notes: event?.notes,
-              date: formattedDate,
-              recurrence_type: event?.recurrence_type,
-              recurrence_interval: event?.recurrence_interval,
-              recurrence_until: event?.recurrence_until,
-            };
-
-            if (!acc[formattedDate]) {
-              acc[formattedDate] = [];
-            }
-            acc[formattedDate].push(item);
-
-            return acc;
-          }, {} as Record<string, { name: string; time: string }[]>);
-        },
+      queryFn: async () => {
+        const events = await getReptileEvents();
+        return events.reduce((acc, event) => {
+          const formattedDate = formatDate(event.event_date);
+          const formattedTime = formatTime(event.event_time || "");
+          const item = {
+            id: event.id,
+            name: event.event_name,
+            time: formattedTime,
+            notes: event.notes || "",
+            date: formattedDate,
+            recurrence_type: event.recurrence_type,
+            recurrence_interval: event.recurrence_interval,
+            recurrence_until: event.recurrence_until,
+          };
+          if (!acc[formattedDate]) acc[formattedDate] = [];
+          acc[formattedDate].push(item);
+          return acc;
+        }, {} as Record<string, LocalReptileEvent[]>);
       },
-    });
-  },
-  { query, queryKey }
+    }),
+  { queryKey }
 );
 
 export default useReptileEventsQuery;

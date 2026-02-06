@@ -1,32 +1,16 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteReptileFeeding } from "@shared/local/reptileFeedingsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
-type DeleteReptileFeedingMutation = {
-  deleteReptileFeeding: {
-    success: boolean;
-    message: string;
-  };
-};
-
-type DeleteReptileFeedingVariables = {
-  id: string;
-};
-
-const mutation = gql`
-  mutation DeleteReptileFeedingMutation($id: ID!) {
-    deleteReptileFeeding(id: $id) {
-      success
-      message
-    }
-  }
-`;
-
-const useDeleteReptileFeedingMutation = () => {
-  return useMutation<
-    DeleteReptileFeedingMutation,
-    DeleteReptileFeedingVariables
-  >({
-    mutation,
+const useDeleteReptileFeedingMutation = (reptileId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) => deleteReptileFeeding(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE_FEEDINGS, reptileId],
+      });
+    },
   });
 };
 

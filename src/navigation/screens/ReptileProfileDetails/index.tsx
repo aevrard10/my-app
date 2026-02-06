@@ -44,7 +44,6 @@ import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import useReptilePhotosQuery from "./hooks/data/queries/useReptilePhotosQuery";
 import useDeleteReptilePhotoMutation from "./hooks/data/mutations/useDeleteReptilePhotoMutation";
-import handleImageUpload from "@shared/utils/handleImageUpload";
 import * as ImagePicker from "expo-image-picker";
 import useReptileGeneticsQuery from "./hooks/data/queries/useReptileGeneticsQuery";
 import useUpsertReptileGeneticsMutation from "./hooks/data/mutations/useUpsertReptileGeneticsMutation";
@@ -65,10 +64,14 @@ import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
-import useQuery from "@shared/graphql/hooks/useQuery";
-import { gql } from "graphql-request";
+// import useQuery from "@shared/graphql/hooks/useQuery";
+// import { gql } from "graphql-request";
 import * as FileSystem from "expo-file-system/legacy";
 import InfoAccordion from "./components/InfoAccordion";
+import {
+  addReptilePhotoFromBase64,
+  addReptilePhotoFromUri,
+} from "@shared/local/reptilePhotosStore";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -132,15 +135,26 @@ const ReptileProfileDetails = ({ route }: Props) => {
   // Queries
   const { data: food } = useFoodQuery();
   const { data, isPending: isLoadingReptile } = useReptileQuery(id);
-  const { data: measurements, isPending } = useMeasurementsQuery(id);
+  const [feedingsLimit, setFeedingsLimit] = useState(10);
+  const [shedsLimit, setShedsLimit] = useState(10);
+  const [measurementsLimit, setMeasurementsLimit] = useState(50);
   const {
     data: genetics,
     isPending: isGeneticsLoading,
     refetch: refetchGenetics,
   } = useReptileGeneticsQuery(id);
-  const { data: feedings, refetch: refetchFeedings } =
-    useReptileFeedingsQuery(id);
-  const { data: sheds, refetch: refetchSheds } = useReptileShedsQuery(id);
+  const { data: feedings, refetch: refetchFeedings } = useReptileFeedingsQuery(
+    id,
+    feedingsLimit + 1,
+  );
+  const { data: sheds, refetch: refetchSheds } = useReptileShedsQuery(
+    id,
+    shedsLimit + 1,
+  );
+  const { data: measurements, isPending } = useMeasurementsQuery(
+    id,
+    measurementsLimit + 1,
+  );
   const {
     data: photos,
     isPending: isPhotosLoading,
@@ -161,37 +175,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
-  const exportPdfQuery = useQuery<
-    { exportReptile: { filename: string; mime: string; base64: string } },
-    { id: string; format: string }
-  >({
-    queryKey: ["exportReptile", id, "PDF"],
-    query: gql`
-      query ExportReptile($id: ID!, $format: ExportFormat!) {
-        exportReptile(id: $id, format: $format) {
-          filename
-          mime
-          base64
-        }
-      }
-    `,
-    variables: { id, format: "PDF" },
-    options: {
-      enabled: !!id,
-      staleTime: 1000 * 60 * 5,
-    },
-  });
+  const exportPdfQuery = null;
 
   // Mutations
   const { mutate } = useAddNotesMutation();
   const { mutate: updateReptile } = useUpdateReptileMutation();
-  const { mutate: deletePhoto } = useDeleteReptilePhotoMutation();
+  const { mutate: deletePhoto } = useDeleteReptilePhotoMutation(id);
   const { mutate: saveGenetics, isPending: isSavingGenetics } =
     useUpsertReptileGeneticsMutation();
   const { mutate: addShed, isPending: isAddingShed } =
     useAddReptileShedMutation();
-  const { mutate: deleteShed } = useDeleteReptileShedMutation();
-  const { mutate: deleteFeeding } = useDeleteReptileFeedingMutation();
+  const { mutate: deleteShed } = useDeleteReptileShedMutation(id);
+  const { mutate: deleteFeeding } = useDeleteReptileFeedingMutation(id);
+  const feedingsDisplay = feedings?.slice(0, feedingsLimit) ?? [];
+  const hasMoreFeedings = (feedings?.length ?? 0) > feedingsLimit;
+  const shedsDisplay = sheds?.slice(0, shedsLimit) ?? [];
+  const hasMoreSheds = (sheds?.length ?? 0) > shedsLimit;
 
   useEffect(() => {
     if (data?.notes !== undefined && data?.notes !== null) {
@@ -240,12 +239,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
         input.type = "file";
         input.accept = "image/*";
         input.onchange = async (event: any) => {
-          const file = event.target.files[0];
+          const file = event.target.files?.[0];
           if (file) {
-            await handleImageUpload(file, id, "gallery");
-            refetchPhotos();
+            const reader = new FileReader();
+            reader.onload = async () => {
+              const result = reader.result as string;
+              const base64 = result.includes(",")
+                ? result.split(",")[1]
+                : result;
+              await addReptilePhotoFromBase64(id, base64);
+              refetchPhotos();
+              setIsUploadingPhoto(false);
+            };
+            reader.readAsDataURL(file);
+          } else {
+            setIsUploadingPhoto(false);
           }
-          setIsUploadingPhoto(false);
         };
         input.click();
         return;
@@ -258,7 +267,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       });
 
       if (!result.canceled && result.assets?.[0]?.uri) {
-        await handleImageUpload({ uri: result.assets[0].uri }, id, "gallery");
+        await addReptilePhotoFromUri(id, result.assets[0].uri);
         refetchPhotos();
       }
     } catch (error) {
@@ -596,34 +605,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     })
                   }
                   onExportPdf={() => {
-                    if (exportPdfQuery.data?.exportReptile) {
-                      const { base64, filename, mime } =
-                        exportPdfQuery.data.exportReptile;
-                      if (Platform.OS === "web") {
-                        const link = document.createElement("a");
-                        link.href = `data:${mime};base64,${base64}`;
-                        link.download = filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      } else {
-                        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
-                        const encoding: any =
-                          (FileSystem as any).EncodingType?.Base64 || "base64";
-                        FileSystem.writeAsStringAsync(fileUri, base64, {
-                          encoding,
-                        })
-                          .then(() => Sharing.shareAsync(fileUri))
-                          .catch((e) => {
-                            console.log(e);
-
-                            show("Impossible de partager le PDF");
-                          });
-                      }
-                    } else {
-                      exportPdfQuery.refetch();
-                      show("Génération PDF... réessaie dans un instant");
-                    }
+                    show(
+                      "Export PDF désactivé en mode local-first. (À réactiver si un backend de génération est disponible.)",
+                    );
                   }}
                 />
 
@@ -752,11 +736,15 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 />
 
                 <HistorySection
-                  feedings={feedings}
-                  sheds={sheds}
+                  feedings={feedingsDisplay}
+                  sheds={shedsDisplay}
                   onDeleteFeeding={confirmDeleteFeeding}
                   onDeleteShed={confirmDeleteShed}
                   onAddShed={() => setShowShedModal(true)}
+                  hasMoreFeedings={hasMoreFeedings}
+                  hasMoreSheds={hasMoreSheds}
+                  onLoadMoreFeedings={() => setFeedingsLimit((l) => l + 10)}
+                  onLoadMoreSheds={() => setShedsLimit((l) => l + 10)}
                 />
 
                 <GeneticsSection

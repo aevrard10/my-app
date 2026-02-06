@@ -32,6 +32,7 @@ const useGetNotificationsQuery = Object.assign(
       queryKey,
       query,
       options: {
+        initialData: { getNotifications: [] } as any,
         select: (data) => {
           return data?.getNotifications;
         },

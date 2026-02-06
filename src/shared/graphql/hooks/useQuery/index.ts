@@ -34,17 +34,12 @@ const useQuery = <
 >(
   props: UseQueryProps<TQueryFnData, TVariables, TData>
 ) => {
-  const { queryKey, query, variables, options } = props;
-
+  const { queryKey, options } = props as any;
   return useTanstackQuery<TQueryFnData, GraphQLError[], TData>({
-    queryKey: queryKey,
-    queryFn: async () =>
-      await request<TQueryFnData, TVariables>({
-        query,
-        variables,
-      }),
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5,
+    queryKey,
+    queryFn: async () => ({} as TQueryFnData),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
     ...options,
   });
 };

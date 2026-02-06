@@ -9,7 +9,7 @@ import {
 import { Image, StyleSheet, View } from "react-native";
 import { FC, useCallback, useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Reptile } from "@shared/graphql/utils/types/types.generated";
+import { Reptile } from "@shared/local/reptileStore";
 import useRemoveReptileMutation from "../../hooks/mutations/useRemoveReptile";
 import { useQueryClient } from "@tanstack/react-query";
 import useReptilesQuery from "../../hooks/queries/useReptilesQuery";

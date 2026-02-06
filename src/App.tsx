@@ -16,6 +16,8 @@ import { useFonts } from "expo-font";
 import queryClient from "@shared/graphql/utils/queryClient";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "sentry-expo";
+import { runMigrations } from "@shared/local/db";
+import { runAsyncStorageMigration } from "@shared/local/migrations/asyncStorageMigration";
 
 // Sentry (Expo wrapper) — single init
 Sentry.init({
@@ -84,6 +86,13 @@ const App: React.FC = () => {
   >(undefined);
   const notificationListener = React.useRef<Notifications.EventSubscription>();
   const responseListener = React.useRef<Notifications.EventSubscription>();
+
+  React.useEffect(() => {
+    (async () => {
+      await runMigrations();
+      await runAsyncStorageMigration();
+    })();
+  }, []);
 
   React.useEffect(() => {
     if (fontsLoaded) {

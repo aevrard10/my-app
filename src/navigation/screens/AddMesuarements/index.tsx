@@ -63,7 +63,7 @@ const {navigate} = useNavigation();
           {
             onSuccess: () => {
               queryClient.invalidateQueries({
-                queryKey: useMeasurementsQuery.queryKey,
+                queryKey: [...useMeasurementsQuery.queryKey, id],
               });
 
               show("Mesures ajoutées avec succès!");

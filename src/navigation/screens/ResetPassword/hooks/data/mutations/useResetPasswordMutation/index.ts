@@ -1,27 +1,15 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
+import { useMutation } from "@tanstack/react-query";
 
-const mutation = gql`
-  mutation ResetPassword($input: ResetPasswordInput!) {
-    resetPassword(input: $input) {
-      success
-      message
-      token
-      user {
-        id
-        email
-        username
-      }
-    }
-  }
-`;
+type Variables = { token: string; password: string };
+type Result = { resetPassword: { success: boolean; message?: string } };
 
-const useResetPasswordMutation = () => {
-  return useMutation<any, { input: { token: string; newPassword: string } }>(
-    {
-      mutation,
-    }
-  );
-};
+const useResetPasswordMutation = () =>
+  useMutation<Result, Error, Variables>({
+    mutationFn: async () => {
+      throw new Error(
+        "Réinitialisation par email désactivée. Connexion via Apple uniquement.",
+      );
+    },
+  });
 
 export default useResetPasswordMutation;

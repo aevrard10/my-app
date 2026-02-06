@@ -1,12 +1,6 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
-
-type AddReptileShedMutation = {
-  addReptileShed: {
-    id: string;
-    reptile_id: string;
-  };
-};
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addReptileShed } from "@shared/local/reptileShedsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
 type AddReptileShedVariables = {
   input: {
@@ -16,18 +10,21 @@ type AddReptileShedVariables = {
   };
 };
 
-const mutation = gql`
-  mutation AddReptileShedMutation($input: AddReptileShedInput!) {
-    addReptileShed(input: $input) {
-      id
-      reptile_id
-    }
-  }
-`;
-
 const useAddReptileShedMutation = () => {
-  return useMutation<AddReptileShedMutation, AddReptileShedVariables>({
-    mutation,
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (variables: AddReptileShedVariables) =>
+      addReptileShed({
+        reptile_id: variables.input.reptile_id,
+        shed_date: variables.input.shed_date,
+        notes: variables.input.notes,
+        created_at: new Date().toISOString(),
+      }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE_SHEDS, variables.input.reptile_id],
+      });
+    },
   });
 };
 

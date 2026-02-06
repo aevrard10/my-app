@@ -1,32 +1,17 @@
-import useMutation from "@shared/graphql/useMutation";
-import { gql } from "graphql-request";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteReptileShed } from "@shared/local/reptileShedsStore";
+import QueriesKeys from "@shared/declarations/queriesKeys";
 
-type DeleteReptileShedMutation = {
-  deleteReptileShed: {
-    success: boolean;
-    message: string;
-  };
-};
-
-type DeleteReptileShedVariables = {
-  id: string;
-};
-
-const mutation = gql`
-  mutation DeleteReptileShedMutation($id: ID!) {
-    deleteReptileShed(id: $id) {
-      success
-      message
-    }
-  }
-`;
-
-const useDeleteReptileShedMutation = () => {
-  return useMutation<
-    DeleteReptileShedMutation,
-    DeleteReptileShedVariables
-  >({
-    mutation,
+const useDeleteReptileShedMutation = (reptileId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, shed_date }: { id: string; shed_date: string }) =>
+      deleteReptileShed(id, shed_date, reptileId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE_SHEDS, reptileId],
+      });
+    },
   });
 };
 
