@@ -129,11 +129,6 @@ const Agenda = () => {
         enableReinitialize
         initialValues={initialValues}
         onSubmit={(values, { resetForm }) => {
-          if (!values.event_date) {
-            show("La date est obligatoire.", { label: "Ok" });
-            return;
-          }
-
           mutate(
             {
               input: {
@@ -149,13 +144,12 @@ const Agenda = () => {
             {
               onSuccess: () => {
                 resetForm();
-                setInputDate(new Date());
 
                 queryClient.invalidateQueries({
                   queryKey: useReptileEventsQuery.queryKey,
                 });
                 setAddEvent(false);
-                show("Événement ajouté avec succès !", {
+                show("Reptile ajouté avec succès !", {
                   label: "Ok",
                 });
               },
@@ -177,8 +171,9 @@ const Agenda = () => {
               contentContainerStyle={{
                 backgroundColor: colors.surface,
                 marginHorizontal: 20,
-                padding: 20,
-                gap: 10,
+                padding: 18,
+                // gap: 10,
+                borderRadius: 50,
               }}
             >
               <Appbar.Header
