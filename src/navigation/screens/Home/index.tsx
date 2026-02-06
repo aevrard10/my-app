@@ -68,7 +68,7 @@ const Home = () => {
   const summaryError = error;
   const healthAlerts = data?.events_today ?? []; // summary?.health_alerts
   const { mutate: logout } = useLogoutMutation();
-
+  
   const upcomingEvents = summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
