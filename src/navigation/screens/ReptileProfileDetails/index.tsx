@@ -65,7 +65,8 @@ import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
-import useExportReptileQuery from "./hooks/data/queries/useExportReptileQuery";
+import useQuery from "@shared/graphql/hooks/useQuery";
+import { gql } from "graphql-request";
 
 type Props = StaticScreenProps<{
   id: string;
@@ -141,8 +142,23 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
-  const exportCsvQuery = useExportReptileQuery(id, "CSV");
-  const exportPdfQuery = useExportReptileQuery(id, "PDF");
+  const exportPdfQuery = useQuery<{ exportReptile: { filename: string; mime: string; base64: string } }, { id: string; format: string }>({
+    queryKey: ["exportReptile", id, "PDF"],
+    query: gql`
+      query ExportReptile($id: ID!, $format: ExportFormat!) {
+        exportReptile(id: $id, format: $format) {
+          filename
+          mime
+          base64
+        }
+      }
+    `,
+    variables: { id, format: "PDF" },
+    options: {
+      enabled: !!id,
+      staleTime: 1000 * 60 * 5,
+    },
+  });
 
   // Mutations
   const { mutate } = useAddNotesMutation();
@@ -584,28 +600,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       handleSharePhoto(photos[0]);
                     } else {
                       show("Ajoutez une photo pour partager la fiche");
-                    }
-                  }}
-                  onExportCsv={() => {
-                    if (exportCsvQuery.data?.exportReptile) {
-                      const { base64, filename, mime } =
-                        exportCsvQuery.data.exportReptile;
-                      if (Platform.OS === "web") {
-                        const link = document.createElement("a");
-                        link.href = `data:${mime};base64,${base64}`;
-                        link.download = filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      } else {
-                        Sharing.shareAsync(`data:${mime};base64,${base64}`, {
-                          dialogTitle: filename,
-                          mimeType: mime,
-                        });
-                      }
-                    } else {
-                      exportCsvQuery.refetch();
-                      show("Génération CSV... réessaie dans un instant");
                     }
                   }}
                   onExportPdf={() => {

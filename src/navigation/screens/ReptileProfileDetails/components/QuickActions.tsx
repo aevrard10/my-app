@@ -11,7 +11,6 @@ type QuickActionsProps = {
   onQuickFeed: () => void;
   loadingQuickFeed?: boolean;
   onShare?: () => void;
-  onExportCsv?: () => void;
   onExportPdf?: () => void;
 };
 
@@ -22,7 +21,6 @@ const QuickActions = ({
   onQuickFeed,
   loadingQuickFeed,
   onShare,
-  onExportCsv,
   onExportPdf,
 }: QuickActionsProps) => {
   const { colors } = useTheme();
@@ -86,18 +84,6 @@ const QuickActions = ({
             labelStyle={styles.actionLabel}
           >
             Partager la fiche
-          </Button>
-        )}
-        {onExportCsv && (
-          <Button
-            mode="outlined"
-            icon="file-delimited"
-            onPress={onExportCsv}
-            style={[styles.action, styles.actionWide]}
-            contentStyle={styles.actionContent}
-            labelStyle={styles.actionLabel}
-          >
-            Export CSV
           </Button>
         )}
         {onExportPdf && (
