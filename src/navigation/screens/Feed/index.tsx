@@ -22,19 +22,21 @@ const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
+  console.log("Stock data:", data); // Log pour vérifier les données du stock
   const { data: usageData, isPending: isUsageLoading } = useQuery({
     queryKey: ["stock-forecast"],
     queryFn: async () => {
       // consommation des 30 derniers jours sur les reptiles (hors stock)
       const rows = await execute(
         `SELECT food_name as name,
+                type,
                 ABS(SUM(quantity)) as qty_30d
          FROM feedings
          WHERE reptile_id <> 'stock'
            AND fed_at >= date('now','-30 day')
-         GROUP BY food_name;`,
+         GROUP BY food_name, type;`,
       );
-      return rows as { name: string; qty_30d: number }[];
+      return rows as { name: string; qty_30d: number; type: string | null }[];
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -43,22 +45,34 @@ const Feed = () => {
       name: string;
       delta: number;
       unit?: string | null;
+      type?: string | null;
     }) => {
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       await executeVoid(
-        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
-         VALUES (?,?,?,?,?,?,?);`,
+        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, type, fed_at, notes)
+         VALUES (?,?,?,?,?,?,?,?);`,
         [
           id,
           "stock",
           vars.name,
           vars.delta,
           vars.unit ?? null,
+          vars.type ?? null,
           new Date().toISOString(),
           "stock update",
         ],
       );
       return { id };
+    },
+  });
+  const deleteStockMutation = useMutation({
+    mutationFn: async (vars: { name: string; unit?: string | null; type?: string | null }) => {
+      // Supprime toutes les entrées stock pour cet aliment (même type/unit)
+      await executeVoid(
+        `DELETE FROM feedings WHERE reptile_id='stock' AND food_name=? AND (unit IS ? OR unit=?) AND (type IS ? OR type=?)`,
+        [vars.name, vars.unit ?? null, vars.unit ?? null, vars.type ?? null, vars.type ?? null],
+      );
+      return { success: true };
     },
   });
   const { show } = useSnackbar();
@@ -75,15 +89,16 @@ const Feed = () => {
     const items = data ?? [];
     const usage = usageData ?? [];
     return items.map((item) => {
-      const usageItem = usage.find((u) => u.name === item.name);
+      const usageItem = usage.find(
+        (u) => u.name === item.name && (u.type ?? null) === (item.type ?? null),
+      );
       const daily = usageItem ? usageItem.qty_30d / 30 : 0;
       const rawDays = daily > 0 ? item.quantity / daily : Infinity;
       const daysLeft =
-        rawDays === Infinity
-          ? Infinity
-          : Math.max(0, Math.ceil(rawDays)); // arrondi supérieur
+        rawDays === Infinity ? Infinity : Math.max(0, Math.ceil(rawDays)); // arrondi supérieur
       return {
         name: item.name,
+        type: item.type ?? null,
         daysLeft,
         quantity: item.quantity,
         unit: item.unit,
@@ -99,9 +114,14 @@ const Feed = () => {
 
   const queryClient = useQueryClient();
   const handleUpdateStock = useCallback(
-    (name: string, delta: number, unit?: string | null) => {
+    (
+      name: string,
+      delta: number,
+      unit?: string | null,
+      type?: string | null,
+    ) => {
       updateStockMutation.mutate(
-        { name, delta, unit },
+        { name, delta, unit, type },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
@@ -121,6 +141,22 @@ const Feed = () => {
     },
     [updateStockMutation, queryClient, show],
   );
+  const handleDeleteStock = useCallback(
+    (name: string, unit?: string | null, type?: string | null) => {
+      deleteStockMutation.mutate(
+        { name, unit, type },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: useFoodQuery.queryKey });
+            queryClient.invalidateQueries({ queryKey: useFoodStockHistoryQuery.queryKey });
+            show("Aliment supprimé");
+          },
+          onError: () => show("Impossible de supprimer cet aliment"),
+        },
+      );
+    },
+    [deleteStockMutation, queryClient, show],
+  );
 
   return (
     <Screen>
@@ -139,6 +175,9 @@ const Feed = () => {
               food={item}
               isLoading={updateStockMutation.isPending}
               handleUpdateStock={handleUpdateStock}
+              handleDelete={(name, unit, type) =>
+                handleDeleteStock(name, unit, type)
+              }
               colors={colors}
             />
           )
@@ -146,20 +185,26 @@ const Feed = () => {
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
           <>
-            <CardSurface style={{ marginTop: 4, marginBottom: 12 }}>
+            <CardSurface
+              style={{ marginTop: 4, marginBottom: 12, padding: 12 }}
+            >
               <Text variant="titleLarge">Stock alimentaire</Text>
-
               <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
                 Ajustez rapidement les quantités et suivez l&apos;historique.
               </Text>
             </CardSurface>
-            <CardSurface style={{ marginBottom: 12 }}>
-              <List.Section>
+
+            <CardSurface style={{ marginBottom: 12, paddingVertical: 0 }}>
+              <List.Section style={{ margin: 0 }}>
                 <List.Accordion
                   title="Actions rapides"
-                  left={(props) => <List.Icon {...props} icon="lightning-bolt" />}
+                  titleStyle={{ fontWeight: "700" }}
+                  style={{ backgroundColor: colors.surfaceVariant }}
+                  left={(props) => (
+                    <List.Icon {...props} icon="lightning-bolt" />
+                  )}
                 >
-                  <View style={{ flexDirection: "row", gap: 10, padding: 8 }}>
+                  <View style={{ flexDirection: "row", gap: 10, padding: 12 }}>
                     <View
                       style={{
                         flex: 1,
@@ -169,9 +214,17 @@ const Feed = () => {
                         backgroundColor: colors.secondaryContainer,
                       }}
                     >
-                      <Icon source="archive" size={16} color={colors.secondary} />
+                      <Icon
+                        source="archive"
+                        size={16}
+                        color={colors.secondary}
+                      />
                       {isFoodLoading ? (
-                        <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                        <Skeleton
+                          height={18}
+                          width={36}
+                          style={{ marginTop: 6 }}
+                        />
                       ) : (
                         <Text variant="titleMedium" style={{ marginTop: 6 }}>
                           {stockStats.total}
@@ -192,7 +245,11 @@ const Feed = () => {
                     >
                       <Icon source="alert" size={16} color={colors.primary} />
                       {isFoodLoading ? (
-                        <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                        <Skeleton
+                          height={18}
+                          width={36}
+                          style={{ marginTop: 6 }}
+                        />
                       ) : (
                         <Text variant="titleMedium" style={{ marginTop: 6 }}>
                           {stockStats.lowStock}
@@ -207,12 +264,18 @@ const Feed = () => {
 
                 <List.Accordion
                   title="Prévision stock (30 jours)"
+                  titleStyle={{ fontWeight: "700" }}
+                  style={{ backgroundColor: colors.surfaceVariant }}
                   left={(props) => <List.Icon {...props} icon="chart-line" />}
                 >
                   {isFoodLoading || isUsageLoading ? (
-                    <Skeleton height={18} width={120} style={{ marginTop: 8 }} />
+                    <Skeleton
+                      height={18}
+                      width={120}
+                      style={{ marginTop: 8 }}
+                    />
                   ) : forecast.length === 0 ? (
-                    <Text style={{ opacity: 0.7, marginTop: 6, padding: 8 }}>
+                    <Text style={{ opacity: 0.7, marginTop: 6, padding: 12 }}>
                       Pas assez de données de consommation pour prévoir.
                     </Text>
                   ) : (
@@ -223,8 +286,10 @@ const Feed = () => {
                           flexDirection: "row",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          paddingVertical: 6,
-                          paddingHorizontal: 8,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderBottomWidth: 0.5,
+                          borderColor: colors.outlineVariant,
                         }}
                       >
                         <View style={{ flex: 1 }}>
@@ -241,15 +306,15 @@ const Feed = () => {
                               f.daysLeft === Infinity
                                 ? colors.outline
                                 : f.daysLeft <= 7
-                                ? colors.error
-                                : colors.primary,
+                                  ? colors.error
+                                  : colors.primary,
                           }}
                         >
                           {f.daysLeft === Infinity
                             ? "—"
                             : f.daysLeft > 60
-                            ? ">60 j"
-                            : `${f.daysLeft} j`}
+                              ? ">60 j"
+                              : `${f.daysLeft} j`}
                         </Text>
                       </View>
                     ))

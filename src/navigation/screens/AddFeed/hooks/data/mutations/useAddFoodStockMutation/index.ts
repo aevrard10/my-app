@@ -7,6 +7,7 @@ type Variables = {
     name: string;
     quantity: number;
     unit?: string | null;
+    type?: string | null;
   };
 };
 
@@ -17,14 +18,15 @@ const useAddFoodStockMutation = () => {
     mutationFn: async (variables: Variables) => {
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       await executeVoid(
-        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
-         VALUES (?,?,?,?,?,?,?);`,
+        `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, type, fed_at, notes)
+         VALUES (?,?,?,?,?,?,?,?);`,
         [
           id,
           "stock",
           variables.input.name,
           variables.input.quantity,
           variables.input.unit ?? null,
+          variables.input.type ?? null,
           new Date().toISOString(),
           "stock entry",
         ],

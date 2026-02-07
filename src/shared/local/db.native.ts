@@ -82,6 +82,7 @@ export const runMigrations = async () => {
       food_name TEXT,
       quantity REAL,
       unit TEXT,
+      type TEXT,
       fed_at TEXT NOT NULL,
       notes TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -124,4 +125,10 @@ export const runMigrations = async () => {
     CREATE INDEX IF NOT EXISTS idx_events_reptile_date ON events(reptile_id, event_date);
     CREATE INDEX IF NOT EXISTS idx_events_type_date ON events(event_name, event_date);
   `);
+  // Ajout colonne type si base existante
+  try {
+    await db.execAsync(`ALTER TABLE feedings ADD COLUMN type TEXT;`);
+  } catch (e) {
+    // ignore si déjà ajoutée
+  }
 };
