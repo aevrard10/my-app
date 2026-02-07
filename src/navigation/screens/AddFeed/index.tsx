@@ -31,6 +31,7 @@ const schema = Yup.object().shape({
     .typeError("La quantité doit être un nombre")
     .required("Quantité requise")
     .min(1, "La quantité doit être au moins de 1"),
+  type: Yup.string().nullable(),
 });
 
 const AddFeed = () => {
@@ -50,7 +51,14 @@ const AddFeed = () => {
           validationSchema={schema}
           onSubmit={(values) => {
             addFoodStock(
-              { input: values },
+              {
+                input: {
+                  name: values.name,
+                  quantity: Number(values.quantity),
+                  unit: null,
+                  type: values.type || null,
+                },
+              },
               {
                 onSuccess: () => {
                   queryClient.invalidateQueries({
@@ -62,7 +70,7 @@ const AddFeed = () => {
                 onError: () => {
                   show("Une erreur s'est produite");
                 },
-              }
+              },
             );
           }}
         >
@@ -173,7 +181,7 @@ const AddFeed = () => {
                       const number = parseInt(text, 10);
                       formik.setFieldValue(
                         "quantity",
-                        isNaN(number) ? "" : number
+                        isNaN(number) ? "" : number,
                       );
                     }}
                     style={styles.input}

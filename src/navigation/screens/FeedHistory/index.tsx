@@ -36,26 +36,30 @@ const FeedHistory = () => {
           </CardSurface>
         }
         renderItem={({ item: food }) => {
-          const formattedDate = food.date
-            ? new Date(Number(food.date)).toLocaleDateString("fr-FR", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-              })
-            : "Date non disponible";
+          const parsed = food.date ? new Date(food.date) : null;
+          const formattedDate =
+            parsed && !Number.isNaN(parsed.getTime())
+              ? parsed.toLocaleDateString("fr-FR", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                })
+              : "Date non disponible";
           console.log("Food item:", food);
           return (
             <View style={{ marginVertical: 10 }} key={food.id}>
               <Card style={{ borderRadius: 18, overflow: "hidden" }}>
                 <Card.Title
                   title={formattedDate}
-                  subtitle={food.reason}
+                  subtitle={
+                    food.type ? `${food.reason} · ${food.type}` : food.reason
+                  }
                   left={({ size }) => (
                     <Avatar.Icon
                       size={size}
-                      icon={getFoodIcon(food.reason)}
+                      icon={getFoodIcon(food.type || food.reason)}
                       color="#fff"
                     />
                   )}
@@ -68,13 +72,13 @@ const FeedHistory = () => {
                       textStyle={{ color: "#fff", fontWeight: "bold" }}
                       icon={() => (
                         <Icon
-                          source={getFoodIcon("")}
+                          source={getFoodIcon(food.type || food.reason)}
                           size={16}
                           color="white"
                         />
                       )}
                     >
-                      {food.quantity_change} {"pcs"}
+                      {food.quantity_change} {food.unit || "pcs"}
                     </Chip>
                   )}
                 />

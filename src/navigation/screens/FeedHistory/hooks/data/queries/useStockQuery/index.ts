@@ -8,6 +8,7 @@ type StockHistoryItem = {
   reason: string;
   quantity_change: number;
   unit?: string | null;
+  type?: string | null;
 };
 
 const queryKey = [QueriesKeys.STOCK_HISTORY];
@@ -22,7 +23,8 @@ const useFoodStockHistoryQuery = Object.assign(
                   fed_at AS date,
                   food_name AS reason,
                   quantity AS quantity_change,
-                  unit
+                  unit,
+                  type
            FROM feedings
            WHERE reptile_id = 'stock'
            ORDER BY fed_at DESC

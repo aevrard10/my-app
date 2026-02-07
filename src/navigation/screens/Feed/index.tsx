@@ -22,7 +22,6 @@ const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
-  console.log("Stock data:", data); // Log pour vérifier les données du stock
   const { data: usageData, isPending: isUsageLoading } = useQuery({
     queryKey: ["stock-forecast"],
     queryFn: async () => {
@@ -66,11 +65,21 @@ const Feed = () => {
     },
   });
   const deleteStockMutation = useMutation({
-    mutationFn: async (vars: { name: string; unit?: string | null; type?: string | null }) => {
+    mutationFn: async (vars: {
+      name: string;
+      unit?: string | null;
+      type?: string | null;
+    }) => {
       // Supprime toutes les entrées stock pour cet aliment (même type/unit)
       await executeVoid(
         `DELETE FROM feedings WHERE reptile_id='stock' AND food_name=? AND (unit IS ? OR unit=?) AND (type IS ? OR type=?)`,
-        [vars.name, vars.unit ?? null, vars.unit ?? null, vars.type ?? null, vars.type ?? null],
+        [
+          vars.name,
+          vars.unit ?? null,
+          vars.unit ?? null,
+          vars.type ?? null,
+          vars.type ?? null,
+        ],
       );
       return { success: true };
     },
@@ -148,7 +157,9 @@ const Feed = () => {
         {
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: useFoodQuery.queryKey });
-            queryClient.invalidateQueries({ queryKey: useFoodStockHistoryQuery.queryKey });
+            queryClient.invalidateQueries({
+              queryKey: useFoodStockHistoryQuery.queryKey,
+            });
             show("Aliment supprimé");
           },
           onError: () => show("Impossible de supprimer cet aliment"),
