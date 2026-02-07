@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { Text, useTheme, Avatar } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
 
 type AgendaItemProps = {
@@ -8,6 +8,8 @@ type AgendaItemProps = {
     name: string;
     time: string;
     notes: string;
+    reptile_name?: string | null;
+    reptile_image_url?: string | null;
   };
 };
 
@@ -20,14 +22,18 @@ const AgendaItem: FC<AgendaItemProps> = (props) => {
   return (
     <CardSurface style={styles.card}>
       <View style={styles.row}>
-        <View style={[styles.dot, { backgroundColor: colors.tertiary }]} />
+        {item.reptile_image_url ? (
+          <Avatar.Image size={40} source={{ uri: item.reptile_image_url }} />
+        ) : (
+          <Avatar.Icon size={40} icon="turtle" />
+        )}
         <View style={styles.titleBlock}>
           <Text style={styles.title} numberOfLines={1} variant="titleMedium">
             {item?.name}
           </Text>
-          {item?.notes ? (
+          {item?.reptile_name ? (
             <Text numberOfLines={1} style={styles.notesInline} variant="labelSmall">
-              {item.notes}
+              {item.reptile_name}
             </Text>
           ) : null}
         </View>

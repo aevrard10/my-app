@@ -19,7 +19,11 @@ const FeedHistory = () => {
       <FlatList
         data={isInitialLoading ? [] : data}
         ListEmptyComponent={
-          isInitialLoading ? <FeedHistorySkeleton /> : <ListEmptyComponent isLoading={isPending} />
+          isInitialLoading ? (
+            <FeedHistorySkeleton />
+          ) : (
+            <ListEmptyComponent isLoading={isPending} />
+          )
         }
         contentContainerStyle={{ paddingBottom: 40 }}
         keyExtractor={(item) => String(item.id)}
@@ -41,7 +45,7 @@ const FeedHistory = () => {
                 minute: "numeric",
               })
             : "Date non disponible";
-
+          console.log("Food item:", food);
           return (
             <View style={{ marginVertical: 10 }} key={food.id}>
               <Card style={{ borderRadius: 18, overflow: "hidden" }}>
@@ -51,7 +55,7 @@ const FeedHistory = () => {
                   left={({ size }) => (
                     <Avatar.Icon
                       size={size}
-                      icon={getFoodIcon("")}
+                      icon={getFoodIcon(food.reason)}
                       color="#fff"
                     />
                   )}

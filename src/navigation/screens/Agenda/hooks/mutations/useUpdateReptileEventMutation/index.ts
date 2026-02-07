@@ -12,6 +12,9 @@ type UpdateReptileEventMutationVariables = {
     recurrence_type?: string | null;
     recurrence_interval?: number | null;
     recurrence_until?: string | null;
+    reptile_id?: string | null;
+    reptile_name?: string | null;
+    reptile_image_url?: string | null;
   };
 };
 
@@ -20,8 +23,9 @@ const useUpdateReptileEventMutation = () => {
   return useMutation({
     mutationFn: (variables: UpdateReptileEventMutationVariables) =>
       upsertReptileEvent({ id: variables.id, ...variables.input }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QueriesKeys.REPTILES_EVENTS] });
+      return data;
     },
   });
 };

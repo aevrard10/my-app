@@ -1,5 +1,4 @@
-import { gql } from "graphql-request";
-import useQuery from "@shared/graphql/hooks/useQuery";
+import { useQuery } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 
 export type GoveeReading = {
@@ -9,42 +8,56 @@ export type GoveeReading = {
   retrieved_at: string;
 };
 
-type GoveeStateResponse = {
-  goveeDeviceState: GoveeReading;
-};
+const fetchState = async (
+  apiKey: string,
+  device: string,
+  model: string,
+): Promise<GoveeReading | null> => {
+  const url = new URL(
+    "https://openapi.api.govee.com/router/api/v1/device/state",
+  );
+  url.searchParams.set("device", device);
+  url.searchParams.set("model", model);
 
-const query = gql`
-  query GoveeDeviceState($apiKey: String!, $device: String!, $model: String!) {
-    goveeDeviceState(apiKey: $apiKey, device: $device, model: $model) {
-      temperature
-      humidity
-      battery
-      retrieved_at
-    }
-  }
-`;
+  const res = await fetch(url.toString(), {
+    headers: {
+      "Content-Type": "application/json",
+      "Govee-API-Key": apiKey,
+    },
+  });
+
+  if (!res.ok) throw new Error(`Govee state ${res.status}`);
+  const json = await res.json();
+  const prop = json.data?.properties ?? [];
+
+  const tempObj = prop.find((p: any) => p?.temperature?.value !== undefined);
+  const humObj = prop.find((p: any) => p?.humidity?.value !== undefined);
+  const battObj = prop.find((p: any) => p?.battery?.value !== undefined);
+
+  const temperature = tempObj?.temperature?.value ?? null;
+  const humidity = humObj?.humidity?.value ?? null;
+  const battery = battObj?.battery?.value ?? null;
+
+  return {
+    temperature,
+    humidity,
+    battery,
+    retrieved_at: new Date().toISOString(),
+  };
+};
 
 const useGoveeDeviceStateQuery = (
   apiKey?: string,
   device?: string,
-  model?: string
+  model?: string,
 ) => {
   const enabled = Boolean(apiKey && device && model);
-  return useQuery<GoveeStateResponse, { apiKey: string; device: string; model: string }, GoveeReading | null>(
-    {
-      queryKey: [QueriesKeys.GOVEE_STATE, apiKey, device, model],
-      query,
-      variables: {
-        apiKey: apiKey || "",
-        device: device || "",
-        model: model || "",
-      },
-      options: {
-        enabled,
-        select: (data) => data?.goveeDeviceState ?? null,
-      },
-    }
-  );
+  return useQuery<GoveeReading | null>({
+    queryKey: [QueriesKeys.GOVEE_STATE, apiKey, device, model],
+    enabled,
+    staleTime: 1000 * 60 * 2,
+    queryFn: () => fetchState(apiKey || "", device || "", model || ""),
+  });
 };
 
 export default useGoveeDeviceStateQuery;

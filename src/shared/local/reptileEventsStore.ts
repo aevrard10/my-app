@@ -14,6 +14,9 @@ export type LocalReptileEvent = {
   recurrence_type?: string | null; // NONE/DAILY/WEEKLY/MONTHLY
   recurrence_interval?: number | null;
   recurrence_until?: string | null; // YYYY-MM-DD
+  reptile_id?: string | null;
+  reptile_name?: string | null;
+  reptile_image_url?: string | null;
 };
 
 const monthFromDate = (date: string) => {
@@ -94,6 +97,9 @@ export const upsertReptileEvent = async (
     recurrence_type: input.recurrence_type ?? "NONE",
     recurrence_interval: input.recurrence_interval ?? 1,
     recurrence_until: input.recurrence_until ?? "",
+    reptile_id: input.reptile_id ?? null,
+    reptile_name: input.reptile_name ?? null,
+    reptile_image_url: input.reptile_image_url ?? null,
   };
   const idx = bucket.findIndex((e) => e.id === id);
   if (idx >= 0) {

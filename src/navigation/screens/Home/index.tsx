@@ -24,57 +24,27 @@ import {
 } from "react-native-paper";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
 
   const { data, isPending, isLoading, error } = useDashboardSummaryQuery();
-  console.log(
-    "Dashboard summary data:",
-    data,
-    "Loading:",
-    isLoading,
-    "Error:",
-    error,
-  );
-  //   queryKey: ["home-summary"],
-  //   queryFn: async () => {
-  //     const reptiles = await getReptiles();
-  //     const events = await getReptileEvents();
-  //     const today = dayjs().format("YYYY-MM-DD");
-  //     const eventsToday = events.filter(
-  //       (e) => dayjs(e.event_date).format("YYYY-MM-DD") === today,
-  //     );
-  //     const upcomingEvents = events
-  //       .filter((e) => dayjs(e.event_date).isSameOrAfter(dayjs()))
-  //       .sort(
-  //         (a, b) =>
-  //           dayjs(a.event_date).valueOf() - dayjs(b.event_date).valueOf(),
-  //       )
-  //       .slice(0, 5);
-  //     return {
-  //       reptiles_count: reptiles.length,
-  //       events_today: eventsToday.length,
-  //       unread_notifications: 0,
-  //       upcoming_events: upcomingEvents,
-  //       health_alerts: [],
-  //     };
-  //   },
-  //   staleTime: 1000 * 60 * 5,
-  // });
+  const { data: healthAlerts } = useHealthAlertsQuery();
+
   const summary = data;
   const isSummaryLoading = isPending || isLoading;
   const summaryError = error;
-  const healthAlerts = data?.events_today ?? []; // summary?.health_alerts
+
   const { mutate: logout } = useLogoutMutation();
-  
+
   const upcomingEvents = summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
   const unreadNotifications = summary?.unread_notifications ?? 0;
-  const alertsCount = 0;
-  // healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
+  const alertsCount =
+    healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
   const usefulLinks = [
     {
       label: "INPN (MNHN)",
@@ -287,7 +257,7 @@ const Home = () => {
             <Text variant="labelLarge">Prochains événements</Text>
             {isSummaryLoading ? (
               <View style={styles.upcomingList}>
-                {[0, 1].map((item) => (
+                {data?.upcoming_events.map((item) => (
                   <View key={item} style={styles.upcomingItem}>
                     <View style={styles.upcomingDot} />
                     <View style={styles.upcomingText}>

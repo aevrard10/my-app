@@ -19,6 +19,27 @@ export type DashboardSummary = {
 
 const queryKey = [QueriesKeys.DASHBOARD_SUMMARY];
 
+// Normalise différentes formes de dates (YYYY-MM-DD, timestamp, 06/02/2026…)
+const parseDate = (value?: string | number | null) => {
+  if (value === null || value === undefined) return null;
+  // numérique ?
+  if (typeof value === "number") {
+    const d = dayjs(value);
+    return d.isValid() ? d : null;
+  }
+  const raw = `${value}`.trim();
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) {
+    const num = Number(raw);
+    const ms = raw.length <= 10 ? num * 1000 : num;
+    const d = dayjs(ms);
+    return d.isValid() ? d : null;
+  }
+  const normalized = raw.replace(/\//g, "-");
+  const d = dayjs(normalized);
+  return d.isValid() ? d : null;
+};
+
 const useDashboardSummaryQuery = Object.assign(
   () =>
     useQuery<DashboardSummary>({
@@ -28,16 +49,19 @@ const useDashboardSummaryQuery = Object.assign(
         const events = (await getReptileEvents()) ?? [];
 
         const today = dayjs().format("YYYY-MM-DD");
+        const todayStart = dayjs().startOf("day").valueOf();
 
-        const toMillis = (value?: string) =>
-          value ? dayjs(value).valueOf() : 0;
+        const toMillis = (value?: string | number | null) => {
+          const d = parseDate(value);
+          return d ? d.valueOf() : -Infinity;
+        };
 
-        const eventsToday = events.filter(
-          (e) => dayjs(e.event_date || "").format("YYYY-MM-DD") === today,
-        );
-
+        const eventsToday = events.filter((e) => {
+          const d = parseDate(e.event_date);
+          return d?.format("YYYY-MM-DD") === today;
+        });
         const upcoming_events = events
-          .filter((e) => toMillis(e.event_date) >= dayjs().valueOf())
+          .filter((e) => toMillis(e.event_date) >= todayStart)
           .sort((a, b) => toMillis(a.event_date) - toMillis(b.event_date))
           .slice(0, 5)
           .map((e) => ({
@@ -57,7 +81,7 @@ const useDashboardSummaryQuery = Object.assign(
       },
       staleTime: 1000 * 60 * 2,
     }),
-  { queryKey }
+  { queryKey },
 );
 
 export default useDashboardSummaryQuery;

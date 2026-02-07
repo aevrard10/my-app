@@ -98,6 +98,9 @@ const useReptileEventsQuery = Object.assign(
             recurrence_type: event.recurrence_type,
             recurrence_interval: event.recurrence_interval,
             recurrence_until: event.recurrence_until,
+            reptile_id: event.reptile_id,
+            reptile_name: event.reptile_name,
+            reptile_image_url: event.reptile_image_url,
           };
           if (!acc[formattedDate]) acc[formattedDate] = [];
           acc[formattedDate].push(item);

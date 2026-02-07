@@ -18,6 +18,8 @@ import {
   useTheme,
   Text,
   SegmentedButtons,
+  List,
+  Avatar,
 } from "react-native-paper";
 import EmptyList from "@shared/components/EmptyList";
 import useReptileEventsQuery from "./hooks/queries/useReptileEventsQuery";
@@ -38,6 +40,11 @@ import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AgendaSkeleton from "./components/AgendaSkeleton";
+import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import dayjs from "dayjs";
+const NOTIF_KEY = "reptitrack_event_notifs"; // map eventId -> notificationId
 
 const initialValues = {
   event_name: "",
@@ -47,15 +54,96 @@ const initialValues = {
   recurrence_type: "NONE",
   recurrence_interval: 1,
   recurrence_until: "",
+  reptile_id: "",
+  reptile_name: "",
+  reptile_image_url: "",
 };
 const Agenda = () => {
   const navigation = useNavigation();
   const route = useRoute<any>();
   const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
+  const { data: reptiles } = useReptilesQuery();
   const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
   const [inputRecurrenceUntil, setInputRecurrenceUntil] = useState<
     Date | undefined
   >(undefined);
+  const [showSelectReptile, setShowSelectReptile] = useState(false);
+  const [showSelectReptileEdit, setShowSelectReptileEdit] = useState(false);
+  const [selectedReptile, setSelectedReptile] = useState<any>(null);
+  const [selectedReptileEdit, setSelectedReptileEdit] = useState<any>(null);
+  const [notifMap, setNotifMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    (async () => {
+      const raw = await AsyncStorage.getItem(NOTIF_KEY);
+      if (raw) {
+        try {
+          setNotifMap(JSON.parse(raw));
+        } catch {
+          setNotifMap({});
+        }
+      }
+    })();
+  }, []);
+  const saveNotifMap = async (map: Record<string, string>) => {
+    setNotifMap(map);
+    await AsyncStorage.setItem(NOTIF_KEY, JSON.stringify(map));
+  };
+
+  const scheduleNotification = async (eventId: string, values: any) => {
+    if (Platform.OS === "web") return;
+    const perms = await Notifications.getPermissionsAsync();
+    if (!perms.granted) {
+      await Notifications.requestPermissionsAsync();
+    }
+    const date = values.event_date || dayjs().format("YYYY-MM-DD");
+    const time = values.event_time || "09:00";
+    const [h, m] = time.split(":");
+    const triggerDate = dayjs(date)
+      .hour(Number(h) || 9)
+      .minute(Number(m) || 0)
+      .second(0);
+    if (!triggerDate.isValid()) return;
+    if (triggerDate.isBefore(dayjs())) return; // ne planifie pas dans le passé
+    const notifId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: values.event_name || "Rappel",
+        body: values.reptile_name
+          ? `${values.reptile_name} • ${values.notes || "Événement"}`
+          : values.notes || "Événement",
+      },
+      trigger: triggerDate.toDate(),
+    });
+    const next = { ...notifMap, [eventId]: notifId };
+    await saveNotifMap(next);
+  };
+  const onPickReptile = (reptile: any, formik: any) => {
+    formik.setFieldValue("reptile_id", reptile.id);
+    formik.setFieldValue("reptile_name", reptile.name);
+    formik.setFieldValue("reptile_image_url", reptile.image_url || "");
+    setShowSelectReptile(false);
+    setSelectedReptile(reptile);
+  };
+
+  const onPickReptileEdit = (reptile: any, formik: any) => {
+    formik.setFieldValue("reptile_id", reptile.id);
+    formik.setFieldValue("reptile_name", reptile.name);
+    formik.setFieldValue("reptile_image_url", reptile.image_url || "");
+    setShowSelectReptileEdit(false);
+    setSelectedReptileEdit(reptile);
+  };
+  const cancelNotification = async (eventId: string) => {
+    if (Platform.OS === "web") return;
+    const notifId = notifMap[eventId];
+    if (notifId) {
+      try {
+        await Notifications.cancelScheduledNotificationAsync(notifId);
+      } catch {}
+      const next = { ...notifMap };
+      delete next[eventId];
+      await saveNotifMap(next);
+    }
+  };
   const { colors } = useTheme();
   const [addEvent, setAddEvent] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -70,10 +158,8 @@ const Agenda = () => {
   const { mutate, isPending } = useAddReptileEventMutation();
   const { mutate: deleteEvent, isPending: isDeleting } =
     useDeleteReptileEventMutation();
-  const {
-    mutate: excludeOccurrence,
-    isPending: isExcluding,
-  } = useExcludeReptileEventOccurrenceMutation();
+  const { mutate: excludeOccurrence, isPending: isExcluding } =
+    useExcludeReptileEventOccurrenceMutation();
   const { mutate: updateEvent, isPending: isUpdating } =
     useUpdateReptileEventMutation();
   const customTheme = {
@@ -177,10 +263,14 @@ const Agenda = () => {
                 recurrence_type: values.recurrence_type,
                 recurrence_interval: values.recurrence_interval,
                 recurrence_until: values.recurrence_until || null,
+                reptile_id: values.reptile_id || null,
+                reptile_name: values.reptile_name || null,
+                reptile_image_url: values.reptile_image_url || null,
               },
             },
             {
-              onSuccess: () => {
+              onSuccess: (created) => {
+                scheduleNotification(created?.id ?? values.event_name, values);
                 resetForm();
                 setInputDate(new Date());
                 setInputRecurrenceUntil(undefined);
@@ -232,51 +322,89 @@ const Agenda = () => {
                   behavior={Platform.OS === "ios" ? "padding" : "height"}
                   style={{ flex: 1 }}
                 >
-                  <CardSurface style={styles.inputSection}>
+                  <CardSurface style={[styles.inputSection, { gap: 4 }]}>
                     <TextInput
                       placeholder="Titre"
                       value={formik.values.event_name}
                       onChangeText={formik.handleChange("event_name")}
                     />
                     <Divider style={{ marginHorizontal: 8 }} />
-                    <TextInput
-                      placeholder="Lieu"
-                      // onChange={() => formik.handleChange("eventName")}
-                      // onBlur={formik.handleBlur("eventName")}
-                    />
+                    <TouchableOpacity onPress={() => setShowSelectReptile(true)}>
+                      <TextInput
+                        placeholder="Associer un reptile (optionnel)"
+                        value={formik.values.reptile_name}
+                        editable={false}
+                        pointerEvents="none"
+                      />
+                    </TouchableOpacity>
                   </CardSurface>
-                  <CardSurface style={styles.inputSection}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 10,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        alignContent: "center",
-                        alignSelf: "center",
+                  <Portal>
+                    <Modal
+                      visible={showSelectReptile}
+                      onDismiss={() => setShowSelectReptile(false)}
+                      contentContainerStyle={{
+                        backgroundColor: colors.surface,
+                        marginHorizontal: 20,
+                        padding: 12,
+                        borderRadius: 18,
                       }}
                     >
-                      <TouchableOpacity onPress={() => setShowPicker(true)}>
+                      <Text variant="titleMedium" style={{ marginBottom: 8 }}>
+                        Choisir un reptile
+                      </Text>
+                      <ScrollView style={{ maxHeight: 320 }}>
+                        {reptiles?.map((rep) => (
+                          <List.Item
+                            key={rep.id}
+                            title={rep.name}
+                            description={rep.species}
+                            left={() =>
+                              rep.image_url ? (
+                                <Avatar.Image
+                                  size={42}
+                                  source={{ uri: rep.image_url }}
+                                />
+                              ) : (
+                                <Avatar.Icon size={42} icon="turtle" />
+                              )
+                            }
+                            onPress={() => onPickReptile(rep, formik)}
+                          />
+                        ))}
+                      </ScrollView>
+                      <Button
+                        onPress={() => {
+                          setShowSelectReptile(false);
+                          setSelectedReptile(null);
+                          formik.setFieldValue("reptile_id", "");
+                          formik.setFieldValue("reptile_name", "");
+                          formik.setFieldValue("reptile_image_url", "");
+                        }}
+                      >
+                        Aucun reptile
+                      </Button>
+                    </Modal>
+                  </Portal>
+                  <CardSurface style={styles.inputSection}>
+                    <View style={styles.rowSplit}>
+                      <TouchableOpacity
+                        style={{ flex: 1 }}
+                        onPress={() => setShowPicker(true)}
+                      >
                         <TextInput
-                          style={styles.input}
+                          style={[styles.input, { flex: 1 }]}
                           value={formik.values.event_time}
                           placeholder="Heure"
-                          onPress={() => setShowPicker(true)}
+                          editable={false}
                         />
                       </TouchableOpacity>
-                      <View style={styles.verticleLine} />
                       <DatePickerInput
                         mode="outlined"
                         locale="fr"
                         label="Date"
                         saveLabel="Confirmer"
                         outlineStyle={{ borderWidth: 0 }}
-                        style={{
-                          borderWidth: 0,
-                          borderColor: "#fff",
-                          backgroundColor: "#fff",
-                          borderTopColor: "#fff",
-                        }}
+                        style={styles.dateInput}
                         value={inputDate}
                         onChange={(data) => {
                           setInputDate(data);
@@ -377,6 +505,9 @@ const Agenda = () => {
           recurrence_type: editEvent?.recurrence_type ?? "NONE",
           recurrence_interval: editEvent?.recurrence_interval ?? 1,
           recurrence_until: editEvent?.recurrence_until ?? "",
+          reptile_id: editEvent?.reptile_id ?? "",
+          reptile_name: editEvent?.reptile_name ?? "",
+          reptile_image_url: editEvent?.reptile_image_url ?? "",
         }}
         onSubmit={(values) => {
           if (!editEvent?.id) return;
@@ -396,6 +527,9 @@ const Agenda = () => {
                 recurrence_type: values.recurrence_type,
                 recurrence_interval: values.recurrence_interval,
                 recurrence_until: values.recurrence_until || null,
+                reptile_id: values.reptile_id || null,
+                reptile_name: values.reptile_name || null,
+                reptile_image_url: values.reptile_image_url || null,
               },
             },
             {
@@ -403,6 +537,7 @@ const Agenda = () => {
                 queryClient.invalidateQueries({
                   queryKey: useReptileEventsQuery.queryKey,
                 });
+                scheduleNotification(values);
                 setEditEvent(null);
                 setEditDate(undefined);
                 setEditRecurrenceUntil(undefined);
@@ -455,43 +590,84 @@ const Agenda = () => {
                       onChangeText={formik.handleChange("event_name")}
                     />
                     <Divider style={{ marginHorizontal: 8 }} />
-                    <TextInput
-                      placeholder="Lieu"
-                      // champ optionnel non stocké
-                    />
+                    <TouchableOpacity
+                      onPress={() => setShowSelectReptileEdit(true)}
+                    >
+                      <TextInput
+                        placeholder="Associer un reptile (optionnel)"
+                        value={formik.values.reptile_name}
+                        editable={false}
+                        pointerEvents="none"
+                      />
+                    </TouchableOpacity>
                   </CardSurface>
-                  <CardSurface style={styles.inputSection}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 10,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        alignContent: "center",
-                        alignSelf: "center",
+                  <Portal>
+                    <Modal
+                      visible={showSelectReptileEdit}
+                      onDismiss={() => setShowSelectReptileEdit(false)}
+                      contentContainerStyle={{
+                        backgroundColor: colors.surface,
+                        marginHorizontal: 20,
+                        padding: 12,
+                        borderRadius: 18,
                       }}
                     >
-                      <TouchableOpacity onPress={() => setShowEditPicker(true)}>
+                      <Text variant="titleMedium" style={{ marginBottom: 8 }}>
+                        Choisir un reptile
+                      </Text>
+                      <ScrollView style={{ maxHeight: 320 }}>
+                        {reptiles?.map((rep) => (
+                          <List.Item
+                            key={rep.id}
+                            title={rep.name}
+                            description={rep.species}
+                            left={() =>
+                              rep.image_url ? (
+                                <Avatar.Image
+                                  size={42}
+                                  source={{ uri: rep.image_url }}
+                                />
+                              ) : (
+                                <Avatar.Icon size={42} icon="turtle" />
+                              )
+                            }
+                            onPress={() => onPickReptileEdit(rep, formik)}
+                          />
+                        ))}
+                      </ScrollView>
+                      <Button
+                        onPress={() => {
+                          setShowSelectReptileEdit(false);
+                          setSelectedReptileEdit(null);
+                          formik.setFieldValue("reptile_id", "");
+                          formik.setFieldValue("reptile_name", "");
+                          formik.setFieldValue("reptile_image_url", "");
+                        }}
+                      >
+                        Aucun reptile
+                      </Button>
+                    </Modal>
+                  </Portal>
+                  <CardSurface style={styles.inputSection}>
+                    <View style={styles.rowSplit}>
+                      <TouchableOpacity
+                        style={{ flex: 1 }}
+                        onPress={() => setShowEditPicker(true)}
+                      >
                         <TextInput
-                          style={styles.input}
+                          style={[styles.input, { flex: 1 }]}
                           value={formik.values.event_time}
                           placeholder="Heure"
-                          onPress={() => setShowEditPicker(true)}
+                          editable={false}
                         />
                       </TouchableOpacity>
-                      <View style={styles.verticleLine} />
                       <DatePickerInput
                         mode="outlined"
                         locale="fr"
                         label="Date"
                         saveLabel="Confirmer"
                         outlineStyle={{ borderWidth: 0 }}
-                        style={{
-                          borderWidth: 0,
-                          borderColor: "#fff",
-                          backgroundColor: "#fff",
-                          borderTopColor: "#fff",
-                        }}
+                        style={styles.dateInput}
                         value={editDate}
                         onChange={(data) => {
                           setEditDate(data);
@@ -608,6 +784,17 @@ const Agenda = () => {
               <TextInfo title="Nom" value={event?.name} />
               <TextInfo title="Date" value={event?.date} />
               <TextInfo title="Heure" value={event?.time} />
+              {event?.reptile_name ? (
+                <TextInfo title="Reptile" value={event?.reptile_name} />
+              ) : null}
+              {event?.reptile_image_url ? (
+                <View style={{ paddingVertical: 8, alignItems: "center" }}>
+                  <Avatar.Image
+                    size={80}
+                    source={{ uri: event.reptile_image_url }}
+                  />
+                </View>
+              ) : null}
               <TextInfo title="Notes" value={event?.notes} />
               {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
                 <TextInfo title="Récurrence" value={event?.recurrence_type} />
@@ -620,7 +807,9 @@ const Agenda = () => {
             onPress={() => {
               setEditEvent(event);
               setEditDate(parseDateForPicker(event?.date));
-              setEditRecurrenceUntil(parseDateForPicker(event?.recurrence_until));
+              setEditRecurrenceUntil(
+                parseDateForPicker(event?.recurrence_until),
+              );
               setShowEventInfo(false);
             }}
           >
@@ -747,10 +936,42 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     backgroundColor: "#fff",
   },
+  rowSplit: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  dateInput: {
+    borderWidth: 0,
+    borderColor: "#fff",
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  reptileButton: {
+    width: "100%",
+    justifyContent: "center",
+    borderRadius: 14,
+  },
   recurrenceInput: {
     marginTop: 12,
     backgroundColor: "#fff",
     borderRadius: 12,
+  },
+  rowSplit: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  dateInput: {
+    borderWidth: 0,
+    borderColor: "#fff",
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  reptileButton: {
+    width: "100%",
+    justifyContent: "center",
+    borderRadius: 14,
   },
   editHint: {
     marginBottom: 8,

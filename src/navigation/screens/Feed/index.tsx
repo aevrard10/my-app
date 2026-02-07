@@ -14,12 +14,30 @@ import Skeleton from "@shared/components/Skeleton";
 import { FlatList, View } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
-import { executeVoid } from "@shared/local/db";
+import { execute, executeVoid } from "@shared/local/db";
+import { useQuery } from "@tanstack/react-query";
+import { List } from "react-native-paper";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
+  const { data: usageData, isPending: isUsageLoading } = useQuery({
+    queryKey: ["stock-forecast"],
+    queryFn: async () => {
+      // consommation des 30 derniers jours sur les reptiles (hors stock)
+      const rows = await execute(
+        `SELECT food_name as name,
+                ABS(SUM(quantity)) as qty_30d
+         FROM feedings
+         WHERE reptile_id <> 'stock'
+           AND fed_at >= date('now','-30 day')
+         GROUP BY food_name;`,
+      );
+      return rows as { name: string; qty_30d: number }[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
   const updateStockMutation = useMutation({
     mutationFn: async (vars: {
       name: string;
@@ -52,10 +70,31 @@ const Feed = () => {
       lowStock,
     };
   }, [data]);
+
+  const forecast = useMemo(() => {
+    const items = data ?? [];
+    const usage = usageData ?? [];
+    return items.map((item) => {
+      const usageItem = usage.find((u) => u.name === item.name);
+      const daily = usageItem ? usageItem.qty_30d / 30 : 0;
+      const rawDays = daily > 0 ? item.quantity / daily : Infinity;
+      const daysLeft =
+        rawDays === Infinity
+          ? Infinity
+          : Math.max(0, Math.ceil(rawDays)); // arrondi supérieur
+      return {
+        name: item.name,
+        daysLeft,
+        quantity: item.quantity,
+        unit: item.unit,
+        daily,
+      };
+    });
+  }, [data, usageData]);
   const isInitialLoading = isFoodLoading && (!data || data.length === 0);
   const skeletonItems = useMemo(
     () => Array.from({ length: 3 }, (_, index) => ({ id: `sk-${index}` })),
-    []
+    [],
   );
 
   const queryClient = useQueryClient();
@@ -87,7 +126,9 @@ const Feed = () => {
     <Screen>
       <FlatList
         ListEmptyComponent={
-          isInitialLoading ? null : <ListEmptyComponent isLoading={isFoodLoading} />
+          isInitialLoading ? null : (
+            <ListEmptyComponent isLoading={isFoodLoading} />
+          )
         }
         data={isInitialLoading ? skeletonItems : data}
         renderItem={({ item }) =>
@@ -107,71 +148,114 @@ const Feed = () => {
           <>
             <CardSurface style={{ marginTop: 4, marginBottom: 12 }}>
               <Text variant="titleLarge">Stock alimentaire</Text>
-              {isFoodLoading ? (
-                <Skeleton height={12} width="70%" style={{ marginTop: 8 }} />
-              ) : (
-                <Text
-                  variant="bodySmall"
-                  style={{ opacity: 0.7, marginTop: 4 }}
-                >
-                  Ajustez rapidement les quantités et suivez l&apos;historique.
-                </Text>
-              )}
+
+              <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
+                Ajustez rapidement les quantités et suivez l&apos;historique.
+              </Text>
             </CardSurface>
             <CardSurface style={{ marginBottom: 12 }}>
-              <Text variant="labelLarge">Aperçu rapide</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  gap: 10,
-                  marginTop: 10,
-                  flexWrap: "wrap",
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    minWidth: 120,
-                    borderRadius: 14,
-                    padding: 12,
-                    backgroundColor: colors.secondaryContainer,
-                  }}
+              <List.Section>
+                <List.Accordion
+                  title="Actions rapides"
+                  left={(props) => <List.Icon {...props} icon="lightning-bolt" />}
                 >
-                  <Icon source="archive" size={16} color={colors.secondary} />
-                  {isFoodLoading ? (
-                    <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
-                  ) : (
-                    <Text variant="titleMedium" style={{ marginTop: 6 }}>
-                      {stockStats.total}
-                    </Text>
-                  )}
-                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-                    Articles
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    minWidth: 120,
-                    borderRadius: 14,
-                    padding: 12,
-                    backgroundColor: colors.primaryContainer,
-                  }}
+                  <View style={{ flexDirection: "row", gap: 10, padding: 8 }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        minWidth: 120,
+                        borderRadius: 14,
+                        padding: 12,
+                        backgroundColor: colors.secondaryContainer,
+                      }}
+                    >
+                      <Icon source="archive" size={16} color={colors.secondary} />
+                      {isFoodLoading ? (
+                        <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                      ) : (
+                        <Text variant="titleMedium" style={{ marginTop: 6 }}>
+                          {stockStats.total}
+                        </Text>
+                      )}
+                      <Text variant="labelSmall" style={{ opacity: 0.7 }}>
+                        Articles
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        minWidth: 120,
+                        borderRadius: 14,
+                        padding: 12,
+                        backgroundColor: colors.primaryContainer,
+                      }}
+                    >
+                      <Icon source="alert" size={16} color={colors.primary} />
+                      {isFoodLoading ? (
+                        <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
+                      ) : (
+                        <Text variant="titleMedium" style={{ marginTop: 6 }}>
+                          {stockStats.lowStock}
+                        </Text>
+                      )}
+                      <Text variant="labelSmall" style={{ opacity: 0.7 }}>
+                        Faible stock
+                      </Text>
+                    </View>
+                  </View>
+                </List.Accordion>
+
+                <List.Accordion
+                  title="Prévision stock (30 jours)"
+                  left={(props) => <List.Icon {...props} icon="chart-line" />}
                 >
-                  <Icon source="alert" size={16} color={colors.primary} />
-                  {isFoodLoading ? (
-                    <Skeleton height={18} width={36} style={{ marginTop: 6 }} />
-                  ) : (
-                    <Text variant="titleMedium" style={{ marginTop: 6 }}>
-                      {stockStats.lowStock}
+                  {isFoodLoading || isUsageLoading ? (
+                    <Skeleton height={18} width={120} style={{ marginTop: 8 }} />
+                  ) : forecast.length === 0 ? (
+                    <Text style={{ opacity: 0.7, marginTop: 6, padding: 8 }}>
+                      Pas assez de données de consommation pour prévoir.
                     </Text>
+                  ) : (
+                    forecast.map((f) => (
+                      <View
+                        key={f.name}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          paddingVertical: 6,
+                          paddingHorizontal: 8,
+                        }}
+                      >
+                        <View style={{ flex: 1 }}>
+                          <Text variant="bodyMedium">{f.name}</Text>
+                          <Text variant="labelSmall" style={{ opacity: 0.65 }}>
+                            Stock : {f.quantity} {f.unit || ""} · Conso/j :
+                            {f.daily ? ` ${f.daily.toFixed(2)}` : " —"}
+                          </Text>
+                        </View>
+                        <Text
+                          variant="labelLarge"
+                          style={{
+                            color:
+                              f.daysLeft === Infinity
+                                ? colors.outline
+                                : f.daysLeft <= 7
+                                ? colors.error
+                                : colors.primary,
+                          }}
+                        >
+                          {f.daysLeft === Infinity
+                            ? "—"
+                            : f.daysLeft > 60
+                            ? ">60 j"
+                            : `${f.daysLeft} j`}
+                        </Text>
+                      </View>
+                    ))
                   )}
-                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-                    Faible stock
-                  </Text>
-                </View>
-              </View>
-              {/* Prévision stock retirée en mode local */}
+                </List.Accordion>
+              </List.Section>
             </CardSurface>
             <HistoryChip navigate={navigate} colors={colors} />
           </>
