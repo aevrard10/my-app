@@ -13,10 +13,11 @@ enum ScreenNames {
   NOTIFICATIONS = "Notifications",
   ADD_MEASUREMENTS = "AddMeasurements",
   ADD_FEED = "AddFeed",
-FEED_HISTORY = "FeedHistory",
+  FEED_HISTORY = "FeedHistory",
   FORGOT_PASSWORD = "ForgotPassword",
   RESET_PASSWORD = "ResetPassword",
   APPLE_LOGIN = "AppleLogin",
+  SETTINGS = "Settings",
 }
 
 export default ScreenNames;

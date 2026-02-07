@@ -19,6 +19,7 @@ import FeedHistory from "./screens/FeedHistory";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
 import AppleLogin from "./screens/AppleLogin";
+import Settings from "./screens/Settings";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
@@ -109,6 +110,18 @@ const HomeTabs = () => {
             color: "#fff",
             fontSize: 11,
           },
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name={ScreenNames.SETTINGS}
+        component={Settings}
+        options={{
+          title: "Paramètres",
+          tabBarActiveTintColor: colors.secondary,
+          tabBarIcon: ({ size }) => (
+            <Icon source={"cog"} color={colors.primary} size={size} />
+          ),
           headerShown: false,
         }}
       />
