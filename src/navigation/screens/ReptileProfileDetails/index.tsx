@@ -62,12 +62,14 @@ import QuickActions from "./components/QuickActions";
 import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
+import QrCodeSection from "./components/QrCodeSection";
 import * as Sharing from "expo-sharing";
 import { useI18n } from "@shared/i18n";
 // import useQuery from "@shared/graphql/hooks/useQuery";
 // import { gql } from "graphql-request";
 import * as FileSystem from "expo-file-system/legacy";
 import InfoAccordion from "./components/InfoAccordion";
+import useReptileHealthEventsQuery from "./hooks/data/queries/useReptileHealthEventsQuery";
 import {
   addReptilePhotoFromBase64,
   addReptilePhotoFromUri,
@@ -135,6 +137,33 @@ const ReptileProfileDetails = ({ route }: Props) => {
     return data?.health_status || t("profile.health_unknown");
   }, [data?.health_status, t]);
 
+  const latestHealthEvent = useMemo(
+    () => (healthEvents && healthEvents.length > 0 ? healthEvents[0] : null),
+    [healthEvents],
+  );
+
+  const healthEventLabel = useMemo(() => {
+    if (!latestHealthEvent) return t("health.empty");
+    const value = latestHealthEvent.event_type;
+    if (value && !value.includes(" ")) {
+      const type = value.toUpperCase();
+      if (type === "ACARIEN") return t("health.type_acarien");
+      if (type === "REGURGITATION") return t("health.type_regurgitation");
+      if (type === "REFUS") return t("health.type_refus");
+      if (type === "UNDERWEIGHT") return t("health.type_underweight");
+      if (type === "OBESITY") return t("health.type_obesity");
+      if (type === "SHED_ISSUE") return t("health.type_shed_issue");
+      if (type === "DIGESTIVE") return t("health.type_digestive");
+      if (type === "HIBERNATION") return t("health.type_hibernation");
+      if (type === "MEDICATION") return t("health.type_medication");
+      if (type === "OVULATION") return t("health.type_ovulation");
+      if (type === "INJURY") return t("health.type_injury");
+      if (type === "ABSCESS") return t("health.type_abscess");
+      if (type === "OTHER") return t("health.type_other");
+    }
+    return value?.trim() || t("health.type_other");
+  }, [latestHealthEvent, t]);
+
   // Queries
   const { data: food } = useFoodQuery();
   const { data, isPending: isLoadingReptile } = useReptileQuery(id);
@@ -178,6 +207,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
+  const { data: healthEvents } = useReptileHealthEventsQuery(id, 1);
   const exportPdfQuery = null;
 
   const handleExportPdf = useCallback(async () => {
@@ -226,6 +256,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
               <div>
                 <p><strong>${t("profile.report_species")} :</strong> ${data.species || "—"}</p>
                 <p><strong>${t("profile.report_sex")} :</strong> ${data.sex || "—"}</p>
+                <p><strong>${t("profile.field_danger")} :</strong> ${data.danger_level || "—"}</p>
                 <p><strong>${t("profile.report_age")} :</strong> ${data.age ?? "—"} ${t("reptiles.age_suffix")}</p>
                 <p><strong>${t("profile.report_location")} :</strong> ${data.location || "—"}</p>
                 <p><strong>${t("profile.report_acquired")} :</strong> ${
@@ -239,14 +270,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
           <div class="card">
             <h2>${t("profile.report_recent")}</h2>
             <p><strong>${t("profile.report_last_meal")} :</strong> ${
-              feedings?.[0]?.fed_at
-                ? formatDDMMYYYY(feedings[0].fed_at)
-                : "—"
+              feedings?.[0]?.fed_at ? formatDDMMYYYY(feedings[0].fed_at) : "—"
             }</p>
             <p><strong>${t("profile.report_last_shed")} :</strong> ${
-              sheds?.[0]?.shed_date
-                ? formatDDMMYYYY(sheds[0].shed_date)
-                : "—"
+              sheds?.[0]?.shed_date ? formatDDMMYYYY(sheds[0].shed_date) : "—"
             }</p>
             <p><strong>${t("profile.report_last_measure")} :</strong> ${
               latestMeasurement
@@ -697,6 +724,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
           feeding_schedule: data?.feeding_schedule || "",
           diet: data?.diet || "",
           health_status: data?.health_status || "",
+          danger_level: data?.danger_level || "",
           notes: data?.notes || "",
           sex: data?.sex || "",
           humidity_level: data?.humidity_level?.toString() || "",
@@ -726,9 +754,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     })
                   }
                   onAddEvent={() =>
-                    navigation.navigate(ScreenNames.AGENDA as never, {
-                      openAddEvent: true,
-                    })
+                    navigation.navigate(ScreenNames.ADD_EVENT as never)
                   }
                   onExportPdf={handleExportPdf}
                 />
@@ -745,20 +771,26 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   <Text variant="titleMedium">{t("profile.report_title")}</Text>
                   <View style={styles.reportList}>
                     <Text variant="bodySmall">
-                      {t("profile.report_species")} : {data?.species || t("common.not_available")}
+                      {t("profile.report_species")} :{" "}
+                      {data?.species || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      {t("profile.report_sex")} : {data?.sex || t("common.not_available")} ·{" "}
-                      {t("profile.report_age")} : {data?.age ?? "—"} {t("reptiles.age_suffix")}
+                      {t("profile.report_sex")} :{" "}
+                      {data?.sex || t("common.not_available")} ·{" "}
+                      {t("profile.report_age")} : {data?.age ?? "—"}{" "}
+                      {t("reptiles.age_suffix")}
                     </Text>
                     <Text variant="bodySmall">
-                      {t("profile.report_morph")} : {genetics?.morph || t("common.not_available")}
+                      {t("profile.report_morph")} :{" "}
+                      {genetics?.morph || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      {t("profile.report_mutations")} : {genetics?.mutations || t("common.not_available")}
+                      {t("profile.report_mutations")} :{" "}
+                      {genetics?.mutations || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      {t("profile.report_lineage")} : {genetics?.lineage || t("common.not_available")}
+                      {t("profile.report_lineage")} :{" "}
+                      {genetics?.lineage || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
                       {t("profile.report_last_feed")} :{" "}
@@ -896,6 +928,26 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   isSaving={isSavingGenetics}
                 />
 
+                <QrCodeSection
+                  reptile={
+                    data
+                      ? {
+                          id: data.id,
+                          name: data.name,
+                          species: data.species,
+                          sex: data.sex,
+                          danger_level: data.danger_level,
+                          acquired_date: data.acquired_date,
+                          origin: data.origin,
+                          location: data.location,
+                          diet: data.diet,
+                          temperature_range: data.temperature_range,
+                          humidity_level: data.humidity_level,
+                        }
+                      : null
+                  }
+                />
+
                 <List.Section style={{ marginTop: 12 }}>
                   <InfoAccordion
                     title={t("profile.section_profile")}
@@ -920,6 +972,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         value: formik.values.species,
                         onChangeText: (text) =>
                           formik.setFieldValue("species", text),
+                      },
+                      {
+                        key: "danger_level",
+                        label: t("profile.field_danger"),
+                        value: formik.values.danger_level,
+                        onChangeText: (text) =>
+                          formik.setFieldValue("danger_level", text),
                       },
                       {
                         key: "acquired_date",
@@ -987,19 +1046,34 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     ]}
                   />
 
-                  <InfoAccordion
-                    title={t("profile.section_health")}
-                    icon="heart-pulse"
-                    fields={[
-                      {
-                        key: "health_status",
-                        label: t("profile.field_health"),
-                        value: formik.values.health_status,
-                        onChangeText: (text) =>
-                          formik.setFieldValue("health_status", text),
-                      },
-                    ]}
-                  />
+                  <List.Accordion
+                    title={t("health.section_title")}
+                    left={(props) => <List.Icon {...props} icon="heart-pulse" />}
+                  >
+                    <View style={styles.healthAccordionContent}>
+                      <Text variant="bodyMedium">{healthEventLabel}</Text>
+                      <Text variant="labelSmall" style={styles.mutedText}>
+                        {latestHealthEvent?.event_date
+                          ? formatDDMMYYYY(latestHealthEvent.event_date)
+                          : t("common.not_available")}
+                        {latestHealthEvent?.event_time
+                          ? ` · ${latestHealthEvent.event_time}`
+                          : ""}
+                      </Text>
+                      <Button
+                        mode="outlined"
+                        style={styles.healthHistoryButton}
+                        onPress={() =>
+                          navigation.navigate(
+                            ScreenNames.HEALTH_HISTORY as never,
+                            { id } as never,
+                          )
+                        }
+                      >
+                        {t("health.view_history")}
+                      </Button>
+                    </View>
+                  </List.Accordion>
 
                   <List.Accordion
                     title={t("profile.section_actions")}
@@ -1252,7 +1326,6 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 10,
-    outlineStyle: "none",
     borderRadius: 30,
     borderColor: "transparent",
     backgroundColor: "transparent",
@@ -1298,6 +1371,16 @@ const styles = StyleSheet.create({
   trendAlert: {
     marginTop: 6,
     color: "#C33C3C",
+  },
+  healthCard: {
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  healthHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
   },
   mutedText: {
     opacity: 0.6,
@@ -1392,3 +1475,5 @@ const styles = StyleSheet.create({
 });
 
 export default ReptileProfileDetails;
+// TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?
+// Also consider moving some logic (like trend calculation) into custom hooks for better separation of concerns and testability.

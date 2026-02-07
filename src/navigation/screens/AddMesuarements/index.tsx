@@ -218,7 +218,6 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 10,
-    outlineStyle: "none",
     borderRadius: 30,
     borderColor: "#fff",
     backgroundColor: "#fff",
@@ -235,3 +234,4 @@ const styles = StyleSheet.create({
 });
 
 export default AddMesuarements;
+// TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?

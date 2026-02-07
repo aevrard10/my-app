@@ -7,7 +7,7 @@ import {
   IconButton,
 } from "react-native-paper";
 import { Image, StyleSheet, View } from "react-native";
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState, memo } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Reptile } from "@shared/local/reptileStore";
 import useRemoveReptileMutation from "../../hooks/mutations/useRemoveReptile";
@@ -189,4 +189,4 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 });
-export default CardComponent;
+export default memo(CardComponent);

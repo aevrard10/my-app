@@ -6,6 +6,7 @@ type UpdateReptileEventMutationVariables = {
   id: string;
   input: {
     event_name: string;
+    event_type?: string | null;
     event_date: string;
     event_time: string;
     notes?: string | null;
@@ -15,6 +16,8 @@ type UpdateReptileEventMutationVariables = {
     reptile_id?: string | null;
     reptile_name?: string | null;
     reptile_image_url?: string | null;
+    reminder_minutes?: number | null;
+    priority?: string | null;
   };
 };
 

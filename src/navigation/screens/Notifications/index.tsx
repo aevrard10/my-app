@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Platform, StyleSheet, View } from "react-native";
 import NotifItem from "./components/NotifItem";
 import useGetNotificationsQuery from "./hooks/queries/GetNotificationsQuery";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
@@ -50,6 +50,12 @@ const Notifications = () => {
         keyExtractor={(item) => String(item.id)}
         refreshing={isPending}
         onRefresh={refetch}
+        initialNumToRender={6}
+        maxToRenderPerBatch={8}
+        windowSize={9}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews={Platform.OS === "android"}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: 40 }}
         ListHeaderComponent={
           <View style={styles.header}>

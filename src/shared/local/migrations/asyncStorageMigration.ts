@@ -127,16 +127,21 @@ export const runAsyncStorageMigration = async () => {
       await upsertReptileEvent({
         id: e.id,
         event_name: e.event_name,
+        event_type: e.event_type,
         event_date: e.event_date,
         event_time: e.event_time,
         notes: e.notes,
         recurrence_type: e.recurrence_type,
         recurrence_interval: e.recurrence_interval,
         recurrence_until: e.recurrence_until,
+        reptile_id: e.reptile_id,
+        reptile_name: e.reptile_name,
+        reptile_image_url: e.reptile_image_url,
+        reminder_minutes: e.reminder_minutes,
+        priority: e.priority,
       });
     }
   }
 
   await AsyncStorage.setItem(FLAG_KEY, "1");
 };
-

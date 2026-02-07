@@ -109,16 +109,46 @@ const AddFeed = () => {
                             }}
                             value={formik.values.name}
                           >
-                            <RadioButton.Item label={t("food.chick")} value="Poussin" />
-                            <RadioButton.Item label={t("food.chicken")} value="Poule" />
-                            <RadioButton.Item label={t("food.quail")} value="Caille" />
-                            <RadioButton.Item label={t("food.duck")} value="Canard" />
-                            <RadioButton.Item label={t("food.turkey")} value="Dinde" />
-                            <RadioButton.Item label={t("food.mouse")} value="Souris" />
-                            <RadioButton.Item label={t("food.rat")} value="Rat" />
-                            <RadioButton.Item label={t("food.lizard")} value="Lézard" />
-                            <RadioButton.Item label={t("food.cricket")} value="Criquet" />
-                            <RadioButton.Item label={t("food.roach")} value="Blatte" />
+                            <RadioButton.Item
+                              label={t("food.chick")}
+                              value="Poussin"
+                            />
+                            <RadioButton.Item
+                              label={t("food.chicken")}
+                              value="Poule"
+                            />
+                            <RadioButton.Item
+                              label={t("food.quail")}
+                              value="Caille"
+                            />
+                            <RadioButton.Item
+                              label={t("food.duck")}
+                              value="Canard"
+                            />
+                            <RadioButton.Item
+                              label={t("food.turkey")}
+                              value="Dinde"
+                            />
+                            <RadioButton.Item
+                              label={t("food.mouse")}
+                              value="Souris"
+                            />
+                            <RadioButton.Item
+                              label={t("food.rat")}
+                              value="Rat"
+                            />
+                            <RadioButton.Item
+                              label={t("food.lizard")}
+                              value="Lézard"
+                            />
+                            <RadioButton.Item
+                              label={t("food.cricket")}
+                              value="Criquet"
+                            />
+                            <RadioButton.Item
+                              label={t("food.roach")}
+                              value="Blatte"
+                            />
                             <RadioButton.Item
                               label={t("food.mealworm")}
                               value="Vers de farine"
@@ -127,10 +157,22 @@ const AddFeed = () => {
                               label={t("food.earthworm")}
                               value="Vers de terre"
                             />
-                            <RadioButton.Item label={t("food.grillon")} value="Grillon" />
-                            <RadioButton.Item label={t("food.cockroach")} value="Cafard" />
-                            <RadioButton.Item label={t("food.fish")} value="Poisson" />
-                            <RadioButton.Item label={t("food.other")} value="Autre" />
+                            <RadioButton.Item
+                              label={t("food.grillon")}
+                              value="Grillon"
+                            />
+                            <RadioButton.Item
+                              label={t("food.cockroach")}
+                              value="Cafard"
+                            />
+                            <RadioButton.Item
+                              label={t("food.fish")}
+                              value="Poisson"
+                            />
+                            <RadioButton.Item
+                              label={t("food.other")}
+                              value="Autre"
+                            />
                           </RadioButton.Group>
                         </ScrollView>
                       </Dialog.Content>
@@ -159,12 +201,30 @@ const AddFeed = () => {
                           }}
                           value={formik.values.type}
                         >
-                          <RadioButton.Item label={t("food_type.rodent")} value="Rongeur" />
-                          <RadioButton.Item label={t("food_type.insects")} value="Insectes" />
-                          <RadioButton.Item label={t("food_type.poultry")} value="Volaille" />
-                          <RadioButton.Item label={t("food_type.fish")} value="Poisson" />
-                          <RadioButton.Item label={t("food_type.reptile")} value="Reptile" />
-                          <RadioButton.Item label={t("food_type.other")} value="Autre" />
+                          <RadioButton.Item
+                            label={t("food_type.rodent")}
+                            value="Rongeur"
+                          />
+                          <RadioButton.Item
+                            label={t("food_type.insects")}
+                            value="Insectes"
+                          />
+                          <RadioButton.Item
+                            label={t("food_type.poultry")}
+                            value="Volaille"
+                          />
+                          <RadioButton.Item
+                            label={t("food_type.fish")}
+                            value="Poisson"
+                          />
+                          <RadioButton.Item
+                            label={t("food_type.reptile")}
+                            value="Reptile"
+                          />
+                          <RadioButton.Item
+                            label={t("food_type.other")}
+                            value="Autre"
+                          />
                         </RadioButton.Group>
                       </Dialog.Content>
                     </Dialog>
@@ -242,3 +302,4 @@ const styles = StyleSheet.create({
 });
 
 export default AddFeed;
+// todo: refactor to use react-native-dropdown-picker for better UX and performance with long lists

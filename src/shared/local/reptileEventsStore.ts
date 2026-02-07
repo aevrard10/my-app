@@ -1,138 +1,190 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
+import { execute, executeVoid } from "./db";
 import { ListOptions } from "./storageAdapter";
-
-const indexKey = `local_reptile_events:index`;
-const bucketKey = (month: string) => `local_reptile_events:${month}`; // month = YYYY-MM
 
 export type LocalReptileEvent = {
   id: string;
   event_name: string;
+  event_type?: string | null;
   event_date: string; // YYYY-MM-DD
   event_time?: string | null; // HH:mm
   notes?: string | null;
   recurrence_type?: string | null; // NONE/DAILY/WEEKLY/MONTHLY
   recurrence_interval?: number | null;
   recurrence_until?: string | null; // YYYY-MM-DD
+  excluded_dates?: string | null; // JSON array of YYYY-MM-DD
   reptile_id?: string | null;
   reptile_name?: string | null;
   reptile_image_url?: string | null;
+  reminder_minutes?: number | null;
+  priority?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
-const monthFromDate = (date: string) => {
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return "unknown";
-  return `${d.getFullYear().toString().padStart(4, "0")}-${(d.getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}`;
+const mapRow = (row: any): LocalReptileEvent => ({ ...row });
+
+const normalizeNumber = (value: any, fallback: number) => {
+  if (value === null || value === undefined || value === "") return fallback;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
 };
 
-const readIndex = async (): Promise<string[]> => {
-  const raw = await AsyncStorage.getItem(indexKey);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeIndex = async (months: string[]) => {
-  const unique = Array.from(new Set(months));
-  unique.sort().reverse();
-  await AsyncStorage.setItem(indexKey, JSON.stringify(unique));
-};
-
-const readBucket = async (month: string): Promise<LocalReptileEvent[]> => {
-  const raw = await AsyncStorage.getItem(bucketKey(month));
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeBucket = async (month: string, items: LocalReptileEvent[]) => {
-  await AsyncStorage.setItem(bucketKey(month), JSON.stringify(items));
+const normalizeText = (value?: string | null) => {
+  const trimmed = (value ?? "").toString().trim();
+  return trimmed.length ? trimmed : null;
 };
 
 export const getReptileEvents = async (
-  options: ListOptions = { limit: 200, offset: 0 },
+  options: ListOptions = { limit: 5000, offset: 0 },
 ): Promise<LocalReptileEvent[]> => {
-  const { limit = 200, offset = 0 } = options;
-  const months = await readIndex();
-  const results: LocalReptileEvent[] = [];
-  for (const month of months) {
-    if (results.length >= limit + offset) break;
-    const bucket = await readBucket(month);
-    bucket
-      .sort(
-        (a, b) =>
-          new Date(a.event_date).getTime() - new Date(b.event_date).getTime(),
-      )
-      .forEach((e) => {
-        if (results.length < limit + offset) results.push(e);
-      });
-  }
-  return results.slice(offset, offset + limit);
+  const { limit = 5000, offset = 0 } = options;
+  const rows = await execute(
+    `SELECT * FROM events ORDER BY event_date ASC, event_time ASC LIMIT ? OFFSET ?;`,
+    [limit, offset],
+  );
+  return rows.map(mapRow);
+};
+
+export const getReptileEvent = async (
+  id: string,
+): Promise<LocalReptileEvent | null> => {
+  const rows = await execute("SELECT * FROM events WHERE id = ? LIMIT 1;", [
+    id,
+  ]);
+  return rows[0] ? mapRow(rows[0]) : null;
 };
 
 export const upsertReptileEvent = async (
   input: Partial<LocalReptileEvent>,
 ): Promise<LocalReptileEvent> => {
-  const month = monthFromDate(
-    input.event_date || dayjs().format("YYYY-MM-DD"),
-  );
-  const bucket = await readBucket(month);
-  const id = input.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const next: LocalReptileEvent = {
-    id,
-    event_name: input.event_name || "Événement",
-    event_date: input.event_date || dayjs().format("YYYY-MM-DD"),
-    event_time: input.event_time ?? "",
-    notes: input.notes ?? "",
-    recurrence_type: input.recurrence_type ?? "NONE",
-    recurrence_interval: input.recurrence_interval ?? 1,
-    recurrence_until: input.recurrence_until ?? "",
-    reptile_id: input.reptile_id ?? null,
-    reptile_name: input.reptile_name ?? null,
-    reptile_image_url: input.reptile_image_url ?? null,
-  };
-  const idx = bucket.findIndex((e) => e.id === id);
-  if (idx >= 0) {
-    bucket[idx] = { ...bucket[idx], ...next };
+  const eventId =
+    input.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const existing = await getReptileEvent(eventId);
+
+  const merged = { ...(existing ?? {}), ...input };
+  const event_name =
+    normalizeText(merged.event_name) || "Événement";
+  const event_date =
+    normalizeText(merged.event_date) || dayjs().format("YYYY-MM-DD");
+  const event_time = normalizeText(merged.event_time) || "";
+  const event_type = normalizeText(merged.event_type) || "OTHER";
+  const notes = normalizeText(merged.notes) || "";
+  const recurrence_type =
+    normalizeText(merged.recurrence_type) || "NONE";
+  const recurrence_interval = normalizeNumber(merged.recurrence_interval, 1);
+  const recurrence_until = normalizeText(merged.recurrence_until) || "";
+  const reptile_id = normalizeText(merged.reptile_id);
+  const reptile_name = normalizeText(merged.reptile_name);
+  const reptile_image_url = normalizeText(merged.reptile_image_url);
+  const reminder_minutes = normalizeNumber(merged.reminder_minutes, 0);
+  const priority = normalizeText(merged.priority) || "NORMAL";
+  const excluded_dates = normalizeText(merged.excluded_dates) || "";
+
+  if (existing) {
+    await executeVoid(
+      `UPDATE events SET
+        reptile_id=?,
+        reptile_name=?,
+        reptile_image_url=?,
+        event_name=?,
+        event_type=?,
+        event_date=?,
+        event_time=?,
+        notes=?,
+        recurrence_type=?,
+        recurrence_interval=?,
+        recurrence_until=?,
+        reminder_minutes=?,
+        priority=?,
+        excluded_dates=?,
+        updated_at=CURRENT_TIMESTAMP
+      WHERE id=?;`,
+      [
+        reptile_id,
+        reptile_name,
+        reptile_image_url,
+        event_name,
+        event_type,
+        event_date,
+        event_time,
+        notes,
+        recurrence_type,
+        recurrence_interval,
+        recurrence_until,
+        reminder_minutes,
+        priority,
+        excluded_dates,
+        eventId,
+      ],
+    );
   } else {
-    bucket.push(next);
+    await executeVoid(
+      `INSERT INTO events(
+        id,
+        reptile_id,
+        reptile_name,
+        reptile_image_url,
+        event_name,
+        event_type,
+        event_date,
+        event_time,
+        notes,
+        recurrence_type,
+        recurrence_interval,
+        recurrence_until,
+        reminder_minutes,
+        priority,
+        excluded_dates
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+      [
+        eventId,
+        reptile_id,
+        reptile_name,
+        reptile_image_url,
+        event_name,
+        event_type,
+        event_date,
+        event_time,
+        notes,
+        recurrence_type,
+        recurrence_interval,
+        recurrence_until,
+        reminder_minutes,
+        priority,
+        excluded_dates,
+      ],
+    );
   }
-  await writeBucket(month, bucket);
-  const months = await readIndex();
-  if (!months.includes(month)) {
-    months.push(month);
-    await writeIndex(months);
-  }
-  return next;
+
+  const updated = await getReptileEvent(eventId);
+  if (!updated) throw new Error("Failed to upsert event");
+  return updated;
 };
 
-export const deleteReptileEvent = async (id: string, event_date?: string) => {
-  const months = await readIndex();
-  const targets = event_date ? [monthFromDate(event_date)] : months;
-  for (const month of targets) {
-    const bucket = await readBucket(month);
-    const filtered = bucket.filter((e) => e.id !== id);
-    if (filtered.length !== bucket.length) {
-      await writeBucket(month, filtered);
-      if (filtered.length === 0) {
-        const nextIdx = (await readIndex()).filter((m) => m !== month);
-        await writeIndex(nextIdx);
-      }
-    }
-  }
+export const deleteReptileEvent = async (id: string): Promise<void> => {
+  await executeVoid("DELETE FROM events WHERE id = ?;", [id]);
 };
 
 export const excludeReptileEventOccurrence = async (
   id: string,
   date?: string,
-): Promise<void> => deleteReptileEvent(id, date);
+): Promise<void> => {
+  if (!date) return;
+  const existing = await getReptileEvent(id);
+  if (!existing) return;
+  const parsed: string[] = (() => {
+    if (!existing.excluded_dates) return [];
+    try {
+      const arr = JSON.parse(existing.excluded_dates);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  })();
+  if (!parsed.includes(date)) parsed.push(date);
+  await executeVoid(
+    `UPDATE events SET excluded_dates=?, updated_at=CURRENT_TIMESTAMP WHERE id=?;`,
+    [JSON.stringify(parsed), id],
+  );
+};

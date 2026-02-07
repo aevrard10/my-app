@@ -44,6 +44,7 @@ const initialValues = {
   humidity_level: null,
   temperature_range: "",
   health_status: "",
+  danger_level: "",
   acquired_date: "",
   origin: "",
   location: "",
@@ -59,6 +60,7 @@ const schema = Yup.object().shape({
   humidity_level: Yup.number(),
   temperature_range: Yup.string(),
   health_status: Yup.string(),
+  danger_level: Yup.string(),
   acquired_date: Yup.string(),
   origin: Yup.string(),
   location: Yup.string(),
@@ -160,6 +162,7 @@ const AddReptile = () => {
                   humidity_level: values.humidity_level,
                   temperature_range: values.temperature_range,
                   health_status: values.health_status,
+                  danger_level: values.danger_level,
                   acquired_date: values.acquired_date,
                   origin: values.origin,
                   location: values.location,
@@ -241,8 +244,16 @@ const AddReptile = () => {
                     onValueChange={formik.handleChange("sex")}
                     style={styles.segmentCompact}
                     buttons={[
-                      { value: "Femelle", icon: "gender-female", label: t("add_reptile.female") },
-                      { value: "Mâle", icon: "gender-male", label: t("add_reptile.male") },
+                      {
+                        value: "Femelle",
+                        icon: "gender-female",
+                        label: t("add_reptile.female"),
+                      },
+                      {
+                        value: "Mâle",
+                        icon: "gender-male",
+                        label: t("add_reptile.male"),
+                      },
                     ]}
                   />
                 </CardSurface>
@@ -370,6 +381,12 @@ const AddReptile = () => {
                     onChangeText={formik.handleChange("health_status")}
                     onBlur={formik.handleBlur("health_status")}
                   />
+                  <TextInput
+                    placeholder={t("add_reptile.danger_level")}
+                    value={formik.values.danger_level}
+                    onChangeText={formik.handleChange("danger_level")}
+                    onBlur={formik.handleBlur("danger_level")}
+                  />
                 </CardSurface>
 
                 <Button
@@ -463,3 +480,5 @@ const styles = StyleSheet.create({
   },
 });
 export default AddReptile;
+// TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?
+// Note: the image picking logic is currently in this screen, but it could be abstracted into a separate component for better reusability and separation of concerns.

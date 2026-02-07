@@ -11,7 +11,7 @@ import FeedCardSkeleton from "./components/FeedCardSkeleton";
 import HistoryChip from "./components/HistoryChip";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import Skeleton from "@shared/components/Skeleton";
-import { FlatList, View } from "react-native";
+import { FlatList, Platform, View } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import { execute, executeVoid } from "@shared/local/db";
@@ -180,6 +180,12 @@ const Feed = () => {
           )
         }
         data={isInitialLoading ? skeletonItems : data}
+        initialNumToRender={4}
+        maxToRenderPerBatch={6}
+        windowSize={7}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews={Platform.OS === "android"}
+        keyboardShouldPersistTaps="handled"
         renderItem={({ item }) =>
           isInitialLoading ? (
             <FeedCardSkeleton />
@@ -308,8 +314,8 @@ const Feed = () => {
                         <View style={{ flex: 1 }}>
                           <Text variant="bodyMedium">{f.name}</Text>
                           <Text variant="labelSmall" style={{ opacity: 0.65 }}>
-                            {t("feed.stock_label")} : {f.quantity} {f.unit || ""} ·{" "}
-                            {t("feed.daily_consumption")} :
+                            {t("feed.stock_label")} : {f.quantity}{" "}
+                            {f.unit || ""} · {t("feed.daily_consumption")} :
                             {f.daily ? ` ${f.daily.toFixed(2)}` : " —"}
                           </Text>
                         </View>
@@ -360,3 +366,5 @@ const Feed = () => {
 };
 
 export default Feed;
+// TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?
+//

@@ -12,6 +12,7 @@ enum QueriesKeys {
   REPTILE_GENETICS = "reptileGenetics",
   REPTILE_FEEDINGS = "reptileFeedings",
   REPTILE_SHEDS = "reptileSheds",
+  REPTILE_HEALTH = "reptileHealth",
   HEALTH_ALERTS = "healthAlerts",
   GOVEE_DEVICES = "goveeDevices",
   GOVEE_STATE = "goveeState",

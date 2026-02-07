@@ -51,6 +51,12 @@ const Reptiles = () => {
           contentContainerStyle={styles.contentContainerStyle}
           data={isInitialLoading ? skeletonItems : filteredData}
           keyExtractor={(item) => String(item.id)}
+          initialNumToRender={4}
+          maxToRenderPerBatch={6}
+          windowSize={7}
+          updateCellsBatchingPeriod={50}
+          removeClippedSubviews={Platform.OS === "android"}
+          keyboardShouldPersistTaps="handled"
           renderItem={({ item, index }) =>
             isInitialLoading ? (
               <ReptileCardSkeleton />

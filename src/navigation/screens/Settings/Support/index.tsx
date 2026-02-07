@@ -5,7 +5,7 @@ import Screen from "@shared/components/Screen";
 import { spacing } from "@shared/theme/tokens";
 import CardSurface from "@shared/components/CardSurface";
 import { useI18n } from "@shared/i18n";
-
+import { Linking } from "react-native";
 const SettingsSupport: React.FC = () => {
   const { t } = useI18n();
   const { colors } = useTheme();
@@ -26,6 +26,11 @@ const SettingsSupport: React.FC = () => {
             title={t("settings.support_contact")}
             description={t("settings.support_contact_desc")}
             left={(props) => <List.Icon {...props} icon="email-outline" />}
+            onPress={() => {
+              Linking.openURL(
+                "mailto:u7088832109@id.gle?cc=&subject=abcdefg&body=body",
+              );
+            }}
           />
           <List.Item
             title={t("settings.support_faq")}

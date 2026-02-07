@@ -5,6 +5,7 @@ import QueriesKeys from "@shared/declarations/queriesKeys";
 type AddReptileEventMutationVariables = {
   input: {
     event_name: string;
+    event_type?: string | null;
     event_date: string;
     event_time: string;
     recurrence_type: string;
@@ -14,6 +15,8 @@ type AddReptileEventMutationVariables = {
     reptile_id?: string | null;
     reptile_name?: string | null;
     reptile_image_url?: string | null;
+    reminder_minutes?: number | null;
+    priority?: string | null;
   };
 };
 

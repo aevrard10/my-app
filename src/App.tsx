@@ -2,6 +2,7 @@ import "react-native-gesture-handler";
 
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
+import { enableScreens } from "react-native-screens";
 import MyStack from "./navigation";
 import { PaperProvider } from "react-native-paper";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -19,6 +20,8 @@ import * as Sentry from "sentry-expo";
 import { runMigrations } from "@shared/local/db";
 import { runAsyncStorageMigration } from "@shared/local/migrations/asyncStorageMigration";
 import { I18nProvider } from "@shared/i18n";
+
+enableScreens();
 
 // Sentry (Expo wrapper) — single init
 Sentry.init({

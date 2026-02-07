@@ -1,13 +1,15 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Text, useTheme, Avatar } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type AgendaItemProps = {
   item: {
     name: string;
     time: string;
     notes: string;
+    type?: string | null;
     reptile_name?: string | null;
     reptile_image_url?: string | null;
   };
@@ -16,8 +18,20 @@ type AgendaItemProps = {
 const AgendaItem: FC<AgendaItemProps> = (props) => {
   const { item } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
 
   const timeLabel = item?.time?.trim() ? item.time : "—";
+  const typeValue = (item.type || "OTHER").toUpperCase();
+  const typeLabel =
+    typeValue === "FEEDING"
+      ? t("agenda.type_feeding")
+      : typeValue === "CLEANING"
+        ? t("agenda.type_cleaning")
+        : typeValue === "MISTING"
+          ? t("agenda.type_misting")
+          : typeValue === "VET"
+            ? t("agenda.type_vet")
+            : t("agenda.type_other");
 
   return (
     <CardSurface style={styles.card}>
@@ -48,6 +62,18 @@ const AgendaItem: FC<AgendaItemProps> = (props) => {
           </Text>
         </View>
       </View>
+      <View style={styles.metaRow}>
+        <View
+          style={[
+            styles.typePill,
+            { backgroundColor: colors.tertiaryContainer },
+          ]}
+        >
+          <Text variant="labelSmall" style={{ color: colors.tertiary }}>
+            {typeLabel}
+          </Text>
+        </View>
+      </View>
       {item?.notes ? (
         <Text numberOfLines={2} style={styles.notes}>
           {item.notes}
@@ -57,7 +83,7 @@ const AgendaItem: FC<AgendaItemProps> = (props) => {
   );
 };
 
-export default AgendaItem;
+export default memo(AgendaItem);
 
 const styles = StyleSheet.create({
   card: {
@@ -94,5 +120,17 @@ const styles = StyleSheet.create({
   },
   notesInline: {
     opacity: 0.6,
+  },
+  metaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  typePill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    alignSelf: "flex-start",
   },
 });

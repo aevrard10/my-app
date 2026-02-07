@@ -3,6 +3,9 @@ enum ScreenNames {
   REGISTER = "Register",
   HOME_TABS = "HomeTabs",
   ADD_REPTILE = "AddReptile",
+  ADD_EVENT = "AddEvent",
+  EVENT_DETAILS = "EventDetails",
+  EDIT_EVENT = "EditEvent",
   REPTILE_PROFILE_DETAILS = "ReptileProfileDetails",
   FEED = "Feed",
   NOT_FOUND = "NotFound",
@@ -21,6 +24,8 @@ enum ScreenNames {
   SETTINGS_LANGUAGE = "SettingsLanguage",
   SETTINGS_PRICING = "SettingsPricing",
   SETTINGS_SUPPORT = "SettingsSupport",
+  HEALTH_HISTORY = "HealthHistory",
+  ADD_HEALTH_STATUS = "AddHealthStatus",
 }
 
 export default ScreenNames;

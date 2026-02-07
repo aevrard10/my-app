@@ -1,7 +1,10 @@
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
-import { getReptileEvents, LocalReptileEvent } from "@shared/local/reptileEventsStore";
+import {
+  getReptileEvents,
+  LocalReptileEvent,
+} from "@shared/local/reptileEventsStore";
 
 const queryKey = [QueriesKeys.REPTILES_EVENTS];
 
@@ -31,7 +34,34 @@ const formatTime = (time: string): string => {
   return parsed.format("HH:mm");
 };
 
+type AgendaEventItem = {
+  id: string;
+  name: string;
+  type?: string | null;
+  time: string;
+  notes?: string;
+  date: string;
+  recurrence_type?: string;
+  recurrence_interval?: number;
+  recurrence_until?: string;
+  reptile_id?: string | null;
+  reptile_name?: string | null;
+  reptile_image_url?: string | null;
+  reminder_minutes?: number | null;
+  priority?: string | null;
+};
+
 // Modified hook with transformation logic
+const parseExcludedDates = (value?: string | null): string[] => {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const expandRecurrence = (
   event: LocalReptileEvent,
   horizonDays = 90,
@@ -43,13 +73,17 @@ const expandRecurrence = (
   const until = event.recurrence_until
     ? dayjs(event.recurrence_until)
     : start.add(horizonDays, "day");
+  const excluded = parseExcludedDates(event.excluded_dates);
 
   let current = start;
   while (current.isBefore(until) || current.isSame(until, "day")) {
-    occurrences.push({
-      ...event,
-      event_date: current.format("YYYY-MM-DD"),
-    });
+    const dateKey = current.format("YYYY-MM-DD");
+    if (!excluded.includes(dateKey)) {
+      occurrences.push({
+        ...event,
+        event_date: dateKey,
+      });
+    }
     if (type === "DAILY") {
       current = current.add(interval, "day");
     } else if (type === "WEEKLY") {
@@ -67,21 +101,7 @@ const expandRecurrence = (
 
 const useReptileEventsQuery = Object.assign(
   () =>
-    useQuery<
-      Record<
-        string,
-        {
-          id: string;
-          name: string;
-          time: string;
-          notes?: string;
-          date: string;
-          recurrence_type?: string;
-          recurrence_interval?: number;
-          recurrence_until?: string;
-        }[]
-      >
-    >({
+    useQuery<Record<string, AgendaEventItem[]>>({
       queryKey,
       queryFn: async () => {
         const events = await getReptileEvents();
@@ -89,9 +109,10 @@ const useReptileEventsQuery = Object.assign(
         return expanded.reduce((acc, event) => {
           const formattedDate = formatDate(event.event_date);
           const formattedTime = formatTime(event.event_time || "");
-          const item = {
+          const item: AgendaEventItem = {
             id: event.id,
             name: event.event_name,
+            type: event.event_type ?? null,
             time: formattedTime,
             notes: event.notes || "",
             date: formattedDate,
@@ -101,11 +122,13 @@ const useReptileEventsQuery = Object.assign(
             reptile_id: event.reptile_id,
             reptile_name: event.reptile_name,
             reptile_image_url: event.reptile_image_url,
+            reminder_minutes: event.reminder_minutes ?? 0,
+            priority: event.priority ?? "NORMAL",
           };
           if (!acc[formattedDate]) acc[formattedDate] = [];
           acc[formattedDate].push(item);
           return acc;
-        }, {} as Record<string, LocalReptileEvent[]>);
+        }, {} as Record<string, AgendaEventItem[]>);
       },
       staleTime: 1000 * 60 * 5,
     }),

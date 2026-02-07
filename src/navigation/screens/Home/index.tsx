@@ -137,9 +137,7 @@ const Home = () => {
                 styles.quickAction,
                 { backgroundColor: colors.secondaryContainer },
               ]}
-              onPress={() =>
-                navigate(ScreenNames.AGENDA, { openAddEvent: true })
-              }
+              onPress={() => navigate(ScreenNames.ADD_EVENT)}
             >
               <View style={styles.quickActionContent}>
                 <Icon source="calendar" size={18} color={colors.secondary} />
@@ -509,3 +507,4 @@ const styles = StyleSheet.create({
 });
 
 export default Home;
+// TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?

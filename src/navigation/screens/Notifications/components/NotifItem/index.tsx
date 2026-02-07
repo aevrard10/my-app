@@ -1,5 +1,5 @@
 import { notificationsMultiFormat } from "@shared/utils/formatedDate";
-import React, { FC, useCallback } from "react";
+import React, { FC, useCallback, memo } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Icon,
@@ -169,4 +169,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotifItem;
+export default memo(NotifItem);

@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { FlatList, Platform, View } from "react-native";
 import { Avatar, Card, Chip, Icon, useTheme, Text } from "react-native-paper";
 
 import useFoodStockHistoryQuery from "./hooks/data/queries/useStockQuery";
@@ -27,6 +27,12 @@ const FeedHistory = () => {
             <ListEmptyComponent isLoading={isPending} />
           )
         }
+        initialNumToRender={6}
+        maxToRenderPerBatch={8}
+        windowSize={9}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews={Platform.OS === "android"}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: 40 }}
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
@@ -49,7 +55,6 @@ const FeedHistory = () => {
                   minute: "numeric",
                 })
               : t("common.date_unavailable");
-          console.log("Food item:", food);
           return (
             <View style={{ marginVertical: 10 }} key={food.id}>
               <Card style={{ borderRadius: 18, overflow: "hidden" }}>

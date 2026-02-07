@@ -16,6 +16,9 @@ import Feed from "./screens/Feed";
 import AddMesuarements from "./screens/AddMesuarements";
 import AddFeed from "./screens/AddFeed";
 import FeedHistory from "./screens/FeedHistory";
+import AddEvent from "./screens/AddEvent";
+import EventDetails from "./screens/EventDetails";
+import EditEvent from "./screens/EditEvent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
 import AppleLogin from "./screens/AppleLogin";
@@ -23,6 +26,8 @@ import Settings from "./screens/Settings";
 import SettingsLanguage from "./screens/Settings/Language";
 import SettingsPricing from "./screens/Settings/Pricing";
 import SettingsSupport from "./screens/Settings/Support";
+import HealthHistory from "./screens/HealthHistory";
+import AddHealthStatus from "./screens/AddHealthStatus";
 import { useI18n } from "@shared/i18n";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -196,6 +201,27 @@ const MyStack = () => {
             }}
           />
           <Stack.Screen
+            name={ScreenNames.ADD_EVENT}
+            component={AddEvent}
+            options={{
+              title: t("agenda.new_event_title"),
+            }}
+          />
+          <Stack.Screen
+            name={ScreenNames.EVENT_DETAILS}
+            component={EventDetails}
+            options={{
+              title: t("agenda.edit_event_title"),
+            }}
+          />
+          <Stack.Screen
+            name={ScreenNames.EDIT_EVENT}
+            component={EditEvent}
+            options={{
+              title: t("agenda.edit_event_title"),
+            }}
+          />
+          <Stack.Screen
             name={ScreenNames.REPTILE_PROFILE_DETAILS}
             component={ReptileProfileDetails}
             options={{ title: t("nav.reptile_details") }}
@@ -239,6 +265,16 @@ const MyStack = () => {
             name={ScreenNames.SETTINGS_SUPPORT}
             component={SettingsSupport}
             options={{ title: t("settings.help") }}
+          />
+          <Stack.Screen
+            name={ScreenNames.HEALTH_HISTORY}
+            component={HealthHistory}
+            options={{ title: t("health.history_title") }}
+          />
+          <Stack.Screen
+            name={ScreenNames.ADD_HEALTH_STATUS}
+            component={AddHealthStatus}
+            options={{ title: t("health.add_title") }}
           />
         </>
       )}

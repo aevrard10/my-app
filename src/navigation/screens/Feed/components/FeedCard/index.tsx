@@ -11,7 +11,7 @@ import {
 import getFoodIcon, { FoodType } from "../../utils/getFoodIcon";
 import TextInput from "@shared/components/TextInput";
 import CardSurface from "@shared/components/CardSurface";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, memo } from "react";
 import { Text } from "react-native";
 import { useI18n } from "@shared/i18n";
 
@@ -269,7 +269,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderWidth: 0,
     paddingVertical: 6,
-    outlineStyle: "none",
   },
   actionRow: {
     flexDirection: "row",
@@ -278,4 +277,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FeedCard;
+export default memo(FeedCard);

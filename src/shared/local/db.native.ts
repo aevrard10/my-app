@@ -41,6 +41,7 @@ export const runMigrations = async () => {
       humidity_level REAL,
       temperature_range TEXT,
       health_status TEXT,
+      danger_level TEXT,
       acquired_date TEXT,
       origin TEXT,
       sex TEXT,
@@ -112,23 +113,62 @@ export const runMigrations = async () => {
     CREATE TABLE IF NOT EXISTS events (
       id TEXT PRIMARY KEY,
       reptile_id TEXT,
+      reptile_name TEXT,
+      reptile_image_url TEXT,
       event_name TEXT NOT NULL,
+      event_type TEXT,
       event_date TEXT NOT NULL,
       event_time TEXT,
       notes TEXT,
       recurrence_type TEXT,
       recurrence_interval INTEGER,
       recurrence_until TEXT,
+      reminder_minutes INTEGER,
+      priority TEXT,
+      excluded_dates TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
     CREATE INDEX IF NOT EXISTS idx_events_reptile_date ON events(reptile_id, event_date);
     CREATE INDEX IF NOT EXISTS idx_events_type_date ON events(event_name, event_date);
+
+    CREATE TABLE IF NOT EXISTS health_events (
+      id TEXT PRIMARY KEY,
+      reptile_id TEXT NOT NULL,
+      event_type TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      event_time TEXT,
+      notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_health_reptile_date ON health_events(reptile_id, event_date);
   `);
   // Ajout colonne type si base existante
   try {
     await db.execAsync(`ALTER TABLE feedings ADD COLUMN type TEXT;`);
   } catch (e) {
     // ignore si déjà ajoutée
+  }
+  // Ajout colonne danger_level si base existante
+  try {
+    await db.execAsync(`ALTER TABLE reptiles ADD COLUMN danger_level TEXT;`);
+  } catch (e) {
+    // ignore si déjà ajoutée
+  }
+  // Ajout des colonnes events si base existante
+  const eventColumns = [
+    "reptile_name TEXT",
+    "reptile_image_url TEXT",
+    "event_type TEXT",
+    "reminder_minutes INTEGER",
+    "priority TEXT",
+    "excluded_dates TEXT",
+  ];
+  for (const col of eventColumns) {
+    try {
+      await db.execAsync(`ALTER TABLE events ADD COLUMN ${col};`);
+    } catch (e) {
+      // ignore si déjà ajoutée
+    }
   }
 };

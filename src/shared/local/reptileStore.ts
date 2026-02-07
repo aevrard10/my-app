@@ -14,6 +14,7 @@ export type LocalReptile = {
   humidity_level?: number | string | null;
   temperature_range?: string | null;
   health_status?: string | null;
+  danger_level?: string | null;
   acquired_date?: string | null;
   origin?: string | null;
   sex?: string | null;
@@ -65,6 +66,7 @@ export const upsertReptile = async (
         humidity_level=?,
         temperature_range=?,
         health_status=?,
+        danger_level=?,
         acquired_date=?,
         origin=?,
         sex=?,
@@ -84,6 +86,7 @@ export const upsertReptile = async (
         input.humidity_level ?? null,
         input.temperature_range ?? null,
         input.health_status ?? null,
+        input.danger_level ?? null,
         input.acquired_date ?? null,
         input.origin ?? null,
         input.sex ?? null,
@@ -94,8 +97,8 @@ export const upsertReptile = async (
   } else {
     await executeVoid(
       `INSERT INTO reptiles(
-        id,name,species,age,last_fed,notes,image_url,sort_of_species,feeding_schedule,diet,humidity_level,temperature_range,health_status,acquired_date,origin,sex,location
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+        id,name,species,age,last_fed,notes,image_url,sort_of_species,feeding_schedule,diet,humidity_level,temperature_range,health_status,danger_level,acquired_date,origin,sex,location
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
       [
         reptileId,
         input.name,
@@ -110,6 +113,7 @@ export const upsertReptile = async (
         input.humidity_level ?? null,
         input.temperature_range ?? null,
         input.health_status ?? null,
+        input.danger_level ?? null,
         input.acquired_date ?? null,
         input.origin ?? null,
         input.sex ?? null,
