@@ -1372,15 +1372,15 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: "#C33C3C",
   },
-  healthCard: {
-    marginTop: 8,
-    marginBottom: 4,
+  healthAccordionContent: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    gap: 6,
   },
-  healthHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
+  healthHistoryButton: {
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    marginTop: 6,
   },
   mutedText: {
     opacity: 0.6,

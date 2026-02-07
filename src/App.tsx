@@ -8,7 +8,6 @@ import { PaperProvider } from "react-native-paper";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "@rn-flix/snackbar";
 import { NavigationContainer } from "@react-navigation/native";
-import AuthProvider, { useAuth } from "@shared/contexts/AuthContext";
 import ErrorBoundary from "@shared/components/ErrorBoundary";
 import * as Notifications from "expo-notifications";
 import { Platform, type ViewStyle } from "react-native";
@@ -136,36 +135,25 @@ const App: React.FC = () => {
   if (!fontsLoaded) {
     return null;
   }
-  const AuthGate = ({ children }: { children: React.ReactNode }) => {
-    const { isReady } = useAuth();
-    if (!isReady) {
-      return null;
-    }
-    return <>{children}</>;
-  };
   return (
     <SafeAreaProvider>
       <I18nProvider>
-        <AuthProvider>
-          <AuthGate>
-            <SnackbarProviderCompat>
-              <PaperProvider theme={appTheme}>
-                <QueryClientProvider client={queryClient}>
-                  <NavigationContainer
-                    linking={linking}
-                    onReady={() => {
-                      SplashScreen.hideAsync();
-                    }}
-                  >
-                    <ErrorBoundary>
-                      <MyStack />
-                    </ErrorBoundary>
-                  </NavigationContainer>
-                </QueryClientProvider>
-              </PaperProvider>
-            </SnackbarProviderCompat>
-          </AuthGate>
-        </AuthProvider>
+        <SnackbarProviderCompat>
+          <PaperProvider theme={appTheme}>
+            <QueryClientProvider client={queryClient}>
+              <NavigationContainer
+                linking={linking}
+                onReady={() => {
+                  SplashScreen.hideAsync();
+                }}
+              >
+                <ErrorBoundary>
+                  <MyStack />
+                </ErrorBoundary>
+              </NavigationContainer>
+            </QueryClientProvider>
+          </PaperProvider>
+        </SnackbarProviderCompat>
       </I18nProvider>
     </SafeAreaProvider>
   );

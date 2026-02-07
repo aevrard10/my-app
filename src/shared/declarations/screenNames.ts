@@ -19,7 +19,6 @@ enum ScreenNames {
   FEED_HISTORY = "FeedHistory",
   FORGOT_PASSWORD = "ForgotPassword",
   RESET_PASSWORD = "ResetPassword",
-  APPLE_LOGIN = "AppleLogin",
   SETTINGS = "Settings",
   SETTINGS_LANGUAGE = "SettingsLanguage",
   SETTINGS_PRICING = "SettingsPricing",

@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import ScreenNames from "@shared/declarations/screenNames";
-import { FAB, Text, useTheme, Icon } from "react-native-paper";
+import { FAB, Text, useTheme, Icon, Searchbar } from "react-native-paper";
 import useFoodQuery from "./hooks/data/queries/useStockQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
@@ -18,12 +18,25 @@ import { execute, executeVoid } from "@shared/local/db";
 import { useQuery } from "@tanstack/react-query";
 import { List } from "react-native-paper";
 import { useI18n } from "@shared/i18n";
+import useSearchFilter from "@shared/hooks/useSearchFilter";
+import { getFoodLabel, getFoodTypeLabel } from "@shared/constants/foodCatalog";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const { t } = useI18n();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
+  const [searchText, setSearchText] = useState("");
+  const [filteredData] = useSearchFilter(
+    data ?? [],
+    searchText,
+    undefined,
+    [
+      (item) => getFoodLabel(item.name, t),
+      (item) => getFoodTypeLabel(item.type ?? null, t),
+    ],
+    2,
+  );
   const { data: usageData, isPending: isUsageLoading } = useQuery({
     queryKey: ["stock-forecast"],
     queryFn: async () => {
@@ -130,7 +143,11 @@ const Feed = () => {
       delta: number,
       unit?: string | null,
       type?: string | null,
+      currentQty?: number,
     ) => {
+      if (delta < 0 && (currentQty ?? 0) <= 0) {
+        return;
+      }
       updateStockMutation.mutate(
         { name, delta, unit, type },
         {
@@ -179,7 +196,7 @@ const Feed = () => {
             <ListEmptyComponent isLoading={isFoodLoading} />
           )
         }
-        data={isInitialLoading ? skeletonItems : data}
+        data={isInitialLoading ? skeletonItems : filteredData}
         initialNumToRender={4}
         maxToRenderPerBatch={6}
         windowSize={7}
@@ -211,6 +228,16 @@ const Feed = () => {
               <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
                 {t("feed.subtitle")}
               </Text>
+              <Searchbar
+                elevation={0}
+                mode="bar"
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholder={t("feed.search")}
+                clearButtonMode="always"
+                style={{ marginTop: 12 }}
+                inputStyle={{ fontSize: 14 }}
+              />
             </CardSurface>
 
             <CardSurface style={{ marginBottom: 12, paddingVertical: 0 }}>

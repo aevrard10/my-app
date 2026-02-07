@@ -8,6 +8,7 @@ import Screen from "@shared/components/Screen";
 import FeedHistorySkeleton from "./components/FeedHistorySkeleton";
 import CardSurface from "@shared/components/CardSurface";
 import { useI18n } from "@shared/i18n";
+import { getFoodLabel, getFoodTypeLabel } from "@shared/constants/foodCatalog";
 
 const FeedHistory = () => {
   const { colors } = useTheme();
@@ -61,7 +62,12 @@ const FeedHistory = () => {
                 <Card.Title
                   title={formattedDate}
                   subtitle={
-                    food.type ? `${food.reason} · ${food.type}` : food.reason
+                    food.type
+                      ? `${getFoodLabel(food.reason, t)} · ${getFoodTypeLabel(
+                          food.type,
+                          t,
+                        )}`
+                      : getFoodLabel(food.reason, t)
                   }
                   left={({ size }) => (
                     <Avatar.Icon

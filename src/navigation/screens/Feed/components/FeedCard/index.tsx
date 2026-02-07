@@ -14,6 +14,7 @@ import CardSurface from "@shared/components/CardSurface";
 import { FC, useEffect, useState, memo } from "react";
 import { Text } from "react-native";
 import { useI18n } from "@shared/i18n";
+import { getFoodLabel, getFoodTypeLabel } from "@shared/constants/foodCatalog";
 
 type FoodCardProps = {
   food: {
@@ -29,6 +30,7 @@ type FoodCardProps = {
     delta: number,
     unit?: string | null,
     type?: string | null,
+    currentQty?: number,
   ) => void;
   handleDelete?: (
     name: string,
@@ -44,6 +46,8 @@ const FeedCard: FC<FoodCardProps> = (props) => {
   const stockLow = food.quantity < 10;
   const stockCritical = food.quantity === 0;
   const [quantityText, setQuantityText] = useState("1");
+  const displayName = getFoodLabel(food.name, t);
+  const displayType = getFoodTypeLabel(food.type ?? null, t);
 
   useEffect(() => {
     setQuantityText("1");
@@ -65,7 +69,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
               />
               <View style={styles.titleBlock}>
                 <View style={styles.titleLine}>
-                  <Text style={styles.title}>{food.name}</Text>
+                  <Text style={styles.title}>{displayName}</Text>
                   <Chip
                     icon={() => (
                       <Icon
@@ -90,7 +94,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                   </Chip>
                 </View>
                 <Text style={styles.subtitle}>
-                  {food.type || t("feed.default_type")}
+                  {displayType || t("feed.default_type")}
                 </Text>
               </View>
             </View>
@@ -153,6 +157,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                   -quantityValue,
                   food.unit,
                   (food.type as string) || null,
+                  food.quantity,
                 )
               }
             >
@@ -168,6 +173,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                   quantityValue,
                   food.unit,
                   (food.type as string) || null,
+                  food.quantity,
                 )
               }
             >

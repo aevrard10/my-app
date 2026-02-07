@@ -5,8 +5,6 @@ import { NotFound } from "./screens/NotFound";
 import AddReptile from "./screens/AddReptile";
 import { Icon, IconButton, useTheme } from "react-native-paper";
 import { Header, getHeaderTitle } from "@react-navigation/elements";
-import { useAuth } from "@shared/contexts/AuthContext";
-import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
 import Agenda from "./screens/Agenda";
 import Notifications from "./screens/Notifications";
 import ScreenNames from "@shared/declarations/screenNames";
@@ -21,7 +19,6 @@ import EventDetails from "./screens/EventDetails";
 import EditEvent from "./screens/EditEvent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
-import AppleLogin from "./screens/AppleLogin";
 import Settings from "./screens/Settings";
 import SettingsLanguage from "./screens/Settings/Language";
 import SettingsPricing from "./screens/Settings/Pricing";
@@ -141,8 +138,6 @@ const HomeTabs = () => {
 
 const MyStack = () => {
   const { colors } = useTheme();
-  const { token } = useAuth();
-  const { mutate } = useLogoutMutation();
   const { t } = useI18n();
   return (
     <Stack.Navigator
@@ -155,13 +150,6 @@ const MyStack = () => {
             headerStyle={{
               backgroundColor: colors.primary,
             }}
-            headerRight={() => (
-              <IconButton
-                icon="logout-variant"
-                iconColor={colors.onPrimary}
-                onPress={() => mutate()}
-              />
-            )}
             headerBackButtonDisplayMode="minimal"
             headerTintColor={colors.onPrimary}
             headerLeftContainerStyle={{
@@ -171,113 +159,98 @@ const MyStack = () => {
         ),
       }}
     >
-      {!token ? (
-        <>
-          <Stack.Screen
-            name={ScreenNames.APPLE_LOGIN}
-            component={AppleLogin}
-            options={{ title: "Apple", headerShown: false }}
-          />
-        </>
-      ) : (
-        <>
-          <Stack.Screen
-            name={ScreenNames.HOME_TABS}
-            component={HomeTabs}
-            // options: {
-            //   headerTitle: (props) => <LogoTitle {...props} />,
-            // },
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.ADD_REPTILE}
-            component={AddReptile}
-            options={{
-              title: t("nav.add_reptile"),
-              presentation: "modal",
-              keyboardHandlingEnabled: true,
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.ADD_EVENT}
-            component={AddEvent}
-            options={{
-              title: t("agenda.new_event_title"),
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.EVENT_DETAILS}
-            component={EventDetails}
-            options={{
-              title: t("agenda.edit_event_title"),
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.EDIT_EVENT}
-            component={EditEvent}
-            options={{
-              title: t("agenda.edit_event_title"),
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.REPTILE_PROFILE_DETAILS}
-            component={ReptileProfileDetails}
-            options={{ title: t("nav.reptile_details") }}
-          />
-          <Stack.Screen
-            name={ScreenNames.ADD_MEASUREMENTS}
-            component={AddMesuarements}
-            options={{
-              presentation: "modal",
-              title: t("nav.add_measurements"),
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.ADD_FEED}
-            component={AddFeed}
-            options={{
-              presentation: "modal",
-              title: t("nav.add_feed"),
-            }}
-          />
-          <Stack.Screen
-            name={ScreenNames.FEED_HISTORY}
-            component={FeedHistory}
-            options={{
-              presentation: "modal",
-              title: t("nav.feed_history"),
-            }}
-          />
-          <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />
-          <Stack.Screen
-            name={ScreenNames.SETTINGS_LANGUAGE}
-            component={SettingsLanguage}
-            options={{ title: t("settings.language") }}
-          />
-          <Stack.Screen
-            name={ScreenNames.SETTINGS_PRICING}
-            component={SettingsPricing}
-            options={{ title: t("settings.pricing") }}
-          />
-          <Stack.Screen
-            name={ScreenNames.SETTINGS_SUPPORT}
-            component={SettingsSupport}
-            options={{ title: t("settings.help") }}
-          />
-          <Stack.Screen
-            name={ScreenNames.HEALTH_HISTORY}
-            component={HealthHistory}
-            options={{ title: t("health.history_title") }}
-          />
-          <Stack.Screen
-            name={ScreenNames.ADD_HEALTH_STATUS}
-            component={AddHealthStatus}
-            options={{ title: t("health.add_title") }}
-          />
-        </>
-      )}
+      <Stack.Screen
+        name={ScreenNames.HOME_TABS}
+        component={HomeTabs}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.ADD_REPTILE}
+        component={AddReptile}
+        options={{
+          title: t("nav.add_reptile"),
+          presentation: "modal",
+          keyboardHandlingEnabled: true,
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.ADD_EVENT}
+        component={AddEvent}
+        options={{
+          title: t("agenda.new_event_title"),
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.EVENT_DETAILS}
+        component={EventDetails}
+        options={{
+          title: t("agenda.edit_event_title"),
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.EDIT_EVENT}
+        component={EditEvent}
+        options={{
+          title: t("agenda.edit_event_title"),
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.REPTILE_PROFILE_DETAILS}
+        component={ReptileProfileDetails}
+        options={{ title: t("nav.reptile_details") }}
+      />
+      <Stack.Screen
+        name={ScreenNames.ADD_MEASUREMENTS}
+        component={AddMesuarements}
+        options={{
+          presentation: "modal",
+          title: t("nav.add_measurements"),
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.ADD_FEED}
+        component={AddFeed}
+        options={{
+          presentation: "modal",
+          title: t("nav.add_feed"),
+        }}
+      />
+      <Stack.Screen
+        name={ScreenNames.FEED_HISTORY}
+        component={FeedHistory}
+        options={{
+          presentation: "modal",
+          title: t("nav.feed_history"),
+        }}
+      />
+      <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />
+      <Stack.Screen
+        name={ScreenNames.SETTINGS_LANGUAGE}
+        component={SettingsLanguage}
+        options={{ title: t("settings.language") }}
+      />
+      <Stack.Screen
+        name={ScreenNames.SETTINGS_PRICING}
+        component={SettingsPricing}
+        options={{ title: t("settings.pricing") }}
+      />
+      <Stack.Screen
+        name={ScreenNames.SETTINGS_SUPPORT}
+        component={SettingsSupport}
+        options={{ title: t("settings.help") }}
+      />
+      <Stack.Screen
+        name={ScreenNames.HEALTH_HISTORY}
+        component={HealthHistory}
+        options={{ title: t("health.history_title") }}
+      />
+      <Stack.Screen
+        name={ScreenNames.ADD_HEALTH_STATUS}
+        component={AddHealthStatus}
+        options={{ title: t("health.add_title") }}
+      />
     </Stack.Navigator>
   );
 };

@@ -5,24 +5,8 @@ import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import Skeleton from "@shared/components/Skeleton";
 import React, { useMemo } from "react";
-import {
-  Alert,
-  Linking,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
-import {
-  Avatar,
-  Button,
-  Icon,
-  IconButton,
-  Text,
-  TouchableRipple,
-  useTheme,
-} from "react-native-paper";
-import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
+import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { Avatar, Button, Icon, Text, TouchableRipple, useTheme } from "react-native-paper";
 import useDashboardSummaryQuery, {
   DashboardSummary,
 } from "@shared/hooks/queries/useDashboardSummary";
@@ -41,7 +25,6 @@ const Home = () => {
   const isSummaryLoading = isPending || isLoading;
   const summaryError = error;
 
-  const { mutate: logout } = useLogoutMutation();
 
   const upcomingEvents: DashboardSummary["upcoming_events"] =
     summary?.upcoming_events ?? [];
@@ -93,25 +76,6 @@ const Home = () => {
                 {t("home.subtitle")}
               </Text>
             </View>
-            <IconButton
-              icon="logout-variant"
-              onPress={() => {
-                if (Platform.OS === "web" && typeof window !== "undefined") {
-                  if (window.confirm(t("home.logout_confirm"))) {
-                    logout();
-                  }
-                  return;
-                }
-                Alert.alert(t("home.logout_title"), t("home.logout_confirm"), [
-                  { text: t("common.cancel"), style: "cancel" },
-                  {
-                    text: t("home.logout_action"),
-                    style: "destructive",
-                    onPress: () => logout(),
-                  },
-                ]);
-              }}
-            />
           </View>
         </CardSurface>
 

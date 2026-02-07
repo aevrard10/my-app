@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import { execute } from "@shared/local/db";
+import {
+  getFoodTypeKeyFromFood,
+  normalizeFoodType,
+} from "@shared/constants/foodCatalog";
 
 type StockItem = {
   id: string;
@@ -21,20 +25,24 @@ const useFoodQuery = Object.assign(
         const rows = await execute(
           `SELECT food_name as name,
                   IFNULL(SUM(quantity),0) as quantity,
-                  unit,
-                  type,
-                  MAX(fed_at) as last_updated
+                  MAX(fed_at) as last_updated,
+                  MAX(type) as type,
+                  MAX(unit) as unit
            FROM feedings
            WHERE reptile_id = 'stock'
-           GROUP BY food_name, unit, type
+           GROUP BY food_name
            ORDER BY last_updated DESC;`,
         );
         return rows.map((r: any) => ({
-          id: `${r.name}-${r.unit || ""}-${r.type || ""}`,
+          id: `${r.name}`,
           name: r.name,
           quantity: r.quantity,
-          unit: r.unit,
-          type: r.type ?? null,
+          unit: r.unit ?? null,
+          type:
+            normalizeFoodType(r.type) ||
+            getFoodTypeKeyFromFood(r.name) ||
+            r.type ||
+            null,
           last_updated: r.last_updated,
         }));
       },
