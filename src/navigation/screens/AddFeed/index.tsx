@@ -18,6 +18,7 @@ import useFoodQuery from "../Feed/hooks/data/queries/useStockQuery";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import TextInput from "@shared/components/TextInput";
+import { useI18n } from "@shared/i18n";
 
 const initialValues = {
   name: "",
@@ -25,20 +26,20 @@ const initialValues = {
   type: "",
 };
 
-const schema = Yup.object().shape({
-  name: Yup.string().required("Nom de la nourriture requis"),
-  quantity: Yup.number()
-    .typeError("La quantité doit être un nombre")
-    .required("Quantité requise")
-    .min(1, "La quantité doit être au moins de 1"),
-  type: Yup.string().nullable(),
-});
-
 const AddFeed = () => {
   const { show } = useSnackbar();
   const queryClient = useQueryClient();
   const { mutate: addFoodStock } = useAddFoodStockMutation();
   const { goBack } = useNavigation();
+  const { t } = useI18n();
+  const schema = Yup.object().shape({
+    name: Yup.string().required(t("add_feed.validation.name_required")),
+    quantity: Yup.number()
+      .typeError(t("add_feed.validation.qty_number"))
+      .required(t("add_feed.validation.qty_required"))
+      .min(1, t("add_feed.validation.qty_min")),
+    type: Yup.string().nullable(),
+  });
 
   const [visible, setVisible] = useState(false);
   const [visibleType, setVisibleType] = useState(false);
@@ -64,11 +65,11 @@ const AddFeed = () => {
                   queryClient.invalidateQueries({
                     queryKey: useFoodQuery.queryKey,
                   });
-                  show("Nourriture ajoutée avec succès");
+                  show(t("add_feed.success"));
                   goBack();
                 },
                 onError: () => {
-                  show("Une erreur s'est produite");
+                  show(t("add_feed.error"));
                 },
               },
             );
@@ -80,16 +81,16 @@ const AddFeed = () => {
               keyboardShouldPersistTaps="handled"
             >
               <View style={styles.header}>
-                <Text variant="headlineSmall">Ajouter un aliment</Text>
+                <Text variant="headlineSmall">{t("add_feed.title")}</Text>
                 <Text variant="bodySmall" style={styles.headerSubtitle}>
-                  Gardez votre stock à jour pour chaque type de proie.
+                  {t("add_feed.subtitle")}
                 </Text>
               </View>
 
               <CardSurface style={styles.inputSection}>
                 <View style={styles.fieldContainer}>
                   <Button mode="contained" onPress={() => setVisible(true)}>
-                    {formik.values.name || "Sélectionner une nourriture"}
+                    {formik.values.name || t("add_feed.select_food")}
                   </Button>
 
                   <Portal>
@@ -98,7 +99,7 @@ const AddFeed = () => {
                       onDismiss={() => setVisible(false)}
                       style={styles.dialog}
                     >
-                      <Dialog.Title>Choisir un aliment</Dialog.Title>
+                      <Dialog.Title>{t("add_feed.choose_food")}</Dialog.Title>
                       <Dialog.Content>
                         <ScrollView style={{ maxHeight: 300 }}>
                           <RadioButton.Group
@@ -108,28 +109,28 @@ const AddFeed = () => {
                             }}
                             value={formik.values.name}
                           >
-                            <RadioButton.Item label="Poussin" value="Poussin" />
-                            <RadioButton.Item label="Poule" value="Poule" />
-                            <RadioButton.Item label="Caille" value="Caille" />
-                            <RadioButton.Item label="Canard" value="Canard" />
-                            <RadioButton.Item label="Dinde" value="Dinde" />
-                            <RadioButton.Item label="Souris" value="Souris" />
-                            <RadioButton.Item label="Rat" value="Rat" />
-                            <RadioButton.Item label="Lézard" value="Lézard" />
-                            <RadioButton.Item label="Criquet" value="Criquet" />
-                            <RadioButton.Item label="Blatte" value="Blatte" />
+                            <RadioButton.Item label={t("food.chick")} value="Poussin" />
+                            <RadioButton.Item label={t("food.chicken")} value="Poule" />
+                            <RadioButton.Item label={t("food.quail")} value="Caille" />
+                            <RadioButton.Item label={t("food.duck")} value="Canard" />
+                            <RadioButton.Item label={t("food.turkey")} value="Dinde" />
+                            <RadioButton.Item label={t("food.mouse")} value="Souris" />
+                            <RadioButton.Item label={t("food.rat")} value="Rat" />
+                            <RadioButton.Item label={t("food.lizard")} value="Lézard" />
+                            <RadioButton.Item label={t("food.cricket")} value="Criquet" />
+                            <RadioButton.Item label={t("food.roach")} value="Blatte" />
                             <RadioButton.Item
-                              label="Vers de farine"
+                              label={t("food.mealworm")}
                               value="Vers de farine"
                             />
                             <RadioButton.Item
-                              label="Vers de terre"
+                              label={t("food.earthworm")}
                               value="Vers de terre"
                             />
-                            <RadioButton.Item label="Grillon" value="Grillon" />
-                            <RadioButton.Item label="Cafard" value="Cafard" />
-                            <RadioButton.Item label="Poisson" value="Poisson" />
-                            <RadioButton.Item label="Autre" value="Autre" />
+                            <RadioButton.Item label={t("food.grillon")} value="Grillon" />
+                            <RadioButton.Item label={t("food.cockroach")} value="Cafard" />
+                            <RadioButton.Item label={t("food.fish")} value="Poisson" />
+                            <RadioButton.Item label={t("food.other")} value="Autre" />
                           </RadioButton.Group>
                         </ScrollView>
                       </Dialog.Content>
@@ -141,7 +142,7 @@ const AddFeed = () => {
 
                 <View style={styles.fieldContainer}>
                   <Button mode="outlined" onPress={() => setVisibleType(true)}>
-                    {formik.values.type || "Sélectionner le type"}
+                    {formik.values.type || t("add_feed.select_type")}
                   </Button>
                   <Portal>
                     <Dialog
@@ -149,7 +150,7 @@ const AddFeed = () => {
                       onDismiss={() => setVisibleType(false)}
                       style={styles.dialog}
                     >
-                      <Dialog.Title>Choisir un type</Dialog.Title>
+                      <Dialog.Title>{t("add_feed.choose_type")}</Dialog.Title>
                       <Dialog.Content>
                         <RadioButton.Group
                           onValueChange={(value) => {
@@ -158,12 +159,12 @@ const AddFeed = () => {
                           }}
                           value={formik.values.type}
                         >
-                          <RadioButton.Item label="Rongeur" value="Rongeur" />
-                          <RadioButton.Item label="Insectes" value="Insectes" />
-                          <RadioButton.Item label="Volaille" value="Volaille" />
-                          <RadioButton.Item label="Poisson" value="Poisson" />
-                          <RadioButton.Item label="Reptile" value="Reptile" />
-                          <RadioButton.Item label="Autre" value="Autre" />
+                          <RadioButton.Item label={t("food_type.rodent")} value="Rongeur" />
+                          <RadioButton.Item label={t("food_type.insects")} value="Insectes" />
+                          <RadioButton.Item label={t("food_type.poultry")} value="Volaille" />
+                          <RadioButton.Item label={t("food_type.fish")} value="Poisson" />
+                          <RadioButton.Item label={t("food_type.reptile")} value="Reptile" />
+                          <RadioButton.Item label={t("food_type.other")} value="Autre" />
                         </RadioButton.Group>
                       </Dialog.Content>
                     </Dialog>
@@ -174,7 +175,7 @@ const AddFeed = () => {
 
                 <View style={styles.fieldContainer}>
                   <TextInput
-                    placeholder="Quantité"
+                    placeholder={t("add_feed.quantity")}
                     keyboardType="numeric"
                     value={formik.values.quantity.toString()}
                     onChangeText={(text) => {
@@ -195,7 +196,7 @@ const AddFeed = () => {
                   onPress={formik.submitForm}
                   disabled={!formik.isValid}
                 >
-                  Ajouter
+                  {t("add_feed.add")}
                 </Button>
               </View>
             </ScrollView>

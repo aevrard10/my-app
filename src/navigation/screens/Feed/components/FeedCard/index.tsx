@@ -13,6 +13,7 @@ import TextInput from "@shared/components/TextInput";
 import CardSurface from "@shared/components/CardSurface";
 import { FC, useEffect, useState } from "react";
 import { Text } from "react-native";
+import { useI18n } from "@shared/i18n";
 
 type FoodCardProps = {
   food: {
@@ -39,6 +40,7 @@ type FoodCardProps = {
 const FeedCard: FC<FoodCardProps> = (props) => {
   const { food, isLoading, handleUpdateStock, handleDelete, colors } = props;
   const { colors: themeColors } = useTheme();
+  const { t } = useI18n();
   const stockLow = food.quantity < 10;
   const stockCritical = food.quantity === 0;
   const [quantityText, setQuantityText] = useState("1");
@@ -84,10 +86,12 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                     ]}
                     textStyle={{ color: "#fff", fontWeight: "bold" }}
                   >
-                    {food.quantity} {food.unit || "restant(s)"}
+                    {food.quantity} {food.unit || t("feed.remaining")}
                   </Chip>
                 </View>
-                <Text style={styles.subtitle}>{food.type || "Nourriture"}</Text>
+                <Text style={styles.subtitle}>
+                  {food.type || t("feed.default_type")}
+                </Text>
               </View>
             </View>
           </View>
@@ -152,7 +156,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                 )
               }
             >
-              Retirer
+              {t("common.remove")}
             </Button>
             <Button
               mode="contained"
@@ -167,7 +171,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                 )
               }
             >
-              Ajouter
+              {t("common.add")}
             </Button>
             {handleDelete ? (
               <Button
@@ -183,7 +187,7 @@ const FeedCard: FC<FoodCardProps> = (props) => {
                   )
                 }
               >
-                Supprimer
+                {t("common.delete")}
               </Button>
             ) : null}
           </View>

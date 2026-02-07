@@ -20,11 +20,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { spacing } from "@shared/theme/tokens";
 import AppleLogin from "./screens/AppleLogin";
 import Settings from "./screens/Settings";
+import SettingsLanguage from "./screens/Settings/Language";
+import SettingsPricing from "./screens/Settings/Pricing";
+import SettingsSupport from "./screens/Settings/Support";
+import { useI18n } from "@shared/i18n";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   // const { data: summary } = useDashboardSummaryQuery();
   // const unreadCount = summary?.unread_notifications ?? 0;
   // const notificationsBadge =
@@ -46,7 +51,7 @@ const HomeTabs = () => {
         name={ScreenNames.HOME}
         component={Home}
         options={{
-          title: "Accueil",
+          title: t("nav.home"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"home"} size={size} color={colors.primary} />
@@ -58,7 +63,7 @@ const HomeTabs = () => {
         name={ScreenNames.REPTILES}
         component={Reptiles}
         options={{
-          title: "Reptiles",
+          title: t("nav.reptiles"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"turtle"} size={size} color={colors.primary} />
@@ -70,7 +75,7 @@ const HomeTabs = () => {
         name={ScreenNames.FEED}
         component={Feed}
         options={{
-          title: "Aliments",
+          title: t("nav.feed"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon
@@ -86,7 +91,7 @@ const HomeTabs = () => {
         name={ScreenNames.AGENDA}
         component={Agenda}
         options={{
-          title: "Agenda",
+          title: t("nav.agenda"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"calendar"} color={colors.primary} size={size} />
@@ -99,7 +104,7 @@ const HomeTabs = () => {
         name={ScreenNames.NOTIFICATIONS}
         component={Notifications}
         options={{
-          title: "Notifications",
+          title: t("nav.notifications"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"bell"} color={colors.primary} size={size} />
@@ -117,7 +122,7 @@ const HomeTabs = () => {
         name={ScreenNames.SETTINGS}
         component={Settings}
         options={{
-          title: "Paramètres",
+          title: t("nav.settings"),
           tabBarActiveTintColor: colors.secondary,
           tabBarIcon: ({ size }) => (
             <Icon source={"cog"} color={colors.primary} size={size} />
@@ -133,6 +138,7 @@ const MyStack = () => {
   const { colors } = useTheme();
   const { token } = useAuth();
   const { mutate } = useLogoutMutation();
+  const { t } = useI18n();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -184,7 +190,7 @@ const MyStack = () => {
             name={ScreenNames.ADD_REPTILE}
             component={AddReptile}
             options={{
-              title: "Ajouter un reptile",
+              title: t("nav.add_reptile"),
               presentation: "modal",
               keyboardHandlingEnabled: true,
             }}
@@ -192,13 +198,14 @@ const MyStack = () => {
           <Stack.Screen
             name={ScreenNames.REPTILE_PROFILE_DETAILS}
             component={ReptileProfileDetails}
+            options={{ title: t("nav.reptile_details") }}
           />
           <Stack.Screen
             name={ScreenNames.ADD_MEASUREMENTS}
             component={AddMesuarements}
             options={{
               presentation: "modal",
-              title: "Ajouter des mesures",
+              title: t("nav.add_measurements"),
             }}
           />
           <Stack.Screen
@@ -206,7 +213,7 @@ const MyStack = () => {
             component={AddFeed}
             options={{
               presentation: "modal",
-              title: "Ajouter des aliments",
+              title: t("nav.add_feed"),
             }}
           />
           <Stack.Screen
@@ -214,10 +221,25 @@ const MyStack = () => {
             component={FeedHistory}
             options={{
               presentation: "modal",
-              title: "Historique des stocks",
+              title: t("nav.feed_history"),
             }}
           />
           <Stack.Screen name={ScreenNames.NOT_FOUND} component={NotFound} />
+          <Stack.Screen
+            name={ScreenNames.SETTINGS_LANGUAGE}
+            component={SettingsLanguage}
+            options={{ title: t("settings.language") }}
+          />
+          <Stack.Screen
+            name={ScreenNames.SETTINGS_PRICING}
+            component={SettingsPricing}
+            options={{ title: t("settings.pricing") }}
+          />
+          <Stack.Screen
+            name={ScreenNames.SETTINGS_SUPPORT}
+            component={SettingsSupport}
+            options={{ title: t("settings.help") }}
+          />
         </>
       )}
     </Stack.Navigator>

@@ -18,6 +18,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "sentry-expo";
 import { runMigrations } from "@shared/local/db";
 import { runAsyncStorageMigration } from "@shared/local/migrations/asyncStorageMigration";
+import { I18nProvider } from "@shared/i18n";
 
 // Sentry (Expo wrapper) — single init
 Sentry.init({
@@ -141,26 +142,28 @@ const App: React.FC = () => {
   };
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <AuthGate>
-          <SnackbarProviderCompat>
-            <PaperProvider theme={appTheme}>
-              <QueryClientProvider client={queryClient}>
-                <NavigationContainer
-                  linking={linking}
-                  onReady={() => {
-                    SplashScreen.hideAsync();
-                  }}
-                >
-                  <ErrorBoundary>
-                    <MyStack />
-                  </ErrorBoundary>
-                </NavigationContainer>
-              </QueryClientProvider>
-            </PaperProvider>
-          </SnackbarProviderCompat>
-        </AuthGate>
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <AuthGate>
+            <SnackbarProviderCompat>
+              <PaperProvider theme={appTheme}>
+                <QueryClientProvider client={queryClient}>
+                  <NavigationContainer
+                    linking={linking}
+                    onReady={() => {
+                      SplashScreen.hideAsync();
+                    }}
+                  >
+                    <ErrorBoundary>
+                      <MyStack />
+                    </ErrorBoundary>
+                  </NavigationContainer>
+                </QueryClientProvider>
+              </PaperProvider>
+            </SnackbarProviderCompat>
+          </AuthGate>
+        </AuthProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 };

@@ -30,6 +30,7 @@ import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import { useI18n } from "@shared/i18n";
 
 const initialValues = {
   name: "",
@@ -70,6 +71,7 @@ const AddReptile = () => {
   const { show } = useSnackbar();
   const { goBack } = useNavigation();
   const { colors } = useTheme();
+  const { t, locale } = useI18n();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
     undefined,
@@ -101,7 +103,7 @@ const AddReptile = () => {
         }
       }
     } catch (error) {
-      Alert.alert("Erreur", "Impossible de sélectionner l'image.");
+      Alert.alert(t("common.error"), t("add_reptile.image_error"));
     }
   };
   return (
@@ -113,9 +115,9 @@ const AddReptile = () => {
         <CardSurface style={styles.heroCard}>
           <View style={styles.heroHeader}>
             <View style={styles.heroText}>
-              <Text variant="titleLarge">Nouveau reptile</Text>
+              <Text variant="titleLarge">{t("add_reptile.title")}</Text>
               <Text variant="bodySmall" style={styles.headerSubtitle}>
-                Ajoutez un compagnon et commencez le suivi.
+                {t("add_reptile.subtitle")}
               </Text>
             </View>
             <TouchableRipple style={styles.avatarTouch} onPress={pickImage}>
@@ -135,7 +137,7 @@ const AddReptile = () => {
             </TouchableRipple>
           </View>
           <Text variant="labelSmall" style={styles.avatarHint}>
-            Appuyez pour ajouter une photo.
+            {t("add_reptile.photo_hint")}
           </Text>
         </CardSurface>
 
@@ -173,13 +175,13 @@ const AddReptile = () => {
                     queryKey: useDashboardSummaryQuery.queryKey,
                   });
                   goBack();
-                  show("Reptile ajouté avec succès !", {
-                    label: "Ok",
+                  show(t("add_reptile.success"), {
+                    label: t("common.ok"),
                   });
                 },
                 onError: () => {
-                  show("Une erreur est survenue, Veuillez réessayer ...", {
-                    label: "Ok",
+                  show(t("add_reptile.error"), {
+                    label: t("common.ok"),
                   });
                 },
               },
@@ -194,23 +196,23 @@ const AddReptile = () => {
               <View style={styles.formContainer}>
                 <CardSurface style={styles.sectionCard}>
                   <Text variant="labelLarge" style={styles.sectionTitle}>
-                    Identité
+                    {t("add_reptile.section.identity")}
                   </Text>
                   <TextInput
-                    placeholder="Nom"
+                    placeholder={t("add_reptile.name")}
                     value={formik.values.name}
                     onChangeText={formik.handleChange("name")}
                     onBlur={formik.handleBlur("name")}
                   />
                   <TextInput
-                    placeholder="Espèce"
+                    placeholder={t("add_reptile.species")}
                     onBlur={formik.handleBlur("species")}
                     value={formik.values.species}
                     onChangeText={formik.handleChange("species")}
                   />
                   <View style={styles.row}>
                     <TextInput
-                      placeholder="Âge"
+                      placeholder={t("add_reptile.age")}
                       value={formik.values.age?.toString()}
                       keyboardType="numeric"
                       onChangeText={(text) => {
@@ -229,8 +231,8 @@ const AddReptile = () => {
                       onValueChange={formik.handleChange("snake")}
                       style={[styles.rowInput, styles.segmentCompact]}
                       buttons={[
-                        { value: "snake", label: "Serpent" },
-                        { value: "lizard", label: "Varan" },
+                        { value: "snake", label: t("add_reptile.snake") },
+                        { value: "lizard", label: t("add_reptile.lizard") },
                       ]}
                     />
                   </View>
@@ -239,23 +241,23 @@ const AddReptile = () => {
                     onValueChange={formik.handleChange("sex")}
                     style={styles.segmentCompact}
                     buttons={[
-                      { value: "Femelle", icon: "gender-female" },
-                      { value: "Mâle", icon: "gender-male" },
+                      { value: "Femelle", icon: "gender-female", label: t("add_reptile.female") },
+                      { value: "Mâle", icon: "gender-male", label: t("add_reptile.male") },
                     ]}
                   />
                 </CardSurface>
                 <CardSurface style={styles.sectionCard}>
                   <Text variant="labelLarge" style={styles.sectionTitle}>
-                    Origine
+                    {t("add_reptile.section.origin")}
                   </Text>
                   <TextInput
-                    placeholder="Origine"
+                    placeholder={t("add_reptile.origin")}
                     value={formik.values.origin}
                     onChangeText={formik.handleChange("origin")}
                     onBlur={formik.handleBlur("origin")}
                   />
                   <TextInput
-                    placeholder="Emplacement"
+                    placeholder={t("add_reptile.location")}
                     value={formik.values.location}
                     onChangeText={formik.handleChange("location")}
                     onBlur={formik.handleBlur("location")}
@@ -276,9 +278,9 @@ const AddReptile = () => {
                           borderColor: colors.outlineVariant ?? colors.outline,
                         },
                       ]}
-                      locale="fr"
-                      label="Acquisition"
-                      saveLabel="Confirmer"
+                      locale={locale}
+                      label={t("add_reptile.acquired_date")}
+                      saveLabel={t("common.confirm")}
                       withDateFormatInLabel={false}
                       contentStyle={styles.dateContent}
                       value={inputDateAcquired}
@@ -296,22 +298,22 @@ const AddReptile = () => {
 
                 <CardSurface style={styles.sectionCard}>
                   <Text variant="labelLarge" style={styles.sectionTitle}>
-                    Alimentation
+                    {t("add_reptile.section.feeding")}
                   </Text>
                   <TextInput
-                    placeholder="Régime alimentaire"
+                    placeholder={t("add_reptile.diet")}
                     value={formik.values.diet}
                     onChangeText={formik.handleChange("diet")}
                     onBlur={formik.handleBlur("diet")}
                   />
                   <TextInput
-                    placeholder="Fréquence de repas"
+                    placeholder={t("add_reptile.feeding_schedule")}
                     value={formik.values.feeding_schedule}
                     onChangeText={formik.handleChange("feeding_schedule")}
                     onBlur={formik.handleBlur("feeding_schedule")}
                   />
                   <TextInput
-                    placeholder="État de santé"
+                    placeholder={t("add_reptile.health_status")}
                     value={formik.values.health_status}
                     onChangeText={formik.handleChange("health_status")}
                     onBlur={formik.handleBlur("health_status")}
@@ -327,9 +329,9 @@ const AddReptile = () => {
                       styles.outlineStyle,
                       { borderColor: colors.outlineVariant ?? colors.outline },
                     ]}
-                    locale="fr"
-                    label="Dernier repas"
-                    saveLabel="Confirmer"
+                    locale={locale}
+                    label={t("add_reptile.last_fed")}
+                    saveLabel={t("common.confirm")}
                     withDateFormatInLabel={false}
                     contentStyle={styles.dateContent}
                     value={inputDate}
@@ -342,10 +344,10 @@ const AddReptile = () => {
                 </CardSurface>
                 <CardSurface style={styles.sectionCard}>
                   <Text variant="labelLarge" style={styles.sectionTitle}>
-                    Santé & environnement
+                    {t("add_reptile.section.health_env")}
                   </Text>
                   <TextInput
-                    placeholder="Niveau d'humidité"
+                    placeholder={t("add_reptile.humidity")}
                     value={formik.values.humidity_level?.toString() ?? ""}
                     onChangeText={(text) => {
                       const number = parseInt(text, 10);
@@ -357,13 +359,13 @@ const AddReptile = () => {
                     onBlur={formik.handleBlur("humidity_level")}
                   />
                   <TextInput
-                    placeholder="Plage de température"
+                    placeholder={t("add_reptile.temperature")}
                     value={formik.values.temperature_range}
                     onChangeText={formik.handleChange("temperature_range")}
                     onBlur={formik.handleBlur("temperature_range")}
                   />
                   <TextInput
-                    placeholder="État de santé"
+                    placeholder={t("add_reptile.health_status")}
                     value={formik.values.health_status}
                     onChangeText={formik.handleChange("health_status")}
                     onBlur={formik.handleBlur("health_status")}
@@ -378,7 +380,7 @@ const AddReptile = () => {
                   mode="contained"
                   style={styles.submitButton}
                 >
-                  AJOUTER
+                  {t("add_reptile.submit").toUpperCase()}
                 </Button>
               </View>
             </KeyboardAvoidingView>

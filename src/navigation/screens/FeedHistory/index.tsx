@@ -7,9 +7,11 @@ import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import Screen from "@shared/components/Screen";
 import FeedHistorySkeleton from "./components/FeedHistorySkeleton";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 const FeedHistory = () => {
   const { colors } = useTheme();
+  const { t, locale } = useI18n();
   const { data, isPending } = useFoodStockHistoryQuery();
 
   const isInitialLoading = isPending && (!data || data.length === 0);
@@ -29,9 +31,9 @@ const FeedHistory = () => {
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
           <CardSurface style={{ marginTop: 4, marginBottom: 12 }}>
-            <Text variant="titleLarge">Historique</Text>
+            <Text variant="titleLarge">{t("feed.history")}</Text>
             <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
-              Toutes les variations de stock en un coup d&apos;œil.
+              {t("feed.history_subtitle")}
             </Text>
           </CardSurface>
         }
@@ -39,14 +41,14 @@ const FeedHistory = () => {
           const parsed = food.date ? new Date(food.date) : null;
           const formattedDate =
             parsed && !Number.isNaN(parsed.getTime())
-              ? parsed.toLocaleDateString("fr-FR", {
+              ? parsed.toLocaleDateString(locale, {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
                   hour: "numeric",
                   minute: "numeric",
                 })
-              : "Date non disponible";
+              : t("common.date_unavailable");
           console.log("Food item:", food);
           return (
             <View style={{ marginVertical: 10 }} key={food.id}>
@@ -78,7 +80,7 @@ const FeedHistory = () => {
                         />
                       )}
                     >
-                      {food.quantity_change} {food.unit || "pcs"}
+                      {food.quantity_change} {food.unit || t("feed.unit_default")}
                     </Chip>
                   )}
                 />

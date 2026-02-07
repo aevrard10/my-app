@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import useGetNotificationsQuery from "../../hooks/queries/GetNotificationsQuery";
 import CardSurface from "@shared/components/CardSurface";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import { useI18n } from "@shared/i18n";
 type NotifItemProps = {
   item: {
     message: string;
@@ -24,6 +25,7 @@ type NotifItemProps = {
 const NotifItem: FC<NotifItemProps> = (props) => {
   const { item } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
   const { mutate } = useMarkNotificationAsReadMutationMutation();
   const queryClient = useQueryClient();
   const markNotificationAsRead = useCallback(() => {
@@ -92,7 +94,7 @@ const NotifItem: FC<NotifItemProps> = (props) => {
                   color: colors.secondary,
                 }}
               >
-                {"Agenda"}
+                {t("agenda.title")}
               </Text>
               <Text
                 variant="bodyLarge"

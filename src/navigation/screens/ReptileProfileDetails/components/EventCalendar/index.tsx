@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Card } from "react-native-paper";
+import { useI18n } from "@shared/i18n";
 
 LocaleConfig.locales["fr"] = {
   monthNames: [
@@ -44,7 +45,47 @@ LocaleConfig.locales["fr"] = {
   today: "Aujourd'hui",
 };
 
-LocaleConfig.defaultLocale = "fr";
+LocaleConfig.locales["en"] = {
+  monthNames: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  monthNamesShort: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+  dayNames: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
+  dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  today: "Today",
+};
 
 type EventCalendarProps = {
   onDayPress: (day: any) => void;
@@ -52,6 +93,8 @@ type EventCalendarProps = {
 };
 const EventCalendar: FC<EventCalendarProps> = (props) => {
   const { onDayPress, markedDates } = props;
+  const { locale } = useI18n();
+  LocaleConfig.defaultLocale = locale;
   return (
     <Card style={{ margin: 20 }}>
       <Calendar

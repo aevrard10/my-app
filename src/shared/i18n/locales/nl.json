@@ -1,0 +1,28 @@
+{
+  "reptiles.title": "Mijn reptielen",
+  "reptiles.subtitle": "Vind al je reptielen en hun details.",
+  "reptiles.search": "Zoek een reptiel",
+  "feed.title": "Voedselvoorraad",
+  "feed.subtitle": "Pas snel hoeveelheden aan en volg de geschiedenis.",
+  "feed.actions": "Snelle acties",
+  "feed.forecast": "Voorraadprognose (30 dagen)",
+  "feed.history": "Historiek",
+  "common.add": "Toevoegen",
+  "common.remove": "Verwijderen",
+  "common.delete": "Wissen",
+  "common.health": "Gezondheid",
+  "common.last_feed": "Laatste voeding",
+  "home.welcome": "Hallo!",
+  "home.subtitle": "Welkom op je dashboard.",
+  "home.reptiles": "Reptielen",
+  "home.events": "Evenementen vandaag",
+  "home.notifications": "Ongelezen meldingen",
+  "home.alerts": "Gezondheidsalerts"
+}
+,
+  "settings.title": "Settings",
+  "settings.language": "App language",
+  "settings.about": "About",
+  "settings.help": "Help / Support",
+  "settings.pricing": "Pricing"
+}

@@ -10,6 +10,7 @@ import useAddReptileFeedingMutation from "../../hooks/data/mutations/useAddRepti
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import TextInput from "@shared/components/TextInput";
 import { executeVoid } from "@shared/local/db";
+import { useI18n } from "@shared/i18n";
 
 type FeedPortalProps = {
   id: string;
@@ -29,14 +30,19 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
   const { colors } = useTheme();
+  const { t } = useI18n();
 
   const handleNourrissage = useCallback(() => {
     if (!selectedFood) {
-      show("Veuillez sélectionner au moins un aliment.");
+      show(t("feed_portal.select_required"));
       return;
     }
 
     const now = new Date().toISOString();
+    const noteLabel = t("feed_portal.note_for", {
+      name: data?.name || t("profile.report_reptile"),
+    });
+    const defaultUnit = t("feed.unit_default");
 
     updateLastFed(
       { id, last_fed: now.split("T")[0] },
@@ -54,9 +60,9 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
               "stock",
               selectedFood?.name,
               -foodQuantity,
-              selectedFood?.unit ?? null,
+              selectedFood?.unit ?? defaultUnit,
               now,
-              `Nourrissage de ${data?.name}`,
+              noteLabel,
             ],
           ).catch(() => {});
 
@@ -67,9 +73,9 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
                 reptile_id: id,
                 food_name: selectedFood?.name,
                 quantity: foodQuantity,
-                unit: selectedFood?.unit || "restant(s)",
+                unit: selectedFood?.unit || defaultUnit,
                 fed_at: now,
-                notes: `Nourrissage de ${data?.name}`,
+                notes: noteLabel,
               },
             },
             {
@@ -80,14 +86,14 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
                 queryClient.invalidateQueries({
                   queryKey: useFoodQuery.queryKey,
                 });
-                show("Nourrissage enregistré");
+                show(t("feed_portal.feed_saved"));
               },
             },
           );
           setModalIsVisible(false);
         },
         onError: () => {
-          show("Erreur lors de l'enregistrement du nourrissage");
+          show(t("feed_portal.feed_error"));
         },
       },
     );
@@ -99,6 +105,7 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
     queryClient,
     selectedFood,
     show,
+    t,
     updateLastFed,
   ]);
 
@@ -118,7 +125,7 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
         }}
         style={{ borderRadius: 20, backgroundColor: colors.surface }}
       >
-        <Dialog.Title>Choisir un aliment</Dialog.Title>
+        <Dialog.Title>{t("feed_portal.title")}</Dialog.Title>
         <Dialog.Content>
           <View>
             {food?.map((foodItem) => (
@@ -146,12 +153,12 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
                   }
                 >
                   {foodItem.name} - {foodItem.quantity}{" "}
-                  {foodItem.unit || "restant(s)"}
+                  {foodItem.unit || t("feed.remaining")}
                 </Button>
               </View>
             ))}
             <TextInput
-              placeholder="Quantité"
+              placeholder={t("add_feed.quantity")}
               value={foodQuantity.toString()}
               onChangeText={(text) => {
                 const number = parseInt(text, 10);
@@ -169,7 +176,7 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
               onClose();
             }}
           >
-            Annuler
+            {t("common.cancel")}
           </Button>
           <Button
             onPress={() => {
@@ -177,7 +184,7 @@ const FeedPortal: FC<FeedPortalProps> = (props) => {
               onClose();
             }}
           >
-            Confirmer
+            {t("common.confirm")}
           </Button>
         </Dialog.Actions>
       </Dialog>

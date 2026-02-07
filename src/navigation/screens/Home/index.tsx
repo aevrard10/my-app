@@ -4,7 +4,7 @@ import CardSurface from "@shared/components/CardSurface";
 import ScreenNames from "@shared/declarations/screenNames";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import Skeleton from "@shared/components/Skeleton";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Alert,
   Linking,
@@ -23,12 +23,16 @@ import {
   useTheme,
 } from "react-native-paper";
 import useLogoutMutation from "@shared/data/hooks/data/mutations/useLogoutMutation";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
+import useDashboardSummaryQuery, {
+  DashboardSummary,
+} from "@shared/hooks/queries/useDashboardSummary";
+import { useI18n } from "@shared/i18n";
 import useHealthAlertsQuery from "@shared/hooks/queries/useHealthAlertsQuery";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const { t } = useI18n();
 
   const { data, isPending, isLoading, error } = useDashboardSummaryQuery();
   const { data: healthAlerts } = useHealthAlertsQuery();
@@ -39,39 +43,43 @@ const Home = () => {
 
   const { mutate: logout } = useLogoutMutation();
 
-  const upcomingEvents = summary?.upcoming_events ?? [];
+  const upcomingEvents: DashboardSummary["upcoming_events"] =
+    summary?.upcoming_events ?? [];
   const reptilesCount = summary?.reptiles_count ?? 0;
   const eventsToday = summary?.events_today ?? 0;
   const unreadNotifications = summary?.unread_notifications ?? 0;
   const alertsCount =
     healthAlerts?.filter((a) => (a.alerts?.length ?? 0) > 0).length ?? 0;
-  const usefulLinks = [
-    {
-      label: "INPN (MNHN)",
-      description: "Fiches officielles des espèces en France",
-      url: "https://inpn.mnhn.fr/accueil/index/",
-    },
-    {
-      label: "Société Herpétologique de France",
-      description: "Ressources et actions pour l'herpétofaune",
-      url: "https://lashf.org/",
-    },
-    {
-      label: "SOS Serpents, Tortues, Grenouilles",
-      description: "Aide et identification en France",
-      url: "https://sosserpentstortuesgrenouilles.org/",
-    },
-    {
-      label: "The Reptile Database",
-      description: "Base taxonomique mondiale des reptiles",
-      url: "https://www.reptile-database.org/",
-    },
-    {
-      label: "iNaturalist",
-      description: "Identification communautaire via photos",
-      url: "https://www.inaturalist.org/",
-    },
-  ];
+  const usefulLinks = useMemo(
+    () => [
+      {
+        label: "INPN (MNHN)",
+        description: t("home.link_inpn_desc"),
+        url: "https://inpn.mnhn.fr/accueil/index/",
+      },
+      {
+        label: "Société Herpétologique de France",
+        description: t("home.link_shf_desc"),
+        url: "https://lashf.org/",
+      },
+      {
+        label: "SOS Serpents, Tortues, Grenouilles",
+        description: t("home.link_sos_desc"),
+        url: "https://sosserpentstortuesgrenouilles.org/",
+      },
+      {
+        label: "The Reptile Database",
+        description: t("home.link_reptile_db_desc"),
+        url: "https://www.reptile-database.org/",
+      },
+      {
+        label: "iNaturalist",
+        description: t("home.link_inaturalist_desc"),
+        url: "https://www.inaturalist.org/",
+      },
+    ],
+    [t],
+  );
 
   return (
     <Screen>
@@ -80,24 +88,24 @@ const Home = () => {
           <View style={styles.heroRow}>
             <Avatar.Icon size={44} icon="turtle" />
             <View style={styles.heroText}>
-              <Text variant="titleMedium">Bonjour !</Text>
+              <Text variant="titleMedium">{t("home.welcome")}</Text>
               <Text variant="bodySmall" style={styles.heroSubtitle}>
-                Bienvenue sur votre tableau de bord.
+                {t("home.subtitle")}
               </Text>
             </View>
             <IconButton
               icon="logout-variant"
               onPress={() => {
                 if (Platform.OS === "web" && typeof window !== "undefined") {
-                  if (window.confirm("Se déconnecter ?")) {
+                  if (window.confirm(t("home.logout_confirm"))) {
                     logout();
                   }
                   return;
                 }
-                Alert.alert("Déconnexion", "Se déconnecter ?", [
-                  { text: "Annuler", style: "cancel" },
+                Alert.alert(t("home.logout_title"), t("home.logout_confirm"), [
+                  { text: t("common.cancel"), style: "cancel" },
                   {
-                    text: "Déconnexion",
+                    text: t("home.logout_action"),
                     style: "destructive",
                     onPress: () => logout(),
                   },
@@ -108,7 +116,7 @@ const Home = () => {
         </CardSurface>
 
         <CardSurface style={styles.quickActionsCard}>
-          <Text variant="labelLarge">Raccourcis</Text>
+          <Text variant="labelLarge">{t("home.shortcuts")}</Text>
           <View style={styles.quickActionsRow}>
             <TouchableRipple
               style={[styles.quickAction, { backgroundColor: colors.primary }]}
@@ -120,7 +128,7 @@ const Home = () => {
                   variant="labelSmall"
                   style={[styles.quickActionText, { color: colors.onPrimary }]}
                 >
-                  Ajouter un reptile
+                  {t("home.add_reptile")}
                 </Text>
               </View>
             </TouchableRipple>
@@ -139,7 +147,7 @@ const Home = () => {
                   variant="labelSmall"
                   style={[styles.quickActionText, { color: colors.secondary }]}
                 >
-                  Nouvel événement
+                  {t("home.new_event")}
                 </Text>
               </View>
             </TouchableRipple>
@@ -156,7 +164,7 @@ const Home = () => {
                   variant="labelSmall"
                   style={[styles.quickActionText, { color: colors.tertiary }]}
                 >
-                  Ajouter un stock
+                  {t("home.add_stock")}
                 </Text>
               </View>
             </TouchableRipple>
@@ -165,9 +173,9 @@ const Home = () => {
 
         <CardSurface style={styles.summaryCard}>
           <View style={styles.summaryHeader}>
-            <Text variant="titleMedium">Aujourd&apos;hui</Text>
+            <Text variant="titleMedium">{t("home.today")}</Text>
             <Text variant="bodySmall" style={styles.summarySubtitle}>
-              Vos indicateurs clés en un coup d&apos;œil.
+              {t("home.summary_subtitle")}
             </Text>
           </View>
           <View style={styles.statsRow}>
@@ -178,7 +186,11 @@ const Home = () => {
                 colors.tertiaryContainer,
               ];
               const icons = ["turtle", "calendar", "bell"] as const;
-              const labels = ["Reptiles", "Événements", "Alertes"];
+              const labels = [
+                t("home.reptiles"),
+                t("home.events"),
+                t("home.alerts"),
+              ];
               return (
                 <View
                   key={index}
@@ -243,22 +255,22 @@ const Home = () => {
                   variant="labelSmall"
                   style={[styles.statLabel, { color: colors.error }]}
                 >
-                  Alertes santé
+                  {t("home.alerts")}
                 </Text>
               </View>
             ) : null}
           </View>
           {summaryError ? (
             <Text variant="labelSmall" style={styles.summaryError}>
-              Dashboard indisponible.
+              {t("home.summary_error")}
             </Text>
           ) : null}
           <View style={styles.upcomingSection}>
-            <Text variant="labelLarge">Prochains événements</Text>
+            <Text variant="labelLarge">{t("home.upcoming_events")}</Text>
             {isSummaryLoading ? (
               <View style={styles.upcomingList}>
-                {data?.upcoming_events.map((item) => (
-                  <View key={item} style={styles.upcomingItem}>
+                {upcomingEvents?.map((item) => (
+                  <View key={item.id} style={styles.upcomingItem}>
                     <View style={styles.upcomingDot} />
                     <View style={styles.upcomingText}>
                       <Skeleton height={12} width="60%" />
@@ -273,7 +285,7 @@ const Home = () => {
               </View>
             ) : upcomingEvents.length === 0 ? (
               <Text variant="bodySmall" style={styles.upcomingEmpty}>
-                Aucun événement prévu pour le moment.
+                {t("home.upcoming_empty")}
               </Text>
             ) : (
               <View style={styles.upcomingList}>
@@ -300,25 +312,25 @@ const Home = () => {
 
         <CardSurface style={styles.reptilesCard}>
           <View style={styles.reptilesHeader}>
-            <Text variant="titleMedium">Mes reptiles</Text>
+            <Text variant="titleMedium">{t("reptiles.title")}</Text>
             <Button
               mode="outlined"
               onPress={() => navigate(ScreenNames.REPTILES)}
               compact
             >
-              Voir tous
+              {t("common.view_all")}
             </Button>
           </View>
           <Text variant="bodySmall" style={styles.reptilesSubtitle}>
-            {reptilesCount} reptiles enregistrés.
+            {t("home.reptiles_count", { count: reptilesCount })}
           </Text>
         </CardSurface>
 
         <CardSurface style={styles.linksCard}>
           <View style={styles.linksHeader}>
-            <Text variant="titleMedium">Liens utiles</Text>
+            <Text variant="titleMedium">{t("home.useful_links")}</Text>
             <Text variant="bodySmall" style={styles.linksSubtitle}>
-              Identification et ressources fiables.
+              {t("home.useful_links_subtitle")}
             </Text>
           </View>
           <View style={styles.linksList}>

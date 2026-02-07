@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, IconButton, Text, TouchableRipple } from "re
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import CardSurface from "@shared/components/CardSurface";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
+import { useI18n } from "@shared/i18n";
 
 type Photo = {
   id: string;
@@ -29,12 +30,13 @@ const GallerySection = ({
   isAdding,
   onShare,
 }: GallerySectionProps) => {
+  const { t } = useI18n();
   return (
     <CardSurface style={styles.card}>
       <View style={styles.header}>
-        <Text variant="titleMedium">Galerie</Text>
+        <Text variant="titleMedium">{t("gallery.title")}</Text>
         <Button mode="outlined" compact onPress={onAdd} loading={isAdding}>
-          Ajouter
+          {t("gallery.add")}
         </Button>
       </View>
       {isLoading ? (
@@ -71,7 +73,7 @@ const GallerySection = ({
         </ScrollView>
       ) : (
         <Text variant="bodySmall" style={styles.empty}>
-          Ajoutez des photos pour garder l&apos;historique.
+          {t("gallery.empty")}
         </Text>
       )}
     </CardSurface>

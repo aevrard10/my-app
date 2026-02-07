@@ -3,6 +3,7 @@ import { Platform, View, Dimensions, StyleSheet } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type SizeChartProps = {
   data: any;
@@ -11,6 +12,7 @@ type SizeChartProps = {
 const SizeChart: FC<SizeChartProps> = (props) => {
   const { data, isPending } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
   if (isPending) {
     return <ActivityIndicator animating={true} />;
   }
@@ -18,7 +20,7 @@ const SizeChart: FC<SizeChartProps> = (props) => {
     return (
       <CardSurface style={styles.card}>
         <Text variant="bodyMedium" style={styles.title}>
-          Pas encore de mesures de taille.
+          {t("chart.size_empty")}
         </Text>
       </CardSurface>
     );
@@ -26,7 +28,7 @@ const SizeChart: FC<SizeChartProps> = (props) => {
   return (
     <CardSurface style={styles.card}>
       <Text variant="titleSmall" style={styles.title}>
-        Taille du reptile
+        {t("chart.size_title")}
       </Text>
       <LineChart
         areaChart

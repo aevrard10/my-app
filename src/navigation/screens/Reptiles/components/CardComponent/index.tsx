@@ -19,6 +19,7 @@ import { getBackgroundColor, getIcon } from "../../utils/getSex";
 import { useSnackbar } from "@rn-flix/snackbar";
 import { useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -31,6 +32,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
   const [showDialog, setShowDialog] = useState(false);
   const { show } = useSnackbar();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const iconSex = useMemo(() => getIcon(item?.sex), [item?.sex]);
   const backgroundColor = useMemo(
     () => getBackgroundColor(item?.sex),
@@ -47,13 +49,13 @@ const CardComponent: FC<CardComponentProps> = (props) => {
           queryClient.invalidateQueries({
             queryKey: useReptilesQuery.queryKey,
           });
-          show("Reptile supprimé avec succès !", {
-            label: "Ok",
+          show(t("reptiles.delete_success"), {
+            label: t("common.ok"),
           });
         },
         onError: () => {
-          show("Une erreur est survenue, Veuillez réessayer ...", {
-            label: "Ok",
+          show(t("reptiles.delete_error"), {
+            label: t("common.ok"),
           });
         },
       },
@@ -88,9 +90,9 @@ const CardComponent: FC<CardComponentProps> = (props) => {
           <View style={styles.titleBlock}>
             <Text variant="titleMedium">{capitalize(item?.name)}</Text>
             <Text variant="bodySmall" style={styles.subtitle}>
-              {(item?.species || "Espèce inconnue") +
+              {(item?.species || t("reptiles.unknown_species")) +
                 (item?.age !== null && item?.age !== undefined
-                  ? ` · ${item.age} ans`
+                  ? ` · ${item.age} ${t("reptiles.age_suffix")}`
                   : "")}
             </Text>
           </View>
@@ -112,7 +114,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
               })
             }
           >
-            Voir plus
+            {t("reptiles.view_more")}
           </Button>
         </View>
       </View>
@@ -122,16 +124,16 @@ const CardComponent: FC<CardComponentProps> = (props) => {
           onDismiss={() => setShowDialog(false)}
           style={{ borderRadius: 20 }}
         >
-          <Dialog.Title>Suppression</Dialog.Title>
+          <Dialog.Title>{t("reptiles.delete_title")}</Dialog.Title>
           <Dialog.Content>
             <Text variant="bodyMedium">
-              Êtes-vous sûr de vouloir supprimer ce reptile ?
+              {t("reptiles.delete_confirm")}
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setShowDialog(false)}>Annuler</Button>
+            <Button onPress={() => setShowDialog(false)}>{t("common.cancel")}</Button>
             <Button onPress={removeReptile} textColor={colors.error}>
-              Supprimer
+              {t("reptiles.delete_action")}
             </Button>
           </Dialog.Actions>
         </Dialog>

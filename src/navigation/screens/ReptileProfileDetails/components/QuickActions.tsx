@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
 import { radius, spacing } from "@shared/theme/tokens";
+import { useI18n } from "@shared/i18n";
 
 type QuickActionsProps = {
   onAddFeed: () => void;
@@ -19,13 +20,14 @@ const QuickActions = ({
   onExportPdf,
 }: QuickActionsProps) => {
   const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <CardSurface style={styles.card}>
       <Text
         variant="titleSmall"
         style={[styles.title, { color: colors.onSurface }]}
       >
-        Actions rapides
+        {t("quick_actions.title")}
       </Text>
       <View style={styles.row}>
         <Button
@@ -36,7 +38,7 @@ const QuickActions = ({
           contentStyle={styles.actionContent}
           labelStyle={styles.actionLabel}
         >
-          Ajouter un repas
+          {t("quick_actions.add_feed")}
         </Button>
         <Button
           mode="contained-tonal"
@@ -46,7 +48,7 @@ const QuickActions = ({
           contentStyle={styles.actionContent}
           labelStyle={styles.actionLabel}
         >
-          Mesure
+          {t("quick_actions.add_measure")}
         </Button>
         <Button
           mode="outlined"
@@ -56,7 +58,7 @@ const QuickActions = ({
           contentStyle={styles.actionContent}
           labelStyle={styles.actionLabel}
         >
-          Événement
+          {t("quick_actions.add_event")}
         </Button>
         {onExportPdf && (
           <Button
@@ -67,7 +69,7 @@ const QuickActions = ({
             contentStyle={styles.actionContent}
             labelStyle={styles.actionLabel}
           >
-            Export PDF
+            {t("quick_actions.export_pdf")}
           </Button>
         )}
       </View>

@@ -3,6 +3,7 @@ import { FC } from "react";
 import { StyleSheet, View } from "react-native";
 import { Chip } from "react-native-paper";
 import { ThemeProp } from "react-native-paper/lib/typescript/types";
+import { useI18n } from "@shared/i18n";
 
 type HistoryChipProps = {
   navigate: (screenName: string) => void;
@@ -10,6 +11,7 @@ type HistoryChipProps = {
 };
 const HistoryChip: FC<HistoryChipProps> = (props) => {
   const { navigate, colors } = props;
+  const { t } = useI18n();
   return (
     <View style={styles.chipContainer}>
       <Chip
@@ -18,7 +20,7 @@ const HistoryChip: FC<HistoryChipProps> = (props) => {
         style={[styles.chip, { backgroundColor: colors?.primary }]}
         textStyle={styles.textStyle}
       >
-        Historique des stocks
+        {t("feed.history_chip")}
       </Chip>
     </View>
   );

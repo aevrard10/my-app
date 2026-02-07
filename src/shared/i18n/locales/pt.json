@@ -1,0 +1,28 @@
+{
+  "reptiles.title": "Meus répteis",
+  "reptiles.subtitle": "Encontre todos os seus répteis e detalhes.",
+  "reptiles.search": "Buscar um réptil",
+  "feed.title": "Estoque de alimento",
+  "feed.subtitle": "Ajuste rapidamente as quantidades e acompanhe o histórico.",
+  "feed.actions": "Ações rápidas",
+  "feed.forecast": "Previsão de estoque (30 dias)",
+  "feed.history": "Histórico",
+  "common.add": "Adicionar",
+  "common.remove": "Retirar",
+  "common.delete": "Excluir",
+  "common.health": "Saúde",
+  "common.last_feed": "Última alimentação",
+  "home.welcome": "Olá!",
+  "home.subtitle": "Bem-vindo ao seu painel.",
+  "home.reptiles": "Répteis",
+  "home.events": "Eventos de hoje",
+  "home.notifications": "Notificações não lidas",
+  "home.alerts": "Alertas de saúde"
+}
+,
+  "settings.title": "Settings",
+  "settings.language": "App language",
+  "settings.about": "About",
+  "settings.help": "Help / Support",
+  "settings.pricing": "Pricing"
+}

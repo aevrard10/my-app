@@ -3,6 +3,7 @@ import { View, Platform, StyleSheet } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
 import { Text, useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type HumidityChartProps = {
   data: {
@@ -16,10 +17,11 @@ type HumidityChartProps = {
 const HumidityChart: FC<HumidityChartProps> = (props) => {
   const { data, humidity } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <View style={styles.wrapper}>
       <CardSurface style={styles.card}>
-        <Text variant="titleSmall">Humidité</Text>
+        <Text variant="titleSmall">{t("chart.humidity")}</Text>
         <View style={styles.chartContainer}>
           <PieChart
             data={data}

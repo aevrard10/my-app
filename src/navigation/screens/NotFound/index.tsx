@@ -7,9 +7,11 @@ import ScreenNames from "@shared/declarations/screenNames";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import { useNavigation } from "@react-navigation/native";
+import { useI18n } from "@shared/i18n";
 
 export function NotFound() {
   const { navigate } = useNavigation();
+  const { t } = useI18n();
   return (
     <Screen contentStyle={styles.screen}>
       <CardSurface style={styles.card}>
@@ -17,15 +19,15 @@ export function NotFound() {
           <View style={styles.lottieContainer}>
             <Lottie source={lottieNoFound} autoPlay isLoop={false} />
           </View>
-          <Text variant="titleLarge">Page introuvable</Text>
+          <Text variant="titleLarge">{t("notfound.title")}</Text>
           <Text variant="bodySmall" style={styles.subtitle}>
-            Cette page n&apos;existe pas. Revenez à l&apos;accueil.
+            {t("notfound.subtitle")}
           </Text>
           <Button
             mode="contained"
             onPress={() => navigate(ScreenNames.HOME_TABS)}
           >
-            Retour à l&apos;accueil
+            {t("notfound.back")}
           </Button>
         </View>
       </CardSurface>

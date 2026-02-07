@@ -3,6 +3,7 @@ import { Button, List, Text } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import CardSurface from "@shared/components/CardSurface";
 import TextInput from "@shared/components/TextInput";
+import { useI18n } from "@shared/i18n";
 
 type GeneticsForm = {
   morph: string;
@@ -25,28 +26,29 @@ type GeneticsSectionProps = {
 };
 
 type GeneticsField = [string, keyof GeneticsForm];
-const geneticsFields: GeneticsField[] = [
-  ["Morph", "morph"],
-  ["Mutations (ex: Albinos, Hypo)", "mutations"],
-  ["Hets (ex: 50% het albinos)", "hets"],
-  ["Traits (couleurs, motifs)", "traits"],
-  ["Lignée", "lineage"],
-  ["Éleveur", "breeder"],
-  ["Date d'éclosion (YYYY-MM-DD)", "hatch_date"],
-  ["Nom du père", "sire_name"],
-  ["Nom de la mère", "dam_name"],
-  ["Notes génétiques", "notes"],
-];
 const GeneticsSection = ({
   geneticsForm,
   setGeneticsForm,
   onSave,
   isSaving,
 }: GeneticsSectionProps) => {
+  const { t } = useI18n();
+  const geneticsFields: GeneticsField[] = [
+    [t("genetics.field.morph"), "morph"],
+    [t("genetics.field.mutations"), "mutations"],
+    [t("genetics.field.hets"), "hets"],
+    [t("genetics.field.traits"), "traits"],
+    [t("genetics.field.lineage"), "lineage"],
+    [t("genetics.field.breeder"), "breeder"],
+    [t("genetics.field.hatch_date"), "hatch_date"],
+    [t("genetics.field.sire_name"), "sire_name"],
+    [t("genetics.field.dam_name"), "dam_name"],
+    [t("genetics.field.notes"), "notes"],
+  ];
   return (
     <CardSurface style={styles.card}>
       <List.Accordion
-        title="Génétique"
+        title={t("genetics.title")}
         left={(props) => <List.Icon {...props} icon="dna" />}
         style={styles.accordion}
       >
@@ -69,7 +71,7 @@ const GeneticsSection = ({
           onPress={onSave}
           loading={isSaving}
         >
-          Enregistrer
+          {t("genetics.save")}
         </Button>
       </List.Accordion>
     </CardSurface>

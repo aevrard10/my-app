@@ -1,0 +1,28 @@
+{
+  "reptiles.title": "I miei rettili",
+  "reptiles.subtitle": "Trova tutti i tuoi rettili e i loro dettagli.",
+  "reptiles.search": "Cerca un rettile",
+  "feed.title": "Scorte di cibo",
+  "feed.subtitle": "Regola rapidamente le quantità e controlla la cronologia.",
+  "feed.actions": "Azioni rapide",
+  "feed.forecast": "Previsione scorte (30 giorni)",
+  "feed.history": "Storico",
+  "common.add": "Aggiungi",
+  "common.remove": "Rimuovi",
+  "common.delete": "Elimina",
+  "common.health": "Salute",
+  "common.last_feed": "Ultimo pasto",
+  "home.welcome": "Ciao!",
+  "home.subtitle": "Benvenuto nel tuo cruscotto.",
+  "home.reptiles": "Rettili",
+  "home.events": "Eventi di oggi",
+  "home.notifications": "Notifiche non lette",
+  "home.alerts": "Avvisi salute"
+}
+,
+  "settings.title": "Settings",
+  "settings.language": "App language",
+  "settings.about": "About",
+  "settings.help": "Help / Support",
+  "settings.pricing": "Pricing"
+}

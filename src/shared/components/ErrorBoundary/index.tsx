@@ -3,7 +3,16 @@ import { StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
 import ErrorAnimated from "../../../assets/ErrorAnimated.json";
 import InformationScreenTemplate from "./component/InformationScreenTemplate";
-class ErrorBoundary extends React.Component {
+import { useI18n } from "@shared/i18n";
+
+type ErrorBoundaryInnerProps = {
+  title: string;
+  body: string;
+  retryLabel: string;
+  children: React.ReactNode;
+};
+
+class ErrorBoundaryInner extends React.Component<ErrorBoundaryInnerProps> {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
@@ -24,10 +33,8 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <InformationScreenTemplate
-          body={
-            "Nous sommes désolés pour le désagrément. Notre équipe y travaille."
-          }
-          title={"Une erreur est survenue"}
+          body={this.props.body}
+          title={this.props.title}
           lottieWrapperStyle={styles.lottieWrapper}
           lottie={ErrorAnimated}
           lottieRatio={575 / 410}
@@ -37,7 +44,7 @@ class ErrorBoundary extends React.Component {
             onPress={() => window.location.reload()}
             mode="contained"
           >
-            Réessayer
+            {this.props.retryLabel}
           </Button>
         </InformationScreenTemplate>
       );
@@ -53,4 +60,18 @@ const styles = StyleSheet.create({
     right: "1%",
   },
 });
+
+const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useI18n();
+  return (
+    <ErrorBoundaryInner
+      title={t("error.title")}
+      body={t("error.body")}
+      retryLabel={t("common.retry")}
+    >
+      {children}
+    </ErrorBoundaryInner>
+  );
+};
+
 export default ErrorBoundary;

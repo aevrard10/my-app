@@ -14,6 +14,7 @@ import ScreenNames from "@shared/declarations/screenNames";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import TextInput from "@shared/components/TextInput";
+import { useI18n } from "@shared/i18n";
 
 const initialValues = {
   weight: 0,
@@ -34,6 +35,7 @@ type Props = StaticScreenProps<{
 const AddMesuarements = ({ route }: Props) => {
   const id = route.params.id;
   const { show } = useSnackbar();
+  const { t, locale } = useI18n();
   const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
   const queryClient = useQueryClient();
   const { mutate: addMeasurement } = useAddMeasurementMutation();
@@ -62,12 +64,12 @@ const AddMesuarements = ({ route }: Props) => {
                 });
 
                 console.log("Mesure ajoutée avec succès", id);
-                show("Mesures ajoutées avec succès!");
+                show(t("add_measurements.success"));
                 navigate(ScreenNames.REPTILE_PROFILE_DETAILS, { id });
               },
               onError: (e) => {
                 console.error("Erreur lors de l'ajout des mesures", e);
-                show("Une erreur s'est produite");
+                show(t("add_measurements.error"));
               },
             },
           );
@@ -80,9 +82,9 @@ const AddMesuarements = ({ route }: Props) => {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.header}>
-              <Text variant="headlineSmall">Ajouter des mesures</Text>
+              <Text variant="headlineSmall">{t("add_measurements.title")}</Text>
               <Text variant="bodySmall" style={styles.headerSubtitle}>
-                Enregistrez poids et taille pour suivre l&apos;évolution.
+                {t("add_measurements.subtitle")}
               </Text>
             </View>
             <CardSurface style={styles.inputSection}>
@@ -94,7 +96,7 @@ const AddMesuarements = ({ route }: Props) => {
                 }}
               >
                 <TextInput
-                  placeholder="Poids"
+                  placeholder={t("add_measurements.weight")}
                   value={formik.values.weight?.toString() ?? ""}
                   onChangeText={(text) => {
                     const number = parseInt(text, 10);
@@ -130,7 +132,7 @@ const AddMesuarements = ({ route }: Props) => {
                 }}
               >
                 <TextInput
-                  placeholder="Taille"
+                  placeholder={t("add_measurements.size")}
                   value={formik.values.size?.toString() ?? ""}
                   onChangeText={(text) => {
                     const number = parseInt(text, 10);
@@ -167,9 +169,9 @@ const AddMesuarements = ({ route }: Props) => {
                 style={styles.pickerInput}
                 dense
                 outlineStyle={styles.outlineStyle}
-                locale="fr"
-                label="Date"
-                saveLabel="Confirmer"
+                locale={locale}
+                label={t("add_measurements.date")}
+                saveLabel={t("common.confirm")}
                 withDateFormatInLabel={false}
                 value={inputDate}
                 onChange={(data) => {
@@ -181,7 +183,7 @@ const AddMesuarements = ({ route }: Props) => {
             </CardSurface>
             <View style={styles.button}>
               <Button mode="contained" onPress={formik.submitForm}>
-                Ajouter
+                {t("add_measurements.add")}
               </Button>
             </View>
           </ScrollView>

@@ -1,0 +1,28 @@
+{
+  "reptiles.title": "Meine Reptilien",
+  "reptiles.subtitle": "Finde alle deine Reptilien und ihre Details.",
+  "reptiles.search": "Reptil suchen",
+  "feed.title": "Futterbestand",
+  "feed.subtitle": "Passe Mengen schnell an und verfolge den Verlauf.",
+  "feed.actions": "Schnellaktionen",
+  "feed.forecast": "Bestandsprognose (30 Tage)",
+  "feed.history": "Verlauf",
+  "common.add": "Hinzufügen",
+  "common.remove": "Entfernen",
+  "common.delete": "Löschen",
+  "common.health": "Gesundheit",
+  "common.last_feed": "Letzte Fütterung",
+  "home.welcome": "Hallo!",
+  "home.subtitle": "Willkommen in deinem Dashboard.",
+  "home.reptiles": "Reptilien",
+  "home.events": "Heutige Ereignisse",
+  "home.notifications": "Ungelesene Benachrichtigungen",
+  "home.alerts": "Gesundheitswarnungen"
+}
+,
+  "settings.title": "Settings",
+  "settings.language": "App language",
+  "settings.about": "About",
+  "settings.help": "Help / Support",
+  "settings.pricing": "Pricing"
+}

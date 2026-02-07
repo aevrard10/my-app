@@ -3,6 +3,7 @@ import { Platform, View, Dimensions, StyleSheet } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type GraphicChartProps = {
   data: any;
@@ -11,6 +12,7 @@ type GraphicChartProps = {
 const GraphicChart: FC<GraphicChartProps> = (props) => {
   const { data, isPending } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
   if (isPending) {
     return <ActivityIndicator animating={true} />;
   }
@@ -18,7 +20,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
     return (
       <CardSurface style={styles.card}>
         <Text variant="bodyMedium" style={styles.title}>
-          Pas encore de mesures de poids.
+          {t("chart.weight_empty")}
         </Text>
       </CardSurface>
     );
@@ -26,7 +28,7 @@ const GraphicChart: FC<GraphicChartProps> = (props) => {
   return (
     <CardSurface style={styles.card}>
       <Text variant="titleSmall" style={styles.title}>
-        Poids du reptile
+        {t("chart.weight_title")}
       </Text>
       <LineChart
         areaChart

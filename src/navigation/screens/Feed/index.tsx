@@ -17,10 +17,12 @@ import CardSurface from "@shared/components/CardSurface";
 import { execute, executeVoid } from "@shared/local/db";
 import { useQuery } from "@tanstack/react-query";
 import { List } from "react-native-paper";
+import { useI18n } from "@shared/i18n";
 
 const Feed = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const { t } = useI18n();
   const { data, isPending: isFoodLoading, refetch } = useFoodQuery();
   const { data: usageData, isPending: isUsageLoading } = useQuery({
     queryKey: ["stock-forecast"],
@@ -139,16 +141,16 @@ const Feed = () => {
             queryClient.invalidateQueries({
               queryKey: useFoodStockHistoryQuery.queryKey,
             });
-            show("Stock mis à jour avec succès");
+            show(t("feed.toast_update_success"));
           },
           onError: (error) => {
-            show("Une erreur s'est produite");
+            show(t("feed.toast_update_error"));
             console.error("Erreur lors de la mise à jour du stock :", error);
           },
         },
       );
     },
-    [updateStockMutation, queryClient, show],
+    [updateStockMutation, queryClient, show, t],
   );
   const handleDeleteStock = useCallback(
     (name: string, unit?: string | null, type?: string | null) => {
@@ -160,13 +162,13 @@ const Feed = () => {
             queryClient.invalidateQueries({
               queryKey: useFoodStockHistoryQuery.queryKey,
             });
-            show("Aliment supprimé");
+            show(t("feed.toast_delete_success"));
           },
-          onError: () => show("Impossible de supprimer cet aliment"),
+          onError: () => show(t("feed.toast_delete_error")),
         },
       );
     },
-    [deleteStockMutation, queryClient, show],
+    [deleteStockMutation, queryClient, show, t],
   );
 
   return (
@@ -199,16 +201,16 @@ const Feed = () => {
             <CardSurface
               style={{ marginTop: 4, marginBottom: 12, padding: 12 }}
             >
-              <Text variant="titleLarge">Stock alimentaire</Text>
+              <Text variant="titleLarge">{t("feed.title")}</Text>
               <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
-                Ajustez rapidement les quantités et suivez l&apos;historique.
+                {t("feed.subtitle")}
               </Text>
             </CardSurface>
 
             <CardSurface style={{ marginBottom: 12, paddingVertical: 0 }}>
               <List.Section style={{ margin: 0 }}>
                 <List.Accordion
-                  title="Actions rapides"
+                  title={t("feed.actions")}
                   titleStyle={{ fontWeight: "700" }}
                   style={{ backgroundColor: colors.surfaceVariant }}
                   left={(props) => (
@@ -242,7 +244,7 @@ const Feed = () => {
                         </Text>
                       )}
                       <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-                        Articles
+                        {t("feed.items")}
                       </Text>
                     </View>
                     <View
@@ -267,14 +269,14 @@ const Feed = () => {
                         </Text>
                       )}
                       <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-                        Faible stock
+                        {t("feed.low_stock")}
                       </Text>
                     </View>
                   </View>
                 </List.Accordion>
 
                 <List.Accordion
-                  title="Prévision stock (30 jours)"
+                  title={t("feed.forecast")}
                   titleStyle={{ fontWeight: "700" }}
                   style={{ backgroundColor: colors.surfaceVariant }}
                   left={(props) => <List.Icon {...props} icon="chart-line" />}
@@ -287,7 +289,7 @@ const Feed = () => {
                     />
                   ) : forecast.length === 0 ? (
                     <Text style={{ opacity: 0.7, marginTop: 6, padding: 12 }}>
-                      Pas assez de données de consommation pour prévoir.
+                      {t("feed.no_forecast")}
                     </Text>
                   ) : (
                     forecast.map((f) => (
@@ -306,7 +308,8 @@ const Feed = () => {
                         <View style={{ flex: 1 }}>
                           <Text variant="bodyMedium">{f.name}</Text>
                           <Text variant="labelSmall" style={{ opacity: 0.65 }}>
-                            Stock : {f.quantity} {f.unit || ""} · Conso/j :
+                            {t("feed.stock_label")} : {f.quantity} {f.unit || ""} ·{" "}
+                            {t("feed.daily_consumption")} :
                             {f.daily ? ` ${f.daily.toFixed(2)}` : " —"}
                           </Text>
                         </View>
@@ -324,8 +327,8 @@ const Feed = () => {
                           {f.daysLeft === Infinity
                             ? "—"
                             : f.daysLeft > 60
-                              ? ">60 j"
-                              : `${f.daysLeft} j`}
+                              ? t("feed.days_more_than", { count: 60 })
+                              : `${f.daysLeft} ${t("feed.days_short")}`}
                         </Text>
                       </View>
                     ))

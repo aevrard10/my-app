@@ -5,6 +5,7 @@ import { getReptileFeedings } from "@shared/local/reptileFeedingsStore";
 import { getReptileSheds } from "@shared/local/reptileShedsStore";
 import { getMeasurements } from "@shared/local/measurementsStore";
 import dayjs from "dayjs";
+import { useI18n } from "@shared/i18n";
 
 export type HealthAlert = {
   reptile_id: string;
@@ -19,9 +20,10 @@ const DAYS_FEED_ALERT = 14;
 const DAYS_SHED_ALERT = 90;
 const WEIGHT_DROP_ALERT = 10; // en %
 
-const useHealthAlertsQuery = () =>
-  useQuery<HealthAlert[]>({
-    queryKey: [QueriesKeys.HEALTH_ALERTS],
+const useHealthAlertsQuery = () => {
+  const { t, locale } = useI18n();
+  return useQuery<HealthAlert[]>({
+    queryKey: [QueriesKeys.HEALTH_ALERTS, locale],
     queryFn: async () => {
       const reptiles = await getReptiles();
       const results: HealthAlert[] = [];
@@ -45,14 +47,14 @@ const useHealthAlertsQuery = () =>
           ? dayjs().diff(dayjs(lastFeeding), "day")
           : null;
         if (daysSinceFeed !== null && daysSinceFeed > DAYS_FEED_ALERT) {
-          alerts.push(`Aucun repas depuis ${daysSinceFeed} jours`);
+          alerts.push(t("health_alerts.no_feed", { count: daysSinceFeed }));
         }
 
         // Mue
         const lastShed = sheds[0]?.shed_date;
         const daysSinceShed = lastShed ? dayjs().diff(dayjs(lastShed), "day") : null;
         if (daysSinceShed !== null && daysSinceShed > DAYS_SHED_ALERT) {
-          alerts.push(`Aucune mue depuis ${daysSinceShed} jours`);
+          alerts.push(t("health_alerts.no_shed", { count: daysSinceShed }));
         }
 
         // Poids
@@ -63,7 +65,9 @@ const useHealthAlertsQuery = () =>
           if (latest !== null && previous !== null && previous > 0) {
             weight_delta_pct = Math.round(((latest - previous) / previous) * 100);
             if (weight_delta_pct < -WEIGHT_DROP_ALERT) {
-              alerts.push(`Perte de poids ${weight_delta_pct}% depuis la première mesure`);
+              alerts.push(
+                t("health_alerts.weight_drop", { count: weight_delta_pct }),
+              );
             }
           }
         }
@@ -82,5 +86,6 @@ const useHealthAlertsQuery = () =>
     },
     staleTime: 1000 * 60 * 5,
   });
+};
 
 export default useHealthAlertsQuery;

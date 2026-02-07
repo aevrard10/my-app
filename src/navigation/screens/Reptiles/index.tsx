@@ -24,11 +24,13 @@ import React, { useMemo, useState } from "react";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import ReptileCardSkeleton from "./components/ReptileCardSkeleton";
+import { useI18n } from "@shared/i18n";
 
 const Reptiles = () => {
   const { navigate } = useNavigation();
   const { data, isPending: isLoading, refetch } = useReptilesQuery();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const [searchText, setSearchText] = useState("");
   const [filteredData] = useSearchFilter(
     data ?? [],
@@ -70,17 +72,17 @@ const Reptiles = () => {
           ListHeaderComponent={
             <CardSurface style={styles.headerCard}>
               <Text style={styles.headerTitle} variant="titleLarge">
-                Mes reptiles
+                {t("reptiles.title")}
               </Text>
               <Text style={styles.headerSubtitle} variant="bodySmall">
-                Retrouvez l&apos;ensemble de vos reptiles et leurs détails.
+                {t("reptiles.subtitle")}
               </Text>
               <Searchbar
                 elevation={0}
                 mode="bar"
                 value={searchText}
                 onChangeText={setSearchText}
-                placeholder="Rechercher un reptile"
+                placeholder={t("reptiles.search")}
                 clearButtonMode="always"
                 style={styles.searchbar}
                 inputStyle={styles.searchInput}

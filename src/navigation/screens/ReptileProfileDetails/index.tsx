@@ -63,6 +63,7 @@ import GallerySection from "./components/GallerySection";
 import HistorySection from "./components/HistorySection";
 import GeneticsSection from "./components/GeneticsSection";
 import * as Sharing from "expo-sharing";
+import { useI18n } from "@shared/i18n";
 // import useQuery from "@shared/graphql/hooks/useQuery";
 // import { gql } from "graphql-request";
 import * as FileSystem from "expo-file-system/legacy";
@@ -82,6 +83,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { show } = useSnackbar();
+  const { t, locale } = useI18n();
 
   // States
   const [notes, setNotes] = useState("");
@@ -118,18 +120,20 @@ const ReptileProfileDetails = ({ route }: Props) => {
     const species = data?.species || "?";
     const age = data?.age ?? "?";
     const temp = data?.temperature_range || "?";
-    return `${species} · ${age} ans · ${temp}`;
-  }, [data?.species, data?.age, data?.temperature_range]);
+    return `${species} · ${age} ${t("reptiles.age_suffix")} · ${temp}`;
+  }, [data?.species, data?.age, data?.temperature_range, t]);
 
   const foodSummary = useMemo(() => {
     const last = data?.last_fed ? formatDDMMYYYY(data.last_fed) : "?";
     const diet = data?.diet || "?";
-    return `Dernier repas: ${last} · Régime: ${diet}`;
-  }, [data?.last_fed, data?.diet]);
+    return `${t("profile.food_summary_last")}: ${last} · ${t(
+      "profile.food_summary_diet",
+    )}: ${diet}`;
+  }, [data?.last_fed, data?.diet, t]);
 
   const healthSummary = useMemo(() => {
-    return data?.health_status || "État non renseigné";
-  }, [data?.health_status]);
+    return data?.health_status || t("profile.health_unknown");
+  }, [data?.health_status, t]);
 
   // Queries
   const { data: food } = useFoodQuery();
@@ -178,12 +182,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
   const handleExportPdf = useCallback(async () => {
     if (Platform.OS === "web") {
-      show("L'export PDF est disponible sur iOS/Android (build dev/release).");
+      show(t("profile.export_web_only"));
       return;
     }
 
     if (!data) {
-      show("Impossible d'exporter : données du reptile indisponibles.");
+      show(t("profile.export_no_data"));
       return;
     }
 
@@ -195,7 +199,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
         : "";
 
       const geneticsBlock = genetics
-        ? `<p><strong>Génétique :</strong> ${genetics.morph ?? "—"} | ${
+        ? `<p><strong>${t("genetics.title")} :</strong> ${genetics.morph ?? "—"} | ${
             genetics.mutations ?? ""
           } ${genetics.lineage ? " · " + genetics.lineage : ""}</p>`
         : "";
@@ -216,15 +220,15 @@ const ReptileProfileDetails = ({ route }: Props) => {
         </head>
         <body>
           <div class="card">
-            <h1>${data.name || "Reptile"}</h1>
+            <h1>${data.name || t("profile.report_reptile")}</h1>
             <div class="row">
               <div>${photo}</div>
               <div>
-                <p><strong>Espèce :</strong> ${data.species || "—"}</p>
-                <p><strong>Sexe :</strong> ${data.sex || "—"}</p>
-                <p><strong>Âge :</strong> ${data.age ?? "—"} ans</p>
-                <p><strong>Localisation :</strong> ${data.location || "—"}</p>
-                <p><strong>Acquisition :</strong> ${
+                <p><strong>${t("profile.report_species")} :</strong> ${data.species || "—"}</p>
+                <p><strong>${t("profile.report_sex")} :</strong> ${data.sex || "—"}</p>
+                <p><strong>${t("profile.report_age")} :</strong> ${data.age ?? "—"} ${t("reptiles.age_suffix")}</p>
+                <p><strong>${t("profile.report_location")} :</strong> ${data.location || "—"}</p>
+                <p><strong>${t("profile.report_acquired")} :</strong> ${
                   data.acquired_date ? formatDDMMYYYY(data.acquired_date) : "—"
                 }</p>
               </div>
@@ -233,30 +237,30 @@ const ReptileProfileDetails = ({ route }: Props) => {
           </div>
 
           <div class="card">
-            <h2>Derniers suivis</h2>
-            <p><strong>Dernier repas :</strong> ${
+            <h2>${t("profile.report_recent")}</h2>
+            <p><strong>${t("profile.report_last_meal")} :</strong> ${
               feedings?.[0]?.fed_at
                 ? formatDDMMYYYY(feedings[0].fed_at)
                 : "—"
             }</p>
-            <p><strong>Dernière mue :</strong> ${
+            <p><strong>${t("profile.report_last_shed")} :</strong> ${
               sheds?.[0]?.shed_date
                 ? formatDDMMYYYY(sheds[0].shed_date)
                 : "—"
             }</p>
-            <p><strong>Dernière mesure :</strong> ${
+            <p><strong>${t("profile.report_last_measure")} :</strong> ${
               latestMeasurement
                 ? `${latestMeasurement.weight} ${latestMeasurement.weight_mesure} · ${latestMeasurement.size} ${latestMeasurement.size_mesure}`
                 : "—"
             }</p>
-            <p><strong>Température/Hygro :</strong> ${
+            <p><strong>${t("profile.report_temp_humidity")} :</strong> ${
               data.temperature_range || "—"
             } | ${data.humidity_level ?? "—"}%</p>
           </div>
 
           <div class="card">
-            <h2>Notes</h2>
-            <p>${(data.notes || "Aucune note").replace(/\n/g, "<br/>")}</p>
+            <h2>${t("profile.report_notes")}</h2>
+            <p>${(data.notes || t("profile.report_no_notes")).replace(/\n/g, "<br/>")}</p>
           </div>
         </body>
       </html>`;
@@ -265,7 +269,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
       const available = await Sharing.isAvailableAsync();
       if (!available) {
-        show("PDF généré, mais le partage n'est pas disponible sur cet appareil.");
+        show(t("profile.export_no_share"));
         return;
       }
 
@@ -275,15 +279,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
       });
     } catch (err: any) {
       if (err?.message?.includes("expo-print")) {
-        show(
-          "expo-print n'est pas installé. Ajoute-le (expo install expo-print) puis rebuild.",
-        );
+        show(t("profile.export_missing_print"));
         return;
       }
       console.error(err);
-      show("Export PDF impossible. Réessaie après redémarrage.");
+      show(t("profile.export_failed"));
     }
-  }, [data, genetics, feedings, sheds, latestMeasurement, show]);
+  }, [data, genetics, feedings, sheds, latestMeasurement, show, t]);
 
   // Mutations
   const { mutate } = useAddNotesMutation();
@@ -379,42 +381,46 @@ const ReptileProfileDetails = ({ route }: Props) => {
         refetchPhotos();
       }
     } catch (error) {
-      show("Impossible d'ajouter la photo");
+      show(t("profile.photo_add_error"));
     } finally {
       setIsUploadingPhoto(false);
     }
-  }, [id, refetchPhotos, show]);
+  }, [id, refetchPhotos, show, t]);
 
   const confirmDeletePhoto = useCallback(
     (photoId: string) => {
+      const confirmMessage = t("profile.photo_delete_confirm");
+      const confirmTitle = t("common.delete");
+      const cancelLabel = t("common.cancel");
+      const deleteLabel = t("common.delete");
       const onConfirm = () => {
         deletePhoto(
           { id: photoId },
           {
             onSuccess: () => {
               refetchPhotos();
-              show("Photo supprimée");
+              show(t("profile.photo_delete_success"));
             },
             onError: () => {
-              show("Erreur lors de la suppression");
+              show(t("profile.photo_delete_error"));
             },
           },
         );
       };
 
       if (Platform.OS === "web" && typeof window !== "undefined") {
-        if (window.confirm("Supprimer cette photo ?")) {
+        if (window.confirm(confirmMessage)) {
           onConfirm();
         }
         return;
       }
 
-      Alert.alert("Supprimer", "Supprimer cette photo ?", [
-        { text: "Annuler", style: "cancel" },
-        { text: "Supprimer", style: "destructive", onPress: onConfirm },
+      Alert.alert(confirmTitle, confirmMessage, [
+        { text: cancelLabel, style: "cancel" },
+        { text: deleteLabel, style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deletePhoto, refetchPhotos, show],
+    [deletePhoto, refetchPhotos, show, t],
   );
 
   const handleDownloadSelectedPhoto = useCallback(() => {
@@ -431,9 +437,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
         Linking.openURL(selectedPhoto.url);
       }
     } catch (error) {
-      show("Impossible de télécharger l'image");
+      show(t("profile.photo_download_error"));
     }
-  }, [selectedPhoto?.url, data?.name, show]);
+  }, [selectedPhoto?.url, data?.name, show, t]);
 
   const handleSharePhoto = useCallback(
     async (photo: { url: string; created_at: string; id: string }) => {
@@ -446,29 +452,31 @@ const ReptileProfileDetails = ({ route }: Props) => {
       try {
         const canShare = await Sharing.isAvailableAsync();
         if (!canShare) {
-          show("Partage non disponible sur cet appareil");
+          show(t("profile.photo_share_unavailable"));
           return;
         }
         await Sharing.shareAsync(photo.url, {
-          dialogTitle: `Partager ${data?.name || "reptile"}`,
+          dialogTitle: t("profile.photo_share_title", {
+            name: data?.name || t("profile.report_reptile"),
+          }),
           mimeType: "image/jpeg",
         });
       } catch (e) {
-        show("Impossible de partager cette photo");
+        show(t("profile.photo_share_error"));
       }
     },
-    [data?.name, show],
+    [data?.name, show, t],
   );
 
   const handleSaveGoveeKey = useCallback(async () => {
     try {
       await AsyncStorage.setItem("govee_api_key", goveeApiKey.trim());
-      show("Clé Govee enregistrée");
+      show(t("profile.govee_key_saved"));
       refetchGoveeDevices();
     } catch {
-      show("Impossible d'enregistrer la clé");
+      show(t("profile.govee_key_error"));
     }
-  }, [goveeApiKey, refetchGoveeDevices, show]);
+  }, [goveeApiKey, refetchGoveeDevices, show, t]);
 
   const handleSelectGoveeDevice = useCallback(
     async (device: { device: string; model: string; deviceName?: string }) => {
@@ -484,66 +492,74 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
   const confirmDeleteFeeding = useCallback(
     (feedingId: string) => {
+      const confirmMessage = t("profile.feeding_delete_confirm");
+      const confirmTitle = t("common.delete");
+      const cancelLabel = t("common.cancel");
+      const deleteLabel = t("common.delete");
       const onConfirm = () => {
         deleteFeeding(
           { id: feedingId },
           {
             onSuccess: () => {
               refetchFeedings();
-              show("Nourrissage supprimé");
+              show(t("profile.feeding_delete_success"));
             },
             onError: () => {
-              show("Erreur lors de la suppression");
+              show(t("profile.feeding_delete_error"));
             },
           },
         );
       };
 
       if (Platform.OS === "web" && typeof window !== "undefined") {
-        if (window.confirm("Supprimer ce nourrissage ?")) {
+        if (window.confirm(confirmMessage)) {
           onConfirm();
         }
         return;
       }
 
-      Alert.alert("Supprimer", "Supprimer ce nourrissage ?", [
-        { text: "Annuler", style: "cancel" },
-        { text: "Supprimer", style: "destructive", onPress: onConfirm },
+      Alert.alert(confirmTitle, confirmMessage, [
+        { text: cancelLabel, style: "cancel" },
+        { text: deleteLabel, style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deleteFeeding, refetchFeedings, show],
+    [deleteFeeding, refetchFeedings, show, t],
   );
 
   const confirmDeleteShed = useCallback(
     (shedId: string) => {
+      const confirmMessage = t("profile.shed_delete_confirm");
+      const confirmTitle = t("common.delete");
+      const cancelLabel = t("common.cancel");
+      const deleteLabel = t("common.delete");
       const onConfirm = () => {
         deleteShed(
           { id: shedId },
           {
             onSuccess: () => {
               refetchSheds();
-              show("Mue supprimée");
+              show(t("profile.shed_delete_success"));
             },
             onError: () => {
-              show("Erreur lors de la suppression");
+              show(t("profile.shed_delete_error"));
             },
           },
         );
       };
 
       if (Platform.OS === "web" && typeof window !== "undefined") {
-        if (window.confirm("Supprimer cette mue ?")) {
+        if (window.confirm(confirmMessage)) {
           onConfirm();
         }
         return;
       }
 
-      Alert.alert("Supprimer", "Supprimer cette mue ?", [
-        { text: "Annuler", style: "cancel" },
-        { text: "Supprimer", style: "destructive", onPress: onConfirm },
+      Alert.alert(confirmTitle, confirmMessage, [
+        { text: cancelLabel, style: "cancel" },
+        { text: deleteLabel, style: "destructive", onPress: onConfirm },
       ]);
     },
-    [deleteShed, refetchSheds, show],
+    [deleteShed, refetchSheds, show, t],
   );
 
   const trendData = useMemo(() => {
@@ -617,8 +633,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
   }, [measurements]);
 
   useEffect(() => {
-    navigation.setOptions({ title: data?.name ?? "Détails du reptile" });
-  }, [data?.name]);
+    navigation.setOptions({
+      title: data?.name ?? t("nav.reptile_details"),
+    });
+  }, [data?.name, navigation, t]);
 
   const currentAlerts = useMemo(
     () => healthAlerts?.find((a) => String(a.reptile_id) === String(id)),
@@ -633,11 +651,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
           queryClient.invalidateQueries({
             queryKey: useReptileQuery.queryKey(id),
           });
-          show("Notes enregistrées");
+          show(t("profile.notes_saved"));
         },
       },
     );
-  }, [id, notes, mutate]);
+  }, [id, notes, mutate, queryClient, show, t]);
   const handleUpdateReptile = (values: any) => {
     updateReptile(
       { id, input: values },
@@ -646,10 +664,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
           queryClient.invalidateQueries({
             queryKey: useReptileQuery.queryKey(id),
           });
-          show("Informations mises à jour");
+          show(t("profile.info_updated"));
         },
         onError: () => {
-          show("Erreur lors de la mise à jour");
+          show(t("profile.update_error"));
         },
       },
     );
@@ -724,45 +742,46 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 />
 
                 <CardSurface style={styles.reportCard}>
-                  <Text variant="titleMedium">Rapport d&apos;élevage</Text>
+                  <Text variant="titleMedium">{t("profile.report_title")}</Text>
                   <View style={styles.reportList}>
                     <Text variant="bodySmall">
-                      Espèce : {data?.species || "—"}
+                      {t("profile.report_species")} : {data?.species || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Sexe : {data?.sex || "—"} · Âge : {data?.age ?? "—"} ans
+                      {t("profile.report_sex")} : {data?.sex || t("common.not_available")} ·{" "}
+                      {t("profile.report_age")} : {data?.age ?? "—"} {t("reptiles.age_suffix")}
                     </Text>
                     <Text variant="bodySmall">
-                      Morph : {genetics?.morph || "—"}
+                      {t("profile.report_morph")} : {genetics?.morph || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Mutations : {genetics?.mutations || "—"}
+                      {t("profile.report_mutations")} : {genetics?.mutations || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Lignée : {genetics?.lineage || "—"}
+                      {t("profile.report_lineage")} : {genetics?.lineage || t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Dernier repas :{" "}
+                      {t("profile.report_last_feed")} :{" "}
                       {feedings?.[0]?.fed_at
                         ? formatDDMMYYYY(feedings[0].fed_at)
-                        : "—"}
+                        : t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Dernière mue :{" "}
+                      {t("profile.report_last_shed")} :{" "}
                       {sheds?.[0]?.shed_date
                         ? formatDDMMYYYY(sheds[0].shed_date)
-                        : "—"}
+                        : t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
-                      Dernière mesure :{" "}
+                      {t("profile.report_last_measure")} :{" "}
                       {latestMeasurement
                         ? `${latestMeasurement.weight} ${latestMeasurement.weight_mesure} · ${latestMeasurement.size} ${latestMeasurement.size_mesure}`
-                        : "—"}
+                        : t("common.not_available")}
                     </Text>
                   </View>
                 </CardSurface>
                 <CardSurface style={styles.trendCard}>
-                  <Text variant="titleMedium">Tendances</Text>
+                  <Text variant="titleMedium">{t("profile.trends_title")}</Text>
                   {trendData ? (
                     <View style={styles.trendRows}>
                       <View style={styles.trendRow}>
@@ -781,12 +800,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         />
                         <View style={styles.trendText}>
                           <Text variant="bodyMedium">
-                            Poids {trendData.weightDelta >= 0 ? "+" : ""}
+                            {t("profile.trends_weight")}{" "}
+                            {trendData.weightDelta >= 0 ? "+" : ""}
                             {trendData.weightDelta.toFixed(1)} (
                             {trendData.weightPercent.toFixed(1)}%)
                           </Text>
                           <Text variant="labelSmall" style={styles.trendMeta}>
-                            30 derniers jours (ou historique complet)
+                            {t("profile.trends_period")}
                           </Text>
                         </View>
                       </View>
@@ -804,25 +824,25 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         />
                         <View style={styles.trendText}>
                           <Text variant="bodyMedium">
-                            Taille {trendData.sizeDelta >= 0 ? "+" : ""}
+                            {t("profile.trends_size")}{" "}
+                            {trendData.sizeDelta >= 0 ? "+" : ""}
                             {trendData.sizeDelta.toFixed(1)} (
                             {trendData.sizePercent.toFixed(1)}%)
                           </Text>
                           <Text variant="labelSmall" style={styles.trendMeta}>
-                            30 derniers jours (ou historique complet)
+                            {t("profile.trends_period")}
                           </Text>
                         </View>
                       </View>
                       {(trendData.weightAlert || trendData.sizeAlert) && (
                         <Text variant="labelSmall" style={styles.trendAlert}>
-                          Variation importante détectée. Vérifiez l&apos;état de
-                          santé.
+                          {t("profile.trends_alert")}
                         </Text>
                       )}
                     </View>
                   ) : (
                     <Text variant="bodySmall" style={styles.mutedText}>
-                      Ajoutez au moins 2 mesures pour voir une tendance.
+                      {t("profile.trends_empty")}
                     </Text>
                   )}
                 </CardSurface>
@@ -865,10 +885,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       {
                         onSuccess: () => {
                           refetchGenetics();
-                          show("Génétique enregistrée");
+                          show(t("profile.genetics_saved"));
                         },
                         onError: () => {
-                          show("Erreur lors de l'enregistrement");
+                          show(t("profile.genetics_error"));
                         },
                       },
                     )
@@ -878,12 +898,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
                 <List.Section style={{ marginTop: 12 }}>
                   <InfoAccordion
-                    title="Profil & habitat"
+                    title={t("profile.section_profile")}
                     icon="home"
                     fields={[
                       {
                         key: "age",
-                        label: "Âge",
+                        label: t("profile.field_age"),
                         value: formik.values.age,
                         keyboardType: "numeric",
                         onChangeText: (text) => {
@@ -896,35 +916,35 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       },
                       {
                         key: "species",
-                        label: "Espèce",
+                        label: t("profile.field_species"),
                         value: formik.values.species,
                         onChangeText: (text) =>
                           formik.setFieldValue("species", text),
                       },
                       {
                         key: "acquired_date",
-                        label: "Date d'acquisition",
+                        label: t("profile.field_acquired"),
                         value: formik.values.acquired_date,
                         onChangeText: (text) =>
                           formik.setFieldValue("acquired_date", text),
                       },
                       {
                         key: "origin",
-                        label: "Origine",
+                        label: t("profile.field_origin"),
                         value: formik.values.origin,
                         onChangeText: (text) =>
                           formik.setFieldValue("origin", text),
                       },
                       {
                         key: "location",
-                        label: "Emplacement",
+                        label: t("profile.field_location"),
                         value: formik.values.location,
                         onChangeText: (text) =>
                           formik.setFieldValue("location", text),
                       },
                       {
                         key: "humidity",
-                        label: "Humidité",
+                        label: t("profile.field_humidity"),
                         value: formik.values.humidity_level,
                         keyboardType: "numeric",
                         onChangeText: (text) => {
@@ -937,7 +957,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       },
                       {
                         key: "temperature",
-                        label: "Température",
+                        label: t("profile.field_temperature"),
                         value: formik.values.temperature_range,
                         keyboardType: "numeric",
                         onChangeText: (text) =>
@@ -947,19 +967,19 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   />
 
                   <InfoAccordion
-                    title="Alimentation"
+                    title={t("profile.section_feeding")}
                     icon="food"
                     fields={[
                       {
                         key: "last_fed",
-                        label: "Dernier repas",
+                        label: t("profile.field_last_fed"),
                         value: formik.values.last_fed,
                         onChangeText: (text) =>
                           formik.setFieldValue("last_fed", text),
                       },
                       {
                         key: "diet",
-                        label: "Régime alimentaire",
+                        label: t("profile.field_diet"),
                         value: formik.values.diet,
                         onChangeText: (text) =>
                           formik.setFieldValue("diet", text),
@@ -968,12 +988,12 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   />
 
                   <InfoAccordion
-                    title="Santé"
+                    title={t("profile.section_health")}
                     icon="heart-pulse"
                     fields={[
                       {
                         key: "health_status",
-                        label: "État de santé",
+                        label: t("profile.field_health"),
                         value: formik.values.health_status,
                         onChangeText: (text) =>
                           formik.setFieldValue("health_status", text),
@@ -982,36 +1002,36 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   />
 
                   <List.Accordion
-                    title="Actions"
+                    title={t("profile.section_actions")}
                     left={(props) => <List.Icon {...props} icon="pencil" />}
                   >
                     <Button mode="contained" onPress={formik.submitForm}>
-                      Modifier les informations
+                      {t("profile.actions_save")}
                     </Button>
                   </List.Accordion>
                 </List.Section>
                 <CardSurface style={styles.notesCard}>
                   <Text variant="titleMedium" style={styles.cardTitle}>
-                    Notes & observations
+                    {t("profile.notes_title")}
                   </Text>
                   <TextInput
                     multiline
                     style={styles.input}
                     value={notes}
                     onChange={(e) => setNotes(e.nativeEvent.text)}
-                    placeholder="Informations"
+                    placeholder={t("profile.notes_placeholder")}
                   />
 
                   <View style={{ marginTop: 10 }}>
                     <Button mode="contained" onPress={addNotes}>
-                      Enregistrer les notes
+                      {t("profile.notes_save")}
                     </Button>
                   </View>
                 </CardSurface>
 
                 <CardSurface style={styles.sensorCard}>
                   <Text variant="titleMedium" style={styles.cardTitle}>
-                    Capteur Govee
+                    {t("profile.sensor_title")}
                   </Text>
                   <View style={styles.sensorHeader}>
                     <Button
@@ -1021,18 +1041,18 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       disabled={!selectedGoveeDevice || isLoadingGoveeReading}
                       loading={isLoadingGoveeReading}
                     >
-                      Actualiser
+                      {t("common.refresh")}
                     </Button>
                   </View>
                   <TextInput
-                    placeholder="Clé API Govee"
+                    placeholder={t("profile.sensor_api_key")}
                     value={goveeApiKey}
                     onChangeText={setGoveeApiKey}
                     secureTextEntry
                   />
                   <View style={styles.sensorActions}>
                     <Button mode="outlined" onPress={handleSaveGoveeKey}>
-                      Enregistrer la clé
+                      {t("profile.sensor_save_key")}
                     </Button>
                     <Button
                       mode="contained"
@@ -1040,7 +1060,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                       loading={isLoadingGoveeDevices}
                       disabled={!goveeApiKey}
                     >
-                      Lister mes capteurs
+                      {t("profile.sensor_list_devices")}
                     </Button>
                   </View>
                   {goveeDevices && goveeDevices.length > 0 ? (
@@ -1066,7 +1086,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   {selectedGoveeDevice ? (
                     <View style={styles.readingRow}>
                       <View style={{ flex: 1 }}>
-                        <Text variant="labelLarge">Dernière lecture</Text>
+                        <Text variant="labelLarge">
+                          {t("profile.sensor_last_reading")}
+                        </Text>
                         {goveeReading ? (
                           <>
                             <Text variant="titleMedium">
@@ -1077,7 +1099,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                               variant="labelSmall"
                               style={styles.readingMeta}
                             >
-                              Batterie :{" "}
+                              {t("profile.sensor_battery")} :{" "}
                               {goveeReading.battery !== null &&
                               goveeReading.battery !== undefined
                                 ? `${goveeReading.battery}%`
@@ -1087,14 +1109,14 @@ const ReptileProfileDetails = ({ route }: Props) => {
                           </>
                         ) : (
                           <Text variant="bodySmall" style={styles.readingMeta}>
-                            Aucune donnée. Lance “Actualiser”.
+                            {t("profile.sensor_no_data")}
                           </Text>
                         )}
                       </View>
                     </View>
                   ) : (
                     <Text variant="bodySmall" style={styles.readingMeta}>
-                      Sélectionnez un capteur pour voir les mesures.
+                      {t("profile.sensor_select_device")}
                     </Text>
                   )}
                 </CardSurface>
@@ -1131,20 +1153,20 @@ const ReptileProfileDetails = ({ route }: Props) => {
               >
                 <View style={styles.photoModalHeader}>
                   <Text variant="titleMedium">
-                    Photo
+                    {t("profile.photo_title")}
                     {selectedPhoto?.created_at
                       ? ` · ${formatDDMMYYYY(selectedPhoto.created_at)}`
                       : ""}
                   </Text>
                   <View style={styles.photoModalActions}>
                     <Button mode="text" onPress={handleDownloadSelectedPhoto}>
-                      Télécharger
+                      {t("common.download")}
                     </Button>
                     <Button
                       mode="text"
                       onPress={() => setShowPhotoModal(false)}
                     >
-                      Fermer
+                      {t("common.close")}
                     </Button>
                   </View>
                 </View>
@@ -1161,11 +1183,11 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 onDismiss={() => setShowShedModal(false)}
                 contentContainerStyle={styles.modalContainer}
               >
-                <Text variant="titleMedium">Ajouter une mue</Text>
+                <Text variant="titleMedium">{t("profile.shed_add_title")}</Text>
                 <DatePickerInput
                   mode="outlined"
-                  locale="fr"
-                  label="Date de mue"
+                  locale={locale}
+                  label={t("profile.shed_date")}
                   value={shedDate}
                   onChange={(date) => setShedDate(date)}
                   inputMode="start"
@@ -1173,21 +1195,21 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   outlineStyle={styles.outlineStyle}
                 />
                 <TextInput
-                  placeholder="Notes"
+                  placeholder={t("profile.shed_notes")}
                   value={shedNotes}
                   onChangeText={setShedNotes}
                   multiline
                 />
                 <View style={styles.modalActions}>
                   <Button mode="text" onPress={() => setShowShedModal(false)}>
-                    Annuler
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     mode="contained"
                     loading={isAddingShed}
                     onPress={() => {
                       if (!shedDate) {
-                        show("Veuillez choisir une date");
+                        show(t("profile.shed_date_required"));
                         return;
                       }
                       addShed(
@@ -1203,16 +1225,16 @@ const ReptileProfileDetails = ({ route }: Props) => {
                             refetchSheds();
                             setShowShedModal(false);
                             setShedNotes("");
-                            show("Mue ajoutée");
+                            show(t("profile.shed_added"));
                           },
                           onError: () => {
-                            show("Erreur lors de l'ajout");
+                            show(t("profile.shed_add_error"));
                           },
                         },
                       );
                     }}
                   >
-                    Enregistrer
+                    {t("common.save")}
                   </Button>
                 </View>
               </Modal>

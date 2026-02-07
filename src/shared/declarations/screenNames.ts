@@ -18,6 +18,9 @@ enum ScreenNames {
   RESET_PASSWORD = "ResetPassword",
   APPLE_LOGIN = "AppleLogin",
   SETTINGS = "Settings",
+  SETTINGS_LANGUAGE = "SettingsLanguage",
+  SETTINGS_PRICING = "SettingsPricing",
+  SETTINGS_SUPPORT = "SettingsSupport",
 }
 
 export default ScreenNames;

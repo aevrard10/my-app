@@ -1,0 +1,28 @@
+{
+  "reptiles.title": "Mis reptiles",
+  "reptiles.subtitle": "Encuentra todos tus reptiles y sus detalles.",
+  "reptiles.search": "Buscar un reptil",
+  "feed.title": "Inventario de alimento",
+  "feed.subtitle": "Ajusta rápido las cantidades y revisa el historial.",
+  "feed.actions": "Acciones rápidas",
+  "feed.forecast": "Previsión de stock (30 días)",
+  "feed.history": "Historial",
+  "common.add": "Añadir",
+  "common.remove": "Retirar",
+  "common.delete": "Eliminar",
+  "common.health": "Salud",
+  "common.last_feed": "Última comida",
+  "home.welcome": "¡Hola!",
+  "home.subtitle": "Bienvenido a tu panel.",
+  "home.reptiles": "Reptiles",
+  "home.events": "Eventos de hoy",
+  "home.notifications": "Notificaciones sin leer",
+  "home.alerts": "Alertas de salud"
+}
+,
+  "settings.title": "Settings",
+  "settings.language": "App language",
+  "settings.about": "About",
+  "settings.help": "Help / Support",
+  "settings.pricing": "Pricing"
+}

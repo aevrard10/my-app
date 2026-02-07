@@ -3,6 +3,7 @@ import { View, Platform, StyleSheet } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
 import { Text, useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type TemperatureChartProps = {
   data: {
@@ -16,10 +17,11 @@ type TemperatureChartProps = {
 const TemperatureChart: FC<TemperatureChartProps> = (props) => {
   const { data, temperature } = props;
   const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <View style={styles.wrapper}>
       <CardSurface style={styles.card}>
-        <Text variant="titleSmall">Température</Text>
+        <Text variant="titleSmall">{t("chart.temperature")}</Text>
         <View style={styles.chartContainer}>
           <PieChart
             data={data}

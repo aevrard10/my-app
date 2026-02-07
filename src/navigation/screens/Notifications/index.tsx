@@ -9,11 +9,13 @@ import useMarkAllNotificationsAsReadMutation from "./hooks/mutations/useMarkAllN
 import { useQueryClient } from "@tanstack/react-query";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 import NotifItemSkeleton from "./components/NotifItemSkeleton";
+import { useI18n } from "@shared/i18n";
 
 const renderItem = ({ item }) => <NotifItem item={item} />;
 
 const Notifications = () => {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const { data, isPending, refetch } = useGetNotificationsQuery();
   const queryClient = useQueryClient();
   const { mutate, isPending: isMarking } =
@@ -53,9 +55,9 @@ const Notifications = () => {
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text variant="titleLarge">Notifications</Text>
+                <Text variant="titleLarge">{t("notifications.title")}</Text>
                 <Text variant="bodySmall" style={styles.headerSubtitle}>
-                  Restez informé des rappels et événements importants.
+                  {t("notifications.subtitle")}
                 </Text>
               </View>
               <Button
@@ -67,12 +69,12 @@ const Notifications = () => {
                 style={styles.markAllButton}
                 textColor={colors.primary}
               >
-                Tout lire
+                {t("notifications.mark_all")}
               </Button>
             </View>
             {unreadCount > 0 ? (
               <Text variant="labelSmall" style={styles.unreadBadge}>
-                {unreadCount} non lues
+                {t("notifications.unread", { count: unreadCount })}
               </Text>
             ) : null}
           </View>

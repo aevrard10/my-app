@@ -7,11 +7,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import Screen from "@shared/components/Screen";
 import { Button, Text, useTheme } from "react-native-paper";
+import { useI18n } from "@shared/i18n";
 
 const AppleLogin = ({ navigation }: any) => {
   const { setToken } = useAuth();
   const { show } = useSnackbar();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleApple = async () => {
@@ -29,11 +31,11 @@ const AppleLogin = ({ navigation }: any) => {
       const localToken = credential.user;
       await AsyncStorage.setItem(QueriesKeys.USER_TOKEN, localToken);
       setToken(localToken);
-      show("Connexion réussie");
+      show(t("auth.success"));
       navigation.reset({ index: 0, routes: [{ name: "HomeTabs" as never }] });
     } catch (e: any) {
       if (e.code === "ERR_CANCELED") return;
-      show("Connexion Apple refusée");
+      show(t("auth.apple_refused"));
     } finally {
       setIsSubmitting(false);
     }
@@ -50,15 +52,15 @@ const AppleLogin = ({ navigation }: any) => {
           ReptiTrack
         </Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Suivi complet de vos reptiles, même hors ligne.
+          {t("auth.app_subtitle")}
         </Text>
       </View>
       <View style={styles.card}>
         <Text variant="titleLarge" style={styles.cardTitle}>
-          Connexion
+          {t("auth.title")}
         </Text>
         <Text variant="bodySmall" style={styles.cardSubtitle}>
-          Utilise Apple pour une connexion simple et sécurisée.
+          {t("auth.subtitle")}
         </Text>
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
@@ -75,12 +77,11 @@ const AppleLogin = ({ navigation }: any) => {
           contentStyle={{ paddingVertical: 2 }}
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Connexion…" : "Réessayer"}
+          {isSubmitting ? t("auth.loading") : t("auth.retry")}
         </Button>
         {Platform.OS === "web" && (
           <Text variant="bodySmall" style={styles.note}>
-            Sur web, Apple Sign In requiert un environnement Apple (Safari).
-            Teste surtout sur iOS.
+            {t("auth.web_note")}
           </Text>
         )}
       </View>

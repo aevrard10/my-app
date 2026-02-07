@@ -3,6 +3,7 @@ import { Button, List, Text, TouchableRipple } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import CardSurface from "@shared/components/CardSurface";
+import { useI18n } from "@shared/i18n";
 
 type Feeding = {
   id: string;
@@ -40,11 +41,12 @@ const HistorySection = ({
   hasMoreFeedings,
   hasMoreSheds,
 }: HistorySectionProps) => {
+  const { t } = useI18n();
   return (
     <CardSurface style={styles.card}>
       <List.Accordion
-        title="Historique repas"
-        description="5 derniers"
+        title={t("history.feed_title")}
+        description={t("history.feed_desc")}
         left={(props) => <List.Icon {...props} icon="food" />}
         style={styles.accordion}
       >
@@ -59,7 +61,7 @@ const HistorySection = ({
                 >
                   <View>
                     <Text variant="bodyMedium">
-                      {feeding.food_name || "Repas"}
+                      {feeding.food_name || t("history.feed_default")}
                     </Text>
                     <Text variant="labelSmall" style={styles.meta}>
                       {formatDDMMYYYY(feeding.fed_at)} · {feeding.quantity ?? 1}{" "}
@@ -75,20 +77,20 @@ const HistorySection = ({
                 mode="text"
                 style={{ alignSelf: "flex-start" }}
               >
-                Voir plus
+                {t("history.load_more")}
               </Button>
             )}
           </View>
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
-            Aucun repas enregistré.
+            {t("history.feed_empty")}
           </Text>
         )}
       </List.Accordion>
 
       <List.Accordion
-        title="Historique des mues"
-        description="5 dernières"
+        title={t("history.shed_title")}
+        description={t("history.shed_desc")}
         left={(props) => <List.Icon {...props} icon="leaf" />}
         style={styles.accordion}
       >
@@ -99,7 +101,7 @@ const HistorySection = ({
             onPress={onAddShed}
             style={{ marginBottom: 6, marginTop: 4 }}
           >
-            Ajouter une mue
+            {t("history.shed_add")}
           </Button>
         </View>
 
@@ -113,7 +115,7 @@ const HistorySection = ({
                   style={styles.item}
                 >
                   <View>
-                    <Text variant="bodyMedium">Mue enregistrée</Text>
+                    <Text variant="bodyMedium">{t("history.shed_item")}</Text>
                     <Text variant="labelSmall" style={styles.meta}>
                       {formatDDMMYYYY(shed.shed_date)}
                     </Text>
@@ -127,13 +129,13 @@ const HistorySection = ({
                 mode="text"
                 style={{ alignSelf: "flex-start" }}
               >
-                Voir plus
+                {t("history.load_more")}
               </Button>
             )}
           </>
         ) : (
           <Text variant="bodySmall" style={styles.empty}>
-            Aucune mue enregistrée.
+            {t("history.shed_empty")}
           </Text>
         )}
       </List.Accordion>

@@ -44,6 +44,7 @@ import useReptilesQuery from "../Reptiles/hooks/queries/useReptilesQuery";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
+import { useI18n } from "@shared/i18n";
 const NOTIF_KEY = "reptitrack_event_notifs"; // map eventId -> notificationId
 
 const initialValues = {
@@ -63,6 +64,7 @@ const Agenda = () => {
   const route = useRoute<any>();
   const { data, isPending: isLoading, refetch } = useReptileEventsQuery();
   const { data: reptiles } = useReptilesQuery();
+  const { t, locale } = useI18n();
   const [inputDate, setInputDate] = useState<Date | undefined>(new Date());
   const [inputRecurrenceUntil, setInputRecurrenceUntil] = useState<
     Date | undefined
@@ -107,10 +109,10 @@ const Agenda = () => {
     if (triggerDate.isBefore(dayjs())) return; // ne planifie pas dans le passé
     const notifId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: values.event_name || "Rappel",
+        title: values.event_name || t("agenda.notification_title"),
         body: values.reptile_name
-          ? `${values.reptile_name} • ${values.notes || "Événement"}`
-          : values.notes || "Événement",
+          ? `${values.reptile_name} • ${values.notes || t("agenda.notification_event")}`
+          : values.notes || t("agenda.notification_event"),
       },
       trigger: triggerDate.toDate(),
     });
@@ -205,9 +207,9 @@ const Agenda = () => {
   return (
     <Screen>
       <View style={styles.header}>
-        <Text variant="titleLarge">Agenda</Text>
+        <Text variant="titleLarge">{t("agenda.title")}</Text>
         <Text variant="bodySmall" style={styles.headerSubtitle}>
-          Organisez les événements et rappels de soins.
+          {t("agenda.subtitle")}
         </Text>
       </View>
       {isLoading && (!data || Object.keys(data).length === 0) ? (
@@ -249,7 +251,7 @@ const Agenda = () => {
         initialValues={initialValues}
         onSubmit={(values, { resetForm }) => {
           if (!values.event_date) {
-            show("La date est obligatoire.", { label: "Ok" });
+            show(t("agenda.date_required"), { label: t("common.ok") });
             return;
           }
 
@@ -279,13 +281,13 @@ const Agenda = () => {
                   queryKey: useReptileEventsQuery.queryKey,
                 });
                 setAddEvent(false);
-                show("Événement ajouté avec succès !", {
-                  label: "Ok",
+                show(t("agenda.add_success"), {
+                  label: t("common.ok"),
                 });
               },
               onError: () => {
-                show("Une erreur est survenue, Veuillez réessayer ...", {
-                  label: "Ok",
+                show(t("agenda.add_error"), {
+                  label: t("common.ok"),
                 });
               },
             },
@@ -314,7 +316,7 @@ const Agenda = () => {
                 ]}
               >
                 <Appbar.BackAction onPress={() => setAddEvent(false)} />
-                <Appbar.Content title="Nouvel événement" />
+                <Appbar.Content title={t("agenda.new_event_title")} />
               </Appbar.Header>
 
               <ScrollView>
@@ -324,14 +326,14 @@ const Agenda = () => {
                 >
                   <CardSurface style={[styles.inputSection, { gap: 4 }]}>
                     <TextInput
-                      placeholder="Titre"
+                      placeholder={t("agenda.title_placeholder")}
                       value={formik.values.event_name}
                       onChangeText={formik.handleChange("event_name")}
                     />
                     <Divider style={{ marginHorizontal: 8 }} />
                     <TouchableOpacity onPress={() => setShowSelectReptile(true)}>
                       <TextInput
-                        placeholder="Associer un reptile (optionnel)"
+                        placeholder={t("agenda.reptile_optional")}
                         value={formik.values.reptile_name}
                         editable={false}
                         pointerEvents="none"
@@ -350,7 +352,7 @@ const Agenda = () => {
                       }}
                     >
                       <Text variant="titleMedium" style={{ marginBottom: 8 }}>
-                        Choisir un reptile
+                        {t("agenda.choose_reptile")}
                       </Text>
                       <ScrollView style={{ maxHeight: 320 }}>
                         {reptiles?.map((rep) => (
@@ -381,7 +383,7 @@ const Agenda = () => {
                           formik.setFieldValue("reptile_image_url", "");
                         }}
                       >
-                        Aucun reptile
+                        {t("agenda.no_reptile")}
                       </Button>
                     </Modal>
                   </Portal>
@@ -394,15 +396,15 @@ const Agenda = () => {
                         <TextInput
                           style={[styles.input, { flex: 1 }]}
                           value={formik.values.event_time}
-                          placeholder="Heure"
+                          placeholder={t("agenda.time")}
                           editable={false}
                         />
                       </TouchableOpacity>
                       <DatePickerInput
                         mode="outlined"
-                        locale="fr"
-                        label="Date"
-                        saveLabel="Confirmer"
+                        locale={locale}
+                        label={t("agenda.date")}
+                        saveLabel={t("common.confirm")}
                         outlineStyle={{ borderWidth: 0 }}
                         style={styles.dateInput}
                         value={inputDate}
@@ -422,13 +424,13 @@ const Agenda = () => {
                     <TextInput
                       multiline
                       style={styles.input}
-                      placeholder="Notes"
+                      placeholder={t("agenda.notes")}
                       onChangeText={formik.handleChange("notes")}
                       onBlur={formik.handleBlur("notes")}
                     />
                   </CardSurface>
                   <CardSurface style={styles.inputSection}>
-                    <Text variant="labelLarge">Récurrence</Text>
+                    <Text variant="labelLarge">{t("agenda.recurrence")}</Text>
                     <SegmentedButtons
                       value={formik.values.recurrence_type}
                       onValueChange={(value) => {
@@ -439,19 +441,19 @@ const Agenda = () => {
                         }
                       }}
                       buttons={[
-                        { value: "NONE", label: "Aucune" },
-                        { value: "DAILY", label: "Quotidien" },
-                        { value: "WEEKLY", label: "Hebdo" },
-                        { value: "MONTHLY", label: "Mensuel" },
+                        { value: "NONE", label: t("agenda.recurrence_none") },
+                        { value: "DAILY", label: t("agenda.recurrence_daily") },
+                        { value: "WEEKLY", label: t("agenda.recurrence_weekly") },
+                        { value: "MONTHLY", label: t("agenda.recurrence_monthly") },
                       ]}
                       style={{ marginTop: 8 }}
                     />
                     {formik.values.recurrence_type !== "NONE" ? (
                       <DatePickerInput
                         mode="outlined"
-                        locale="fr"
-                        label="Fin de récurrence (optionnel)"
-                        saveLabel="Confirmer"
+                        locale={locale}
+                        label={t("agenda.recurrence_until")}
+                        saveLabel={t("common.confirm")}
                         outlineStyle={{ borderWidth: 0 }}
                         style={styles.recurrenceInput}
                         value={inputRecurrenceUntil}
@@ -462,7 +464,7 @@ const Agenda = () => {
                             date ? formatYYYYMMDD(date) : "",
                           );
                         }}
-                        clearButtonLabel="Effacer"
+                        clearButtonLabel={t("common.clear")}
                         withDateFormatInLabel={false}
                         inputMode="start"
                         dense
@@ -476,7 +478,7 @@ const Agenda = () => {
                     onPress={formik.submitForm}
                     mode="contained"
                   >
-                    Ajouter
+                    {t("agenda.add_event")}
                   </Button>
                   <TimePicker
                     showPicker={showPicker}
@@ -512,7 +514,7 @@ const Agenda = () => {
         onSubmit={(values) => {
           if (!editEvent?.id) return;
           if (!values.event_date) {
-            show("La date est obligatoire.", { label: "Ok" });
+            show(t("agenda.date_required"), { label: t("common.ok") });
             return;
           }
 
@@ -541,10 +543,10 @@ const Agenda = () => {
                 setEditEvent(null);
                 setEditDate(undefined);
                 setEditRecurrenceUntil(undefined);
-                show("Événement mis à jour", { label: "Ok" });
+                show(t("agenda.update_success"), { label: t("common.ok") });
               },
               onError: () => {
-                show("Impossible de modifier l'événement", { label: "Ok" });
+                show(t("agenda.update_error"), { label: t("common.ok") });
               },
             },
           );
@@ -570,7 +572,7 @@ const Agenda = () => {
                 ]}
               >
                 <Appbar.BackAction onPress={() => setEditEvent(null)} />
-                <Appbar.Content title="Modifier l'événement" />
+                <Appbar.Content title={t("agenda.edit_event_title")} />
               </Appbar.Header>
               <ScrollView>
                 <KeyboardAvoidingView
@@ -580,12 +582,12 @@ const Agenda = () => {
                   {editEvent?.recurrence_type &&
                   editEvent?.recurrence_type !== "NONE" ? (
                     <Text variant="labelSmall" style={styles.editHint}>
-                      Cette modification s&apos;applique à toute la série.
+                      {t("agenda.edit_applies_series")}
                     </Text>
                   ) : null}
                   <CardSurface style={styles.inputSection}>
                     <TextInput
-                      placeholder="Titre"
+                      placeholder={t("agenda.title_placeholder")}
                       value={formik.values.event_name}
                       onChangeText={formik.handleChange("event_name")}
                     />
@@ -594,7 +596,7 @@ const Agenda = () => {
                       onPress={() => setShowSelectReptileEdit(true)}
                     >
                       <TextInput
-                        placeholder="Associer un reptile (optionnel)"
+                        placeholder={t("agenda.reptile_optional")}
                         value={formik.values.reptile_name}
                         editable={false}
                         pointerEvents="none"
@@ -613,7 +615,7 @@ const Agenda = () => {
                       }}
                     >
                       <Text variant="titleMedium" style={{ marginBottom: 8 }}>
-                        Choisir un reptile
+                        {t("agenda.choose_reptile")}
                       </Text>
                       <ScrollView style={{ maxHeight: 320 }}>
                         {reptiles?.map((rep) => (
@@ -644,7 +646,7 @@ const Agenda = () => {
                           formik.setFieldValue("reptile_image_url", "");
                         }}
                       >
-                        Aucun reptile
+                        {t("agenda.no_reptile")}
                       </Button>
                     </Modal>
                   </Portal>
@@ -657,15 +659,15 @@ const Agenda = () => {
                         <TextInput
                           style={[styles.input, { flex: 1 }]}
                           value={formik.values.event_time}
-                          placeholder="Heure"
+                          placeholder={t("agenda.time")}
                           editable={false}
                         />
                       </TouchableOpacity>
                       <DatePickerInput
                         mode="outlined"
-                        locale="fr"
-                        label="Date"
-                        saveLabel="Confirmer"
+                        locale={locale}
+                        label={t("agenda.date")}
+                        saveLabel={t("common.confirm")}
                         outlineStyle={{ borderWidth: 0 }}
                         style={styles.dateInput}
                         value={editDate}
@@ -685,14 +687,14 @@ const Agenda = () => {
                     <TextInput
                       multiline
                       style={styles.input}
-                      placeholder="Notes"
+                      placeholder={t("agenda.notes")}
                       onChangeText={formik.handleChange("notes")}
                       onBlur={formik.handleBlur("notes")}
                       value={formik.values.notes}
                     />
                   </CardSurface>
                   <CardSurface style={styles.inputSection}>
-                    <Text variant="labelLarge">Récurrence</Text>
+                    <Text variant="labelLarge">{t("agenda.recurrence")}</Text>
                     <SegmentedButtons
                       value={formik.values.recurrence_type}
                       onValueChange={(value) => {
@@ -703,19 +705,19 @@ const Agenda = () => {
                         }
                       }}
                       buttons={[
-                        { value: "NONE", label: "Aucune" },
-                        { value: "DAILY", label: "Quotidien" },
-                        { value: "WEEKLY", label: "Hebdo" },
-                        { value: "MONTHLY", label: "Mensuel" },
+                        { value: "NONE", label: t("agenda.recurrence_none") },
+                        { value: "DAILY", label: t("agenda.recurrence_daily") },
+                        { value: "WEEKLY", label: t("agenda.recurrence_weekly") },
+                        { value: "MONTHLY", label: t("agenda.recurrence_monthly") },
                       ]}
                       style={{ marginTop: 8 }}
                     />
                     {formik.values.recurrence_type !== "NONE" ? (
                       <DatePickerInput
                         mode="outlined"
-                        locale="fr"
-                        label="Fin de récurrence (optionnel)"
-                        saveLabel="Confirmer"
+                        locale={locale}
+                        label={t("agenda.recurrence_until")}
+                        saveLabel={t("common.confirm")}
                         outlineStyle={{ borderWidth: 0 }}
                         style={styles.recurrenceInput}
                         value={editRecurrenceUntil}
@@ -726,7 +728,7 @@ const Agenda = () => {
                             date ? formatYYYYMMDD(date) : "",
                           );
                         }}
-                        clearButtonLabel="Effacer"
+                        clearButtonLabel={t("common.clear")}
                         withDateFormatInLabel={false}
                         inputMode="start"
                         dense
@@ -739,7 +741,7 @@ const Agenda = () => {
                     onPress={formik.submitForm}
                     mode="contained"
                   >
-                    Enregistrer
+                    {t("agenda.save_event")}
                   </Button>
                   <TimePicker
                     showPicker={showEditPicker}
@@ -781,11 +783,14 @@ const Agenda = () => {
           </Appbar.Header>
           <ScrollView>
             <View>
-              <TextInfo title="Nom" value={event?.name} />
-              <TextInfo title="Date" value={event?.date} />
-              <TextInfo title="Heure" value={event?.time} />
+              <TextInfo title={t("agenda.info_name")} value={event?.name} />
+              <TextInfo title={t("agenda.info_date")} value={event?.date} />
+              <TextInfo title={t("agenda.info_time")} value={event?.time} />
               {event?.reptile_name ? (
-                <TextInfo title="Reptile" value={event?.reptile_name} />
+                <TextInfo
+                  title={t("agenda.info_reptile")}
+                  value={event?.reptile_name}
+                />
               ) : null}
               {event?.reptile_image_url ? (
                 <View style={{ paddingVertical: 8, alignItems: "center" }}>
@@ -795,9 +800,12 @@ const Agenda = () => {
                   />
                 </View>
               ) : null}
-              <TextInfo title="Notes" value={event?.notes} />
+              <TextInfo title={t("agenda.info_notes")} value={event?.notes} />
               {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
-                <TextInfo title="Récurrence" value={event?.recurrence_type} />
+                <TextInfo
+                  title={t("agenda.info_recurrence")}
+                  value={event?.recurrence_type}
+                />
               ) : null}
             </View>
           </ScrollView>
@@ -813,7 +821,7 @@ const Agenda = () => {
               setShowEventInfo(false);
             }}
           >
-            Modifier l&apos;événement
+            {t("agenda.edit_event_button")}
           </Button>
           {event?.recurrence_type && event?.recurrence_type !== "NONE" ? (
             <View style={styles.deleteRow}>
@@ -830,16 +838,16 @@ const Agenda = () => {
                           queryKey: useReptileEventsQuery.queryKey,
                         });
                         setShowEventInfo(false);
-                        show("Occurrence supprimée");
+                        show(t("agenda.delete_occurrence_success"));
                       },
                       onError: () => {
-                        show("Impossible de supprimer l'occurrence");
+                        show(t("agenda.delete_occurrence_error"));
                       },
                     },
                   );
                 }}
               >
-                Supprimer cette occurrence
+                {t("agenda.delete_occurrence")}
               </Button>
               <Button
                 mode="outlined"
@@ -855,16 +863,16 @@ const Agenda = () => {
                           queryKey: useReptileEventsQuery.queryKey,
                         });
                         setShowEventInfo(false);
-                        show("Série supprimée");
+                        show(t("agenda.delete_series_success"));
                       },
                       onError: () => {
-                        show("Impossible de supprimer la série");
+                        show(t("agenda.delete_series_error"));
                       },
                     },
                   );
                 }}
               >
-                Supprimer toute la série
+                {t("agenda.delete_series")}
               </Button>
             </View>
           ) : (
@@ -882,16 +890,16 @@ const Agenda = () => {
                         queryKey: useReptileEventsQuery.queryKey,
                       });
                       setShowEventInfo(false);
-                      show("Événement supprimé");
+                      show(t("agenda.delete_event_success"));
                     },
                     onError: () => {
-                      show("Impossible de supprimer l'événement");
+                      show(t("agenda.delete_event_error"));
                     },
                   },
                 );
               }}
             >
-              Supprimer l&apos;événement
+              {t("agenda.delete_event")}
             </Button>
           )}
         </Modal>

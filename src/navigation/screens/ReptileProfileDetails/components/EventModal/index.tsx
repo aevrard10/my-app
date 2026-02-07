@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { TextInput, View, Text, StyleSheet } from "react-native";
 import { Appbar, Button, Modal, Portal, Surface } from "react-native-paper";
+import { useI18n } from "@shared/i18n";
 
 type EventModalProps = {
   visible: boolean;
@@ -11,6 +12,7 @@ type EventModalProps = {
 };
 const EventModal: FC<EventModalProps> = (props) => {
   const { visible, value, onChangeText, addPress, cancelPress } = props;
+  const { t } = useI18n();
   return (
     <Modal
       visible={visible}
@@ -30,11 +32,11 @@ const EventModal: FC<EventModalProps> = (props) => {
         ]}
       >
         <Appbar.BackAction onPress={cancelPress} />
-        <Appbar.Content title="Ajouter une événement" />
+        <Appbar.Content title={t("event_modal.title")} />
       </Appbar.Header>
       <Surface style={styles.inputSection}>
         <TextInput
-          placeholder="Description de l'événement"
+          placeholder={t("event_modal.placeholder")}
           value={value}
           onChangeText={onChangeText}
           style={styles.input}
@@ -42,10 +44,10 @@ const EventModal: FC<EventModalProps> = (props) => {
       </Surface>
       <View style={styles.button}>
         <Button mode="contained" onPress={addPress}>
-          Ajouter
+          {t("common.add")}
         </Button>
         <Button mode="contained" onPress={cancelPress}>
-          Annuler
+          {t("common.cancel")}
         </Button>
       </View>
     </Modal>
