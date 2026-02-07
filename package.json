@@ -10,6 +10,7 @@
     "my-codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@babel/runtime": "^7.26.0",
     "@expo/metro-runtime": "~6.1.2",
     "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/typescript-operations": "^4.4.0",
@@ -74,7 +75,11 @@
     "@tanstack/eslint-plugin-query": "^5.62.1",
     "@types/react": "~19.1.10",
     "baseline-browser-mapping": "^2.9.19",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "tslib": "^2.6.2"
+  },
+  "resolutions": {
+    "tslib": "^2.6.2"
   },
   "private": true
 }
