@@ -9,9 +9,16 @@ import { radius } from "@shared/theme/tokens";
 
 const TextInput: FC<TextInputProps> = (props) => {
   const { colors } = useTheme();
+  const { value, ...rest } = props;
+  const normalizedValue = Array.isArray(value)
+    ? value.join(", ")
+    : typeof value === "number"
+      ? String(value)
+      : value ?? "";
   return (
     <RNTextInput
-      {...props}
+      {...rest}
+      value={normalizedValue as string}
       style={[
         styles.input,
         {

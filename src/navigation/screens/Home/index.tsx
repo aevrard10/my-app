@@ -42,27 +42,27 @@ const Home = () => {
   const usefulLinks = useMemo(
     () => [
       {
-        label: "INPN (MNHN)",
+        label: t("home.link_inpn_label"),
         description: t("home.link_inpn_desc"),
         url: "https://inpn.mnhn.fr/accueil/index/",
       },
       {
-        label: "Société Herpétologique de France",
+        label: t("home.link_shf_label"),
         description: t("home.link_shf_desc"),
         url: "https://lashf.org/",
       },
       {
-        label: "SOS Serpents, Tortues, Grenouilles",
+        label: t("home.link_sos_label"),
         description: t("home.link_sos_desc"),
         url: "https://sosserpentstortuesgrenouilles.org/",
       },
       {
-        label: "The Reptile Database",
+        label: t("home.link_reptile_db_label"),
         description: t("home.link_reptile_db_desc"),
         url: "https://www.reptile-database.org/",
       },
       {
-        label: "iNaturalist",
+        label: t("home.link_inaturalist_label"),
         description: t("home.link_inaturalist_desc"),
         url: "https://www.inaturalist.org/",
       },

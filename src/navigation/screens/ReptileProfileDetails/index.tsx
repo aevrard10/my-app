@@ -116,20 +116,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
     dam_name: "",
     notes: "",
   });
-  const profileSummary = useMemo(() => {
-    const species = data?.species || "?";
-    const birthDate = data?.birth_date ? formatDDMMYYYY(data.birth_date) : "?";
-    const temp = data?.temperature_range || "?";
-    return `${species} · ${birthDate} · ${temp}`;
-  }, [data?.species, data?.birth_date, data?.temperature_range]);
-
-  const foodSummary = useMemo(() => {
-    const last = data?.last_fed ? formatDDMMYYYY(data.last_fed) : "?";
-    const diet = data?.diet || "?";
-    return `${t("profile.food_summary_last")}: ${last} · ${t(
-      "profile.food_summary_diet",
-    )}: ${diet}`;
-  }, [data?.last_fed, data?.diet, t]);
+  const { data: healthEvents } = useReptileHealthEventsQuery(id, 1);
 
   const latestHealthEvent = useMemo(
     () => (healthEvents && healthEvents.length > 0 ? healthEvents[0] : null),
@@ -201,8 +188,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
     selectedGoveeDevice?.device,
     selectedGoveeDevice?.model,
   );
-  const { data: healthEvents } = useReptileHealthEventsQuery(id, 1);
-  const exportPdfQuery = null;
 
   const handleExportPdf = useCallback(async () => {
     if (Platform.OS === "web") {
@@ -617,11 +602,17 @@ const ReptileProfileDetails = ({ route }: Props) => {
     const first = base[0];
     const last = base[base.length - 1];
 
-    const weightDelta = last.weight - first.weight;
+    const weightDelta =
+      last?.weight && first?.weight ? last.weight - first.weight : 0;
     const weightPercent =
-      first.weight > 0 ? (weightDelta / first.weight) * 100 : 0;
-    const sizeDelta = last.size - first.size;
-    const sizePercent = first.size > 0 ? (sizeDelta / first.size) * 100 : 0;
+      first?.weight && first.weight > 0
+        ? (weightDelta / first.weight) * 100
+        : 0;
+    const sizeDelta = last?.size && first.size ? last.size - first.size : 0;
+    const sizePercent =
+      first.size && first.size > 0 && sizeDelta
+        ? (sizeDelta / first.size) * 100
+        : 0;
 
     const weightAlert = weightPercent <= -10 || weightPercent >= 15;
     const sizeAlert = sizePercent <= -10 || sizePercent >= 15;

@@ -118,38 +118,48 @@ const EditEvent = () => {
 
   const scheduleNotification = async (id: string, values: any) => {
     if (Platform.OS === "web") return;
-    await cancelNotification(id);
-    const perms = await Notifications.getPermissionsAsync();
-    if (!perms.granted) {
-      await Notifications.requestPermissionsAsync();
-    }
-    const date = values.event_date || dayjs().format("YYYY-MM-DD");
-    const time = values.event_time || "09:00";
-    const [h, m] = time.split(":");
-    let triggerDate = dayjs(date)
-      .hour(Number(h) || 9)
-      .minute(Number(m) || 0)
-      .second(0);
-    const reminderMinutes = Number(values.reminder_minutes ?? 0);
-    if (Number.isFinite(reminderMinutes) && reminderMinutes > 0) {
-      triggerDate = triggerDate.subtract(reminderMinutes, "minute");
-    }
-    if (!triggerDate.isValid()) return;
-    if (triggerDate.isBefore(dayjs())) return;
-    const notifId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title:
-          values.event_name ||
+    try {
+      await cancelNotification(id);
+      const perms = await Notifications.getPermissionsAsync();
+      let granted = perms.granted;
+      if (!granted) {
+        const req = await Notifications.requestPermissionsAsync();
+        granted = req.granted;
+      }
+      if (!granted) return;
+
+      const date = values.event_date || dayjs().format("YYYY-MM-DD");
+      const time = values.event_time || "09:00";
+      const [h, m] = time.split(":");
+      let triggerDate = dayjs(date)
+        .hour(Number(h) || 9)
+        .minute(Number(m) || 0)
+        .second(0);
+      const reminderMinutes = Number(values.reminder_minutes ?? 0);
+      if (Number.isFinite(reminderMinutes) && reminderMinutes > 0) {
+        triggerDate = triggerDate.subtract(reminderMinutes, "minute");
+      }
+      if (!triggerDate.isValid()) return;
+      if (triggerDate.isBefore(dayjs())) return;
+
+      const title = String(
+        values.event_name ||
           getEventTypeLabel(values.event_type) ||
           t("agenda.notification_title"),
-        body: values.reptile_name
-          ? `${values.reptile_name} • ${values.notes || t("agenda.notification_event")}`
-          : values.notes || t("agenda.notification_event"),
-      },
-      trigger: triggerDate.toDate(),
-    });
-    const next = { ...notifMap, [id]: notifId };
-    await saveNotifMap(next);
+      );
+      const body = values.reptile_name
+        ? `${values.reptile_name} • ${values.notes || t("agenda.notification_event")}`
+        : String(values.notes || t("agenda.notification_event"));
+
+      const notifId = await Notifications.scheduleNotificationAsync({
+        content: { title, body },
+        trigger: triggerDate.toDate(),
+      });
+      const next = { ...notifMap, [id]: notifId };
+      await saveNotifMap(next);
+    } catch (e) {
+      // Ne pas faire crasher l'app si la planification échoue.
+    }
   };
 
   const eventTypeOptions = [
