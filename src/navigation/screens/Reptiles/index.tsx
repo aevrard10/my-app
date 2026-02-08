@@ -48,6 +48,7 @@ const Reptiles = () => {
     <Screen>
       <Portal.Host>
         <FlatList
+          testID="reptiles-list"
           contentContainerStyle={styles.contentContainerStyle}
           data={isInitialLoading ? skeletonItems : filteredData}
           keyExtractor={(item) => String(item.id)}
@@ -92,6 +93,7 @@ const Reptiles = () => {
                 clearButtonMode="always"
                 style={styles.searchbar}
                 inputStyle={styles.searchInput}
+                testID="reptiles-search"
               />
             </CardSurface>
           }
@@ -111,6 +113,7 @@ const Reptiles = () => {
           icon="plus"
           style={styles.fab}
           onPress={() => navigate(ScreenNames.ADD_REPTILE)}
+          testID="reptiles-add"
         />
       </Portal.Host>
     </Screen>

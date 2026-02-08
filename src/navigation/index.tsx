@@ -55,6 +55,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.home"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-home",
           tabBarIcon: ({ size }) => (
             <Icon source={"home"} size={size} color={colors.primary} />
           ),
@@ -67,6 +68,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.reptiles"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-reptiles",
           tabBarIcon: ({ size }) => (
             <Icon source={"turtle"} size={size} color={colors.primary} />
           ),
@@ -79,6 +81,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.feed"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-feed",
           tabBarIcon: ({ size }) => (
             <Icon
               source={"food-fork-drink"}
@@ -95,6 +98,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.agenda"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-agenda",
           tabBarIcon: ({ size }) => (
             <Icon source={"calendar"} color={colors.primary} size={size} />
           ),
@@ -108,6 +112,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.notifications"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-notifications",
           tabBarIcon: ({ size }) => (
             <Icon source={"bell"} color={colors.primary} size={size} />
           ),
@@ -126,6 +131,7 @@ const HomeTabs = () => {
         options={{
           title: t("nav.settings"),
           tabBarActiveTintColor: colors.secondary,
+          tabBarTestID: "tab-settings",
           tabBarIcon: ({ size }) => (
             <Icon source={"cog"} color={colors.primary} size={size} />
           ),

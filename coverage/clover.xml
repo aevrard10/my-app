@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1770551109338" clover="3.2.0">
-  <project timestamp="1770551109338" name="All files">
-    <metrics statements="559" coveredstatements="116" conditionals="431" coveredconditionals="53" methods="127" coveredmethods="27" elements="1117" coveredelements="196" complexity="0" loc="559" ncloc="559" packages="13" files="31" classes="31"/>
+<coverage generated="1770555311606" clover="3.2.0">
+  <project timestamp="1770555311606" name="All files">
+    <metrics statements="559" coveredstatements="164" conditionals="431" coveredconditionals="125" methods="127" coveredmethods="41" elements="1117" coveredelements="330" complexity="0" loc="559" ncloc="559" packages="13" files="31" classes="31"/>
     <package name="src">
       <metrics statements="38" coveredstatements="0" conditionals="14" coveredconditionals="0" methods="10" coveredmethods="0"/>
       <file name="App.tsx" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/App.tsx">
@@ -326,7 +326,7 @@
       </file>
     </package>
     <package name="src.shared.local">
-      <metrics statements="222" coveredstatements="46" conditionals="223" coveredconditionals="40" methods="45" coveredmethods="8"/>
+      <metrics statements="222" coveredstatements="94" conditionals="223" coveredconditionals="112" methods="45" coveredmethods="22"/>
       <file name="db.native.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/db.native.ts">
         <metrics statements="21" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="6" count="0" type="stmt"/>
@@ -454,19 +454,19 @@
         <line num="186" count="1" type="stmt"/>
       </file>
       <file name="reptileFeedingsStore.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/reptileFeedingsStore.ts">
-        <metrics statements="12" coveredstatements="0" conditionals="11" coveredconditionals="0" methods="4" coveredmethods="0"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
+        <metrics statements="12" coveredstatements="12" conditionals="11" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="15" count="6" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="21" count="3" type="cond" truecount="0" falsecount="2"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
       </file>
       <file name="reptileGeneticsStore.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/reptileGeneticsStore.ts">
         <metrics statements="13" coveredstatements="0" conditionals="59" coveredconditionals="0" methods="3" coveredmethods="0"/>
@@ -485,19 +485,19 @@
         <line num="90" count="0" type="stmt"/>
       </file>
       <file name="reptileHealthStore.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/reptileHealthStore.ts">
-        <metrics statements="12" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="4" coveredmethods="0"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="20" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
+        <metrics statements="12" coveredstatements="12" conditionals="7" coveredconditionals="5" methods="4" coveredmethods="4"/>
+        <line num="14" count="5" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="20" count="2" type="cond" truecount="0" falsecount="2"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="34" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
       </file>
       <file name="reptilePhotosStore.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/reptilePhotosStore.ts">
         <metrics statements="38" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="6" coveredmethods="0"/>
@@ -556,31 +556,31 @@
         <line num="39" count="0" type="stmt"/>
       </file>
       <file name="reptileStore.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/reptileStore.ts">
-        <metrics statements="24" coveredstatements="0" conditionals="63" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="39" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="52" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="94" count="0" type="stmt"/>
-        <line num="118" count="0" type="stmt"/>
-        <line num="119" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="120" count="0" type="stmt"/>
-        <line num="123" count="0" type="stmt"/>
-        <line num="124" count="0" type="stmt"/>
-        <line num="127" count="0" type="stmt"/>
-        <line num="131" count="0" type="stmt"/>
-        <line num="132" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="134" count="0" type="stmt"/>
-        <line num="135" count="0" type="stmt"/>
+        <metrics statements="24" coveredstatements="24" conditionals="63" coveredconditionals="61" methods="6" coveredmethods="6"/>
+        <line num="26" count="14" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="36" count="19" type="stmt"/>
+        <line num="39" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="52" count="8" type="cond" truecount="3" falsecount="0"/>
+        <line num="53" count="8" type="stmt"/>
+        <line num="54" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="94" count="6" type="stmt"/>
+        <line num="118" count="8" type="stmt"/>
+        <line num="119" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="120" count="8" type="stmt"/>
+        <line num="123" count="1" type="stmt"/>
+        <line num="124" count="1" type="stmt"/>
+        <line num="127" count="1" type="stmt"/>
+        <line num="131" count="1" type="stmt"/>
+        <line num="132" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="133" count="1" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="135" count="1" type="stmt"/>
       </file>
       <file name="storageAdapter.ts" path="/Users/anissaevrard/Documents/Projets/ReptiTrack/my-app/src/shared/local/storageAdapter.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>

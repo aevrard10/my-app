@@ -91,6 +91,7 @@ const Home = () => {
             <TouchableRipple
               style={[styles.quickAction, { backgroundColor: colors.primary }]}
               onPress={() => navigate(ScreenNames.ADD_REPTILE)}
+              testID="home-quick-add-reptile"
             >
               <View style={styles.quickActionContent}>
                 <Icon source="plus" size={18} color={colors.onPrimary} />
@@ -108,6 +109,7 @@ const Home = () => {
                 { backgroundColor: colors.secondaryContainer },
               ]}
               onPress={() => navigate(ScreenNames.ADD_EVENT)}
+              testID="home-quick-add-event"
             >
               <View style={styles.quickActionContent}>
                 <Icon source="calendar" size={18} color={colors.secondary} />
@@ -125,6 +127,7 @@ const Home = () => {
                 { backgroundColor: colors.tertiaryContainer },
               ]}
               onPress={() => navigate(ScreenNames.ADD_FEED)}
+              testID="home-quick-add-stock"
             >
               <View style={styles.quickActionContent}>
                 <Icon source="food" size={18} color={colors.tertiary} />

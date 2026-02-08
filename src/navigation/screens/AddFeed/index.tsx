@@ -111,6 +111,7 @@ const AddFeed = () => {
             <ScrollView
               contentContainerStyle={styles.container}
               keyboardShouldPersistTaps="handled"
+              testID="add-feed-scroll"
             >
               <View style={styles.header}>
                 <Text variant="headlineSmall">{t("add_feed.title")}</Text>
@@ -121,7 +122,11 @@ const AddFeed = () => {
 
               <CardSurface style={styles.inputSection}>
                 <View style={styles.fieldContainer}>
-                  <Button mode="contained" onPress={() => setVisible(true)}>
+                  <Button
+                    mode="contained"
+                    onPress={() => setVisible(true)}
+                    testID="add-feed-select-food"
+                  >
                     {formik.values.name
                       ? getFoodLabel(formik.values.name, t)
                       : t("add_feed.select_food")}
@@ -144,6 +149,7 @@ const AddFeed = () => {
                           clearButtonMode="always"
                           style={styles.searchbar}
                           inputStyle={styles.searchInput}
+                          testID="add-feed-search"
                         />
                         <ScrollView style={{ maxHeight: 300 }}>
                           <RadioButton.Group
@@ -164,6 +170,7 @@ const AddFeed = () => {
                                   key={item.key}
                                   label={t(item.labelKey)}
                                   value={item.key}
+                                  testID={`add-feed-item-${item.key}`}
                                 />
                               ))
                             ) : (
@@ -220,6 +227,7 @@ const AddFeed = () => {
                       );
                     }}
                     style={styles.input}
+                    testID="add-feed-quantity"
                   />
                 </View>
               </CardSurface>
@@ -229,6 +237,7 @@ const AddFeed = () => {
                   mode="contained"
                   onPress={formik.submitForm}
                   disabled={!formik.isValid}
+                  testID="add-feed-submit"
                 >
                   {t("add_feed.add")}
                 </Button>

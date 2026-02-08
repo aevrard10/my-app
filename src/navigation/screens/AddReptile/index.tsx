@@ -153,6 +153,7 @@ const AddReptile = () => {
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
+        testID="add-reptile-scroll"
       >
         <CardSurface style={styles.heroCard}>
           <View style={styles.heroHeader}>
@@ -244,12 +245,14 @@ const AddReptile = () => {
                     value={formik.values.name}
                     onChangeText={formik.handleChange("name")}
                     onBlur={formik.handleBlur("name")}
+                    testID="add-reptile-name"
                   />
                   <TextInput
                     placeholder={t("add_reptile.species")}
                     onBlur={formik.handleBlur("species")}
                     value={formik.values.species}
                     onChangeText={formik.handleChange("species")}
+                    testID="add-reptile-species"
                   />
                   <View style={styles.row}>
                     <DatePickerInput
@@ -500,6 +503,7 @@ const AddReptile = () => {
                   onPress={formik.submitForm}
                   mode="contained"
                   style={styles.submitButton}
+                  testID="add-reptile-submit"
                 >
                   {t("add_reptile.submit").toUpperCase()}
                 </Button>

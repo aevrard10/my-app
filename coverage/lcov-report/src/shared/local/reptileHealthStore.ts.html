@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>5/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -129,30 +129,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,12 +160,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { execute, executeVoid } from "./db";
 import { ListOptions } from "./storageAdapter";
@@ -182,28 +182,28 @@ export type LocalReptileHealthEvent = {
   created_at: string;
 };
 &nbsp;
-const mapRow = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>ow: any): LocalReptileHealthEvent =&gt; (<span class="cstat-no" title="statement not covered" >{ ...row })</span>;</span>
+const mapRow = (row: any): LocalReptileHealthEvent =&gt; ({ ...row });
 &nbsp;
-export const getReptileHealthEvents = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (</span>
+export const getReptileHealthEvents = async (
   reptileId: string,
-  options: ListOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{ limit: 50, offset: 0 },</span>
+  options: ListOptions = { limit: 50, offset: 0 },
 ): Promise&lt;LocalReptileHealthEvent[]&gt; =&gt; {
-  const { limit = <span class="branch-0 cbranch-no" title="branch not covered" >50,</span> offset = <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>} = <span class="cstat-no" title="statement not covered" >options;</span>
-  const rows = <span class="cstat-no" title="statement not covered" >await execute(</span>
+  const { limit = <span class="branch-0 cbranch-no" title="branch not covered" >50,</span> offset = <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>} = options;
+  const rows = await execute(
     `SELECT * FROM health_events
      WHERE reptile_id = ?
      ORDER BY event_date DESC, event_time DESC
      LIMIT ? OFFSET ?;`,
     [reptileId, limit, offset],
   );
-<span class="cstat-no" title="statement not covered" >  return rows.map(mapRow);</span>
+  return rows.map(mapRow);
 };
 &nbsp;
-export const addReptileHealthEvent = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (</span>
+export const addReptileHealthEvent = async (
   input: Omit&lt;LocalReptileHealthEvent, "id" | "created_at"&gt;,
 ): Promise&lt;LocalReptileHealthEvent&gt; =&gt; {
-  const id = <span class="cstat-no" title="statement not covered" >`${Date.now()}-${Math.random().toString(16).slice(2)}`;</span>
-<span class="cstat-no" title="statement not covered" >  await executeVoid(</span>
+  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  await executeVoid(
     `INSERT INTO health_events (id, reptile_id, event_type, event_date, event_time, notes)
      VALUES (?,?,?,?,?,?);`,
     [
@@ -215,12 +215,12 @@ export const addReptileHealthEvent = <span class="cstat-no" title="statement not
       input.notes ?? null,
     ],
   );
-  const rows = <span class="cstat-no" title="statement not covered" >await execute("SELECT * FROM health_events WHERE id = ?;", [id]);</span>
-<span class="cstat-no" title="statement not covered" >  return mapRow(rows[0]);</span>
+  const rows = await execute("SELECT * FROM health_events WHERE id = ?;", [id]);
+  return mapRow(rows[0]);
 };
 &nbsp;
-export const deleteReptileHealthEvent = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (id: string): Promise&lt;void&gt; =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  await executeVoid("DELETE FROM health_events WHERE id = ?;", [id]);</span>
+export const deleteReptileHealthEvent = async (id: string): Promise&lt;void&gt; =&gt; {
+  await executeVoid("DELETE FROM health_events WHERE id = ?;", [id]);
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -229,7 +229,7 @@ export const deleteReptileHealthEvent = <span class="cstat-no" title="statement 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T11:45:09.310Z
+                at 2026-02-08T12:55:11.399Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -240,7 +240,10 @@ const AddEvent = () => {
       >
         {(formik) => (
           <>
-            <ScrollView contentContainerStyle={styles.content}>
+            <ScrollView
+              contentContainerStyle={styles.content}
+              testID="add-event-scroll"
+            >
               <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
@@ -255,14 +258,19 @@ const AddEvent = () => {
                     placeholder={t("agenda.title_placeholder")}
                     value={formik.values.event_name}
                     onChangeText={formik.handleChange("event_name")}
+                    testID="add-event-title"
                   />
                   <Divider style={{ marginHorizontal: 8 }} />
-                  <TouchableOpacity onPress={() => setShowSelectReptile(true)}>
+                  <TouchableOpacity
+                    onPress={() => setShowSelectReptile(true)}
+                    testID="add-event-select-reptile"
+                  >
                     <TextInput
                       placeholder={t("agenda.reptile_optional")}
                       value={formik.values.reptile_name}
                       editable={false}
                       pointerEvents="none"
+                      testID="add-event-reptile-input"
                     />
                   </TouchableOpacity>
                 </CardSurface>
@@ -324,12 +332,16 @@ const AddEvent = () => {
                   <Text variant="labelLarge" style={styles.sectionTitle}>
                     {t("agenda.event_type")}
                   </Text>
-                  <TouchableOpacity onPress={() => setShowSelectType(true)}>
+                  <TouchableOpacity
+                    onPress={() => setShowSelectType(true)}
+                    testID="add-event-select-type"
+                  >
                     <TextInput
                       placeholder={t("agenda.event_type_placeholder")}
                       value={getEventTypeLabel(formik.values.event_type)}
                       editable={false}
                       pointerEvents="none"
+                      testID="add-event-type-input"
                     />
                   </TouchableOpacity>
                 </CardSurface>
@@ -367,6 +379,7 @@ const AddEvent = () => {
                     <TouchableOpacity
                       style={{ flex: 1 }}
                       onPress={() => setShowPicker(true)}
+                      testID="add-event-time"
                     >
                       <TextInput
                         style={[styles.input, { flex: 1 }]}
@@ -374,6 +387,7 @@ const AddEvent = () => {
                         placeholder={t("agenda.time")}
                         editable={false}
                         pointerEvents="none"
+                        testID="add-event-time-input"
                       />
                     </TouchableOpacity>
                     <DatePickerInput
@@ -384,6 +398,7 @@ const AddEvent = () => {
                       outlineStyle={{ borderWidth: 0 }}
                       style={styles.dateInput}
                       value={inputDate}
+                      testID="add-event-date"
                       onChange={(data) => {
                         setInputDate(data);
                         formik.setFieldValue(
@@ -406,6 +421,7 @@ const AddEvent = () => {
                     placeholder={t("agenda.notes")}
                     onChangeText={formik.handleChange("notes")}
                     onBlur={formik.handleBlur("notes")}
+                    testID="add-event-notes"
                   />
                 </CardSurface>
                 <CardSurface style={[styles.sectionCard, styles.inputSection]}>
@@ -494,6 +510,7 @@ const AddEvent = () => {
                   onPress={formik.submitForm}
                   mode="contained"
                   style={styles.primaryButton}
+                  testID="add-event-submit"
                 >
                   {t("agenda.add_event")}
                 </Button>

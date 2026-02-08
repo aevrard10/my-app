@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">54.54% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>6/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -131,27 +131,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,14 +160,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { execute, executeVoid } from "./db";
 import { ListOptions } from "./storageAdapter";
@@ -185,45 +185,45 @@ export type LocalReptileFeeding = {
   created_at: string;
 };
 &nbsp;
-const mapRow = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>ow: any): LocalReptileFeeding =&gt; (<span class="cstat-no" title="statement not covered" >{ ...row })</span>;</span>
+const mapRow = (row: any): LocalReptileFeeding =&gt; ({ ...row });
 &nbsp;
-export const getReptileFeedings = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (</span>
+export const getReptileFeedings = async (
   reptileId: string,
-  options: ListOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{ limit: 50, offset: 0 },</span>
+  options: ListOptions = { limit: 50, offset: 0 },
 ): Promise&lt;LocalReptileFeeding[]&gt; =&gt; {
-  const { limit = <span class="branch-0 cbranch-no" title="branch not covered" >50,</span> offset = <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>} = <span class="cstat-no" title="statement not covered" >options;</span>
-  const rows = <span class="cstat-no" title="statement not covered" >await execute(</span>
+  const { limit = <span class="branch-0 cbranch-no" title="branch not covered" >50,</span> offset = <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>} = options;
+  const rows = await execute(
     `SELECT * FROM feedings WHERE reptile_id = ? ORDER BY fed_at DESC LIMIT ? OFFSET ?;`,
     [reptileId, limit, offset],
   );
-<span class="cstat-no" title="statement not covered" >  return rows.map(mapRow);</span>
+  return rows.map(mapRow);
 };
 &nbsp;
-export const addReptileFeeding = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (</span>
+export const addReptileFeeding = async (
   input: Omit&lt;LocalReptileFeeding, "id" | "created_at"&gt;,
 ): Promise&lt;LocalReptileFeeding&gt; =&gt; {
-  const id = <span class="cstat-no" title="statement not covered" >`${Date.now()}-${Math.random().toString(16).slice(2)}`;</span>
-<span class="cstat-no" title="statement not covered" >  await executeVoid(</span>
+  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  await executeVoid(
     `INSERT INTO feedings (id, reptile_id, food_name, quantity, unit, fed_at, notes)
      VALUES (?,?,?,?,?,?,?);`,
     [
       id,
       input.reptile_id,
-      input.food_name ?? null,
-      input.quantity ?? null,
-      input.unit ?? null,
+      input.food_name ?? <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
+      input.quantity ?? <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
+      input.unit ?? <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
       input.fed_at,
       input.notes ?? null,
     ],
   );
-  const rows = <span class="cstat-no" title="statement not covered" >await execute("SELECT * FROM feedings WHERE id=?;", [id]);</span>
-<span class="cstat-no" title="statement not covered" >  return mapRow(rows[0]);</span>
+  const rows = await execute("SELECT * FROM feedings WHERE id=?;", [id]);
+  return mapRow(rows[0]);
 };
 &nbsp;
-export const deleteReptileFeeding = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (</span>
+export const deleteReptileFeeding = async (
   id: string,
 ): Promise&lt;void&gt; =&gt; {
-<span class="cstat-no" title="statement not covered" >  await executeVoid("DELETE FROM feedings WHERE id = ?;", [id]);</span>
+  await executeVoid("DELETE FROM feedings WHERE id = ?;", [id]);
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -232,7 +232,7 @@ export const deleteReptileFeeding = <span class="cstat-no" title="statement not 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T11:45:09.310Z
+                at 2026-02-08T12:55:11.399Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

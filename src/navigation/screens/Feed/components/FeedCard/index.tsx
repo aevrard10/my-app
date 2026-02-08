@@ -56,7 +56,11 @@ const FeedCard: FC<FoodCardProps> = (props) => {
   const progress = Math.min(Math.floor(food.quantity) / 200, 1); // Par exemple 100 comme valeur max
   const quantityValue = Math.max(1, parseInt(quantityText, 10) || 1);
   return (
-    <View style={styles.wrapper} key={food.id}>
+    <View
+      style={styles.wrapper}
+      key={food.id}
+      testID={`feed-card-${food.name}`}
+    >
       <CardSurface style={styles.card}>
         <View style={styles.content}>
           <View style={styles.header}>

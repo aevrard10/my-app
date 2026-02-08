@@ -114,6 +114,7 @@ const CardComponent: FC<CardComponentProps> = (props) => {
                 id: item?.id,
               })
             }
+            testID={`reptile-card-open-${item?.id ?? "unknown"}`}
           >
             {t("reptiles.view_more")}
           </Button>

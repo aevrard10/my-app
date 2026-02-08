@@ -191,6 +191,7 @@ const Feed = () => {
   return (
     <Screen>
       <FlatList
+        testID="feed-list"
         ListEmptyComponent={
           isInitialLoading ? null : (
             <ListEmptyComponent isLoading={isFoodLoading} />
@@ -241,6 +242,7 @@ const Feed = () => {
                 // inputStyle={{ fontSize: 14 }}
                 style={styles.searchbar}
                 inputStyle={styles.searchInput}
+                testID="feed-search"
               />
             </CardSurface>
 
@@ -390,6 +392,7 @@ const Feed = () => {
         }}
         icon="plus"
         onPress={() => navigate(ScreenNames.ADD_FEED)}
+        testID="feed-add"
       />
     </Screen>
   );
