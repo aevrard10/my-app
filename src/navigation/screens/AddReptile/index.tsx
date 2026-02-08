@@ -597,6 +597,10 @@ const styles = StyleSheet.create({
   },
   searchbar: {
     marginBottom: 12,
+    borderRadius: 14,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   searchInput: {
     fontSize: 14,

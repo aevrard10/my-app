@@ -11,7 +11,7 @@ import FeedCardSkeleton from "./components/FeedCardSkeleton";
 import HistoryChip from "./components/HistoryChip";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import Skeleton from "@shared/components/Skeleton";
-import { FlatList, Platform, View } from "react-native";
+import { FlatList, Platform, View, StyleSheet } from "react-native";
 import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import { execute, executeVoid } from "@shared/local/db";
@@ -235,8 +235,10 @@ const Feed = () => {
                 onChangeText={setSearchText}
                 placeholder={t("feed.search")}
                 clearButtonMode="always"
-                style={{ marginTop: 12 }}
-                inputStyle={{ fontSize: 14 }}
+                // style={{ marginTop: 12 }}
+                // inputStyle={{ fontSize: 14 }}
+                style={styles.searchbar}
+                inputStyle={styles.searchInput}
               />
             </CardSurface>
 
@@ -393,5 +395,18 @@ const Feed = () => {
 };
 
 export default Feed;
+
+const styles = StyleSheet.create({
+  searchbar: {
+    borderRadius: 14,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
+    marginTop: 12,
+  },
+  searchInput: {
+    fontSize: 14,
+  },
+});
 // TODO: refactor this screen, it's getting too big. Maybe split into multiple smaller components?
 //
