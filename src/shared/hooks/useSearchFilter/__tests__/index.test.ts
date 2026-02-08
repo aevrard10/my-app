@@ -1,4 +1,4 @@
-import {renderHook} from '@testing-library/react';
+import { renderHook } from "../../../testUtils/renderHook";
 import useSearchFilter from '../index';
 type Props = {
   id: number;

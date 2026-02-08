@@ -1,4 +1,4 @@
-import {act, renderHook} from '@testing-library/react';
+import { act, renderHook } from "../../../testUtils/renderHook";
 import useBreakpoints, {type Breakpoints} from '..';
 import * as reactNative from 'react-native';
 
