@@ -711,7 +711,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
       <Formik
         initialValues={{
           name: data?.name || "",
-          birth_date: formatLongDateToYYYYMMDD(data?.birth_date || ""),
+          birth_date: formatDateToYYYYMMDD(data?.birth_date || ""),
           species: data?.species || "",
           acquired_date: formatLongDateToYYYYMMDD(data?.acquired_date || ""),
           origin: data?.origin || "",

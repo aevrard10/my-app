@@ -6,7 +6,14 @@ import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import Skeleton from "@shared/components/Skeleton";
 import React, { useMemo } from "react";
 import { Linking, ScrollView, StyleSheet, View } from "react-native";
-import { Avatar, Button, Icon, Text, TouchableRipple, useTheme } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Icon,
+  Text,
+  TouchableRipple,
+  useTheme,
+} from "react-native-paper";
 import useDashboardSummaryQuery, {
   DashboardSummary,
 } from "@shared/hooks/queries/useDashboardSummary";
@@ -24,7 +31,6 @@ const Home = () => {
   const summary = data;
   const isSummaryLoading = isPending || isLoading;
   const summaryError = error;
-
 
   const upcomingEvents: DashboardSummary["upcoming_events"] =
     summary?.upcoming_events ?? [];
@@ -245,13 +251,13 @@ const Home = () => {
                   </View>
                 ))}
               </View>
-            ) : upcomingEvents.length === 0 ? (
+            ) : upcomingEvents?.length === 0 ? (
               <Text variant="bodySmall" style={styles.upcomingEmpty}>
                 {t("home.upcoming_empty")}
               </Text>
             ) : (
               <View style={styles.upcomingList}>
-                {upcomingEvents.map((event) => {
+                {upcomingEvents?.map((event) => {
                   const timeLabel = event.event_time
                     ? event.event_time.slice(0, 5)
                     : "";
