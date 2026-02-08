@@ -1,51 +1,85 @@
 import React, { useMemo } from "react";
 import { FlatList, Platform, StyleSheet, View } from "react-native";
 import NotifItem from "./components/NotifItem";
-import useGetNotificationsQuery from "./hooks/queries/GetNotificationsQuery";
 import ListEmptyComponent from "@shared/components/ListEmptyComponent";
 import Screen from "@shared/components/Screen";
 import { Button, Text, useTheme } from "react-native-paper";
-import useMarkAllNotificationsAsReadMutation from "./hooks/mutations/useMarkAllNotificationsAsReadMutation";
 import { useQueryClient } from "@tanstack/react-query";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 import NotifItemSkeleton from "./components/NotifItemSkeleton";
 import { useI18n } from "@shared/i18n";
+import useLocalNotificationsQuery from "./hooks/queries/useLocalNotificationsQuery";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const renderItem = ({ item }) => <NotifItem item={item} />;
+const READ_KEY = "reptitrack_notifications_read";
 
 const Notifications = () => {
   const { colors } = useTheme();
   const { t } = useI18n();
-  const { data, isPending, refetch } = useGetNotificationsQuery();
+  const { data, isPending, refetch } = useLocalNotificationsQuery();
   const queryClient = useQueryClient();
-  const { mutate, isPending: isMarking } =
-    useMarkAllNotificationsAsReadMutation();
-  const unreadCount = data?.filter((notif) => !notif.read).length ?? 0;
+  const [readMap, setReadMap] = React.useState<Record<string, boolean>>({});
+  const unreadCount = data?.filter((notif) => !readMap[notif.id]).length ?? 0;
   const isInitialLoading = isPending && (!data || data.length === 0);
   const skeletonItems = useMemo(
     () => Array.from({ length: 4 }, (_, index) => ({ id: `sk-${index}` })),
     []
   );
 
+  React.useEffect(() => {
+    (async () => {
+      const raw = await AsyncStorage.getItem(READ_KEY);
+      if (raw) {
+        try {
+          setReadMap(JSON.parse(raw));
+        } catch {
+          setReadMap({});
+        }
+      }
+    })();
+  }, []);
+
+  const persistReadMap = async (map: Record<string, boolean>) => {
+    setReadMap(map);
+    await AsyncStorage.setItem(READ_KEY, JSON.stringify(map));
+  };
+
+  const markAllAsRead = async () => {
+    if (!data || data.length === 0) return;
+    const next: Record<string, boolean> = { ...readMap };
+    data.forEach((item) => {
+      next[item.id] = true;
+    });
+    await persistReadMap(next);
+    queryClient.invalidateQueries({
+      queryKey: useLocalNotificationsQuery.queryKey,
+    });
+  };
+
+  const markOne = async (id: string) => {
+    if (readMap[id]) return;
+    const next = { ...readMap, [id]: true };
+    await persistReadMap(next);
+  };
+
+  const viewData = (data ?? []).map((item) => ({
+    ...item,
+    read: !!readMap[item.id],
+  }));
+
   const handleMarkAllAsRead = () => {
     if (unreadCount === 0) return;
-    mutate(undefined, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: useGetNotificationsQuery.queryKey,
-        });
-        queryClient.invalidateQueries({
-          queryKey: useDashboardSummaryQuery.queryKey,
-        });
-      },
-    });
+    void markAllAsRead();
   };
   return (
     <Screen>
       <FlatList
-        data={isInitialLoading ? skeletonItems : data}
+        data={isInitialLoading ? skeletonItems : viewData}
         renderItem={
-          isInitialLoading ? () => <NotifItemSkeleton /> : renderItem
+          isInitialLoading
+            ? () => <NotifItemSkeleton />
+            : ({ item }) => (
+                <NotifItem item={item} onPress={() => markOne(item.id)} />
+              )
         }
         keyExtractor={(item) => String(item.id)}
         refreshing={isPending}
@@ -70,8 +104,7 @@ const Notifications = () => {
                 mode="outlined"
                 compact
                 onPress={handleMarkAllAsRead}
-                loading={isMarking}
-                disabled={unreadCount === 0 || isMarking}
+                disabled={unreadCount === 0}
                 style={styles.markAllButton}
                 textColor={colors.primary}
               >

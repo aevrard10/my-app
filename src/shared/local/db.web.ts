@@ -29,16 +29,14 @@ export const runMigrations = async () => {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       species TEXT NOT NULL,
-      age REAL,
+      birth_date TEXT,
       last_fed TEXT,
       notes TEXT,
       image_url TEXT,
       sort_of_species TEXT,
-      feeding_schedule TEXT,
       diet TEXT,
       humidity_level REAL,
       temperature_range TEXT,
-      health_status TEXT,
       danger_level TEXT,
       acquired_date TEXT,
       origin TEXT,
@@ -148,6 +146,11 @@ export const runMigrations = async () => {
   }
   try {
     await db.execAsync(`ALTER TABLE reptiles ADD COLUMN danger_level TEXT;`);
+  } catch (e) {
+    // colonne déjà présente
+  }
+  try {
+    await db.execAsync(`ALTER TABLE reptiles ADD COLUMN birth_date TEXT;`);
   } catch (e) {
     // colonne déjà présente
   }

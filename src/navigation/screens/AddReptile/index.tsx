@@ -6,6 +6,7 @@ import {
   Text,
   useTheme,
   Icon,
+  List,
 } from "react-native-paper";
 import { Formik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DatePickerInput } from "react-native-paper-dates";
 import { formatYYYYMMDD } from "@shared/utils/formatedDate";
 import TextInput from "@shared/components/TextInput";
@@ -35,15 +36,13 @@ import { useI18n } from "@shared/i18n";
 const initialValues = {
   name: "",
   species: "",
-  age: null,
+  birth_date: "",
   last_fed: "",
   snake: "snake",
   sex: "",
-  feeding_schedule: "",
   diet: "",
   humidity_level: null,
   temperature_range: "",
-  health_status: "",
   danger_level: "",
   acquired_date: "",
   origin: "",
@@ -52,14 +51,21 @@ const initialValues = {
 const schema = Yup.object().shape({
   name: Yup.string().required(),
   species: Yup.string().required(),
-  age: Yup.number().required(),
+  birth_date: Yup.string(),
   last_fed: Yup.string(),
-  snake: Yup.string().oneOf(["snake", "lizard"]),
-  feeding_schedule: Yup.string(),
+  snake: Yup.string().oneOf([
+    "snake",
+    "lizard",
+    "gecko",
+    "turtle",
+    "amphibian",
+    "monitor",
+    "crocodilian",
+    "other",
+  ]),
   diet: Yup.string(),
   humidity_level: Yup.number(),
   temperature_range: Yup.string(),
-  health_status: Yup.string(),
   danger_level: Yup.string(),
   acquired_date: Yup.string(),
   origin: Yup.string(),
@@ -78,7 +84,25 @@ const AddReptile = () => {
   const [inputDateAcquired, setInputDateAcquired] = useState<Date | undefined>(
     undefined,
   );
+  const [inputDateBirth, setInputDateBirth] = useState<Date | undefined>(
+    undefined,
+  );
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [showTypePicker, setShowTypePicker] = useState(false);
+
+  const reptileTypeOptions = useMemo(
+    () => [
+      { value: "snake", label: t("add_reptile.snake") },
+      { value: "lizard", label: t("add_reptile.lizard") },
+      { value: "gecko", label: t("add_reptile.gecko") },
+      { value: "monitor", label: t("add_reptile.monitor") },
+      { value: "crocodilian", label: t("add_reptile.crocodilian") },
+      { value: "turtle", label: t("add_reptile.turtle") },
+      { value: "amphibian", label: t("add_reptile.amphibian") },
+      { value: "other", label: t("add_reptile.other") },
+    ],
+    [t],
+  );
 
   const pickImage = async () => {
     try {
@@ -153,15 +177,13 @@ const AddReptile = () => {
                 input: {
                   name: values.name,
                   species: values.species,
-                  age: values.age,
+                  birth_date: values.birth_date,
                   last_fed: values.last_fed,
                   sort_of_species: values.snake,
                   sex: values.sex,
-                  feeding_schedule: values.feeding_schedule,
                   diet: values.diet,
                   humidity_level: values.humidity_level,
                   temperature_range: values.temperature_range,
-                  health_status: values.health_status,
                   danger_level: values.danger_level,
                   acquired_date: values.acquired_date,
                   origin: values.origin,
@@ -214,31 +236,63 @@ const AddReptile = () => {
                     onChangeText={formik.handleChange("species")}
                   />
                   <View style={styles.row}>
-                    <TextInput
-                      placeholder={t("add_reptile.age")}
-                      value={formik.values.age?.toString()}
-                      keyboardType="numeric"
-                      onChangeText={(text) => {
-                        const number = parseInt(text, 10);
+                    <DatePickerInput
+                      mode="outlined"
+                      style={[
+                        styles.pickerInput,
+                        styles.rowInput,
+                        { backgroundColor: colors.surface },
+                      ]}
+                      dense
+                      outlineStyle={[
+                        styles.outlineStyle,
+                        { borderColor: colors.outlineVariant ?? colors.outline },
+                      ]}
+                      locale={locale}
+                      label={t("add_reptile.age")}
+                      saveLabel={t("common.confirm")}
+                      withDateFormatInLabel={false}
+                      contentStyle={styles.dateContent}
+                      value={inputDateBirth}
+                      onChange={(data) => {
+                        setInputDateBirth(data);
                         formik.setFieldValue(
-                          "age",
-                          isNaN(number) ? "" : number,
+                          "birth_date",
+                          data ? formatYYYYMMDD(data) : "",
                         );
                       }}
-                      onBlur={formik.handleBlur("age")}
-                      inputMode="numeric"
-                      style={styles.rowInput}
-                    />
-                    <SegmentedButtons
-                      value={formik.values.snake}
-                      onValueChange={formik.handleChange("snake")}
-                      style={[styles.rowInput, styles.segmentCompact]}
-                      buttons={[
-                        { value: "snake", label: t("add_reptile.snake") },
-                        { value: "lizard", label: t("add_reptile.lizard") },
-                      ]}
+                      inputMode="start"
                     />
                   </View>
+                  <List.Accordion
+                    title={t("add_reptile.type")}
+                    description={
+                      reptileTypeOptions.find(
+                        (opt) => opt.value === formik.values.snake,
+                      )?.label
+                    }
+                    expanded={showTypePicker}
+                    onPress={() => setShowTypePicker((prev) => !prev)}
+                    left={(props) => <List.Icon {...props} icon="paw" />}
+                  >
+                    <View style={styles.typeGrid}>
+                      {reptileTypeOptions.map((option) => {
+                        const selected = formik.values.snake === option.value;
+                        return (
+                          <Button
+                            key={option.value}
+                            mode={selected ? "contained" : "outlined"}
+                            onPress={() =>
+                              formik.setFieldValue("snake", option.value)
+                            }
+                            style={styles.typeButton}
+                          >
+                            {option.label}
+                          </Button>
+                        );
+                      })}
+                    </View>
+                  </List.Accordion>
                   <SegmentedButtons
                     value={formik.values.sex}
                     onValueChange={formik.handleChange("sex")}
@@ -317,18 +371,6 @@ const AddReptile = () => {
                     onChangeText={formik.handleChange("diet")}
                     onBlur={formik.handleBlur("diet")}
                   />
-                  <TextInput
-                    placeholder={t("add_reptile.feeding_schedule")}
-                    value={formik.values.feeding_schedule}
-                    onChangeText={formik.handleChange("feeding_schedule")}
-                    onBlur={formik.handleBlur("feeding_schedule")}
-                  />
-                  <TextInput
-                    placeholder={t("add_reptile.health_status")}
-                    value={formik.values.health_status}
-                    onChangeText={formik.handleChange("health_status")}
-                    onBlur={formik.handleBlur("health_status")}
-                  />
                   <DatePickerInput
                     mode="outlined"
                     style={[
@@ -374,12 +416,6 @@ const AddReptile = () => {
                     value={formik.values.temperature_range}
                     onChangeText={formik.handleChange("temperature_range")}
                     onBlur={formik.handleBlur("temperature_range")}
-                  />
-                  <TextInput
-                    placeholder={t("add_reptile.health_status")}
-                    value={formik.values.health_status}
-                    onChangeText={formik.handleChange("health_status")}
-                    onBlur={formik.handleBlur("health_status")}
                   />
                   <TextInput
                     placeholder={t("add_reptile.danger_level")}
@@ -471,6 +507,16 @@ const styles = StyleSheet.create({
   },
   segmentCompact: {
     alignSelf: "stretch",
+  },
+  typeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingHorizontal: 6,
+    paddingBottom: 8,
+  },
+  typeButton: {
+    borderRadius: 14,
   },
   sectionTitle: {
     opacity: 0.7,

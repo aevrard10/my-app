@@ -4,16 +4,14 @@ export type LocalReptile = {
   id: string;
   name: string;
   species: string;
-  age?: number | string;
+  birth_date?: string | null;
   last_fed?: string | null;
   notes?: string | null;
   image_url?: string | null;
   sort_of_species?: string | null;
-  feeding_schedule?: string | null;
   diet?: string | null;
   humidity_level?: number | string | null;
   temperature_range?: string | null;
-  health_status?: string | null;
   danger_level?: string | null;
   acquired_date?: string | null;
   origin?: string | null;
@@ -22,6 +20,8 @@ export type LocalReptile = {
   created_at?: string | null;
   updated_at?: string | null;
 };
+
+export type Reptile = LocalReptile;
 
 const mapReptile = (row: any): LocalReptile => ({
   ...row,
@@ -56,16 +56,14 @@ export const upsertReptile = async (
       `UPDATE reptiles SET
         name=?,
         species=?,
-        age=?,
+        birth_date=?,
         last_fed=?,
         notes=?,
         image_url=?,
         sort_of_species=?,
-        feeding_schedule=?,
         diet=?,
         humidity_level=?,
         temperature_range=?,
-        health_status=?,
         danger_level=?,
         acquired_date=?,
         origin=?,
@@ -76,16 +74,14 @@ export const upsertReptile = async (
       [
         input.name,
         input.species,
-        input.age ?? null,
+        input.birth_date ?? null,
         input.last_fed ?? null,
         input.notes ?? null,
         input.image_url ?? null,
         input.sort_of_species ?? null,
-        input.feeding_schedule ?? null,
         input.diet ?? null,
         input.humidity_level ?? null,
         input.temperature_range ?? null,
-        input.health_status ?? null,
         input.danger_level ?? null,
         input.acquired_date ?? null,
         input.origin ?? null,
@@ -97,22 +93,20 @@ export const upsertReptile = async (
   } else {
     await executeVoid(
       `INSERT INTO reptiles(
-        id,name,species,age,last_fed,notes,image_url,sort_of_species,feeding_schedule,diet,humidity_level,temperature_range,health_status,danger_level,acquired_date,origin,sex,location
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+        id,name,species,birth_date,last_fed,notes,image_url,sort_of_species,diet,humidity_level,temperature_range,danger_level,acquired_date,origin,sex,location
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
       [
         reptileId,
         input.name,
         input.species,
-        input.age ?? null,
+        input.birth_date ?? null,
         input.last_fed ?? null,
         input.notes ?? null,
         input.image_url ?? null,
         input.sort_of_species ?? null,
-        input.feeding_schedule ?? null,
         input.diet ?? null,
         input.humidity_level ?? null,
         input.temperature_range ?? null,
-        input.health_status ?? null,
         input.danger_level ?? null,
         input.acquired_date ?? null,
         input.origin ?? null,

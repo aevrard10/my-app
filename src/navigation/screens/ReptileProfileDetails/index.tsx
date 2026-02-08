@@ -65,8 +65,6 @@ import GeneticsSection from "./components/GeneticsSection";
 import QrCodeSection from "./components/QrCodeSection";
 import * as Sharing from "expo-sharing";
 import { useI18n } from "@shared/i18n";
-// import useQuery from "@shared/graphql/hooks/useQuery";
-// import { gql } from "graphql-request";
 import * as FileSystem from "expo-file-system/legacy";
 import InfoAccordion from "./components/InfoAccordion";
 import useReptileHealthEventsQuery from "./hooks/data/queries/useReptileHealthEventsQuery";
@@ -120,10 +118,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
   });
   const profileSummary = useMemo(() => {
     const species = data?.species || "?";
-    const age = data?.age ?? "?";
+    const birthDate = data?.birth_date ? formatDDMMYYYY(data.birth_date) : "?";
     const temp = data?.temperature_range || "?";
-    return `${species} · ${age} ${t("reptiles.age_suffix")} · ${temp}`;
-  }, [data?.species, data?.age, data?.temperature_range, t]);
+    return `${species} · ${birthDate} · ${temp}`;
+  }, [data?.species, data?.birth_date, data?.temperature_range]);
 
   const foodSummary = useMemo(() => {
     const last = data?.last_fed ? formatDDMMYYYY(data.last_fed) : "?";
@@ -132,10 +130,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
       "profile.food_summary_diet",
     )}: ${diet}`;
   }, [data?.last_fed, data?.diet, t]);
-
-  const healthSummary = useMemo(() => {
-    return data?.health_status || t("profile.health_unknown");
-  }, [data?.health_status, t]);
 
   const latestHealthEvent = useMemo(
     () => (healthEvents && healthEvents.length > 0 ? healthEvents[0] : null),
@@ -257,7 +251,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
                 <p><strong>${t("profile.report_species")} :</strong> ${data.species || "—"}</p>
                 <p><strong>${t("profile.report_sex")} :</strong> ${data.sex || "—"}</p>
                 <p><strong>${t("profile.field_danger")} :</strong> ${data.danger_level || "—"}</p>
-                <p><strong>${t("profile.report_age")} :</strong> ${data.age ?? "—"} ${t("reptiles.age_suffix")}</p>
+                <p><strong>${t("profile.report_age")} :</strong> ${
+                  data.birth_date ? formatDDMMYYYY(data.birth_date) : "—"
+                }</p>
                 <p><strong>${t("profile.report_location")} :</strong> ${data.location || "—"}</p>
                 <p><strong>${t("profile.report_acquired")} :</strong> ${
                   data.acquired_date ? formatDDMMYYYY(data.acquired_date) : "—"
@@ -715,15 +711,13 @@ const ReptileProfileDetails = ({ route }: Props) => {
       <Formik
         initialValues={{
           name: data?.name || "",
-          age: data?.age || 0,
+          birth_date: formatLongDateToYYYYMMDD(data?.birth_date || ""),
           species: data?.species || "",
           acquired_date: formatLongDateToYYYYMMDD(data?.acquired_date || ""),
           origin: data?.origin || "",
           location: data?.location || "",
           last_fed: formatDateToYYYYMMDD(data?.last_fed || ""),
-          feeding_schedule: data?.feeding_schedule || "",
           diet: data?.diet || "",
-          health_status: data?.health_status || "",
           danger_level: data?.danger_level || "",
           notes: data?.notes || "",
           sex: data?.sex || "",
@@ -777,8 +771,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     <Text variant="bodySmall">
                       {t("profile.report_sex")} :{" "}
                       {data?.sex || t("common.not_available")} ·{" "}
-                      {t("profile.report_age")} : {data?.age ?? "—"}{" "}
-                      {t("reptiles.age_suffix")}
+                      {t("profile.report_age")} :{" "}
+                      {data?.birth_date
+                        ? formatDDMMYYYY(data.birth_date)
+                        : t("common.not_available")}
                     </Text>
                     <Text variant="bodySmall">
                       {t("profile.report_morph")} :{" "}
@@ -928,43 +924,48 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   isSaving={isSavingGenetics}
                 />
 
-                <QrCodeSection
-                  reptile={
-                    data
-                      ? {
-                          id: data.id,
-                          name: data.name,
-                          species: data.species,
-                          sex: data.sex,
-                          danger_level: data.danger_level,
-                          acquired_date: data.acquired_date,
-                          origin: data.origin,
-                          location: data.location,
-                          diet: data.diet,
-                          temperature_range: data.temperature_range,
-                          humidity_level: data.humidity_level,
-                        }
-                      : null
-                  }
-                />
-
                 <List.Section style={{ marginTop: 12 }}>
                   <InfoAccordion
                     title={t("profile.section_profile")}
                     icon="home"
                     fields={[
                       {
-                        key: "age",
+                        key: "birth_date",
                         label: t("profile.field_age"),
-                        value: formik.values.age,
-                        keyboardType: "numeric",
-                        onChangeText: (text) => {
-                          const number = parseInt(text, 10);
-                          formik.setFieldValue(
-                            "age",
-                            Number.isNaN(number) ? "" : number,
-                          );
-                        },
+                        render: () => (
+                          <DatePickerInput
+                            mode="outlined"
+                            style={[
+                              styles.pickerInput,
+                              { backgroundColor: colors.surface },
+                            ]}
+                            dense
+                            outlineStyle={[
+                              styles.outlineStyle,
+                              {
+                                borderColor:
+                                  colors.outlineVariant ?? colors.outline,
+                              },
+                            ]}
+                            locale={locale}
+                            label={t("profile.field_age")}
+                            saveLabel={t("common.confirm")}
+                            withDateFormatInLabel={false}
+                            contentStyle={styles.dateContent}
+                            value={
+                              formik.values.birth_date
+                                ? new Date(formik.values.birth_date)
+                                : undefined
+                            }
+                            onChange={(date) => {
+                              formik.setFieldValue(
+                                "birth_date",
+                                date ? formatYYYYMMDD(date) : "",
+                              );
+                            }}
+                            inputMode="start"
+                          />
+                        ),
                       },
                       {
                         key: "species",
@@ -1048,7 +1049,9 @@ const ReptileProfileDetails = ({ route }: Props) => {
 
                   <List.Accordion
                     title={t("health.section_title")}
-                    left={(props) => <List.Icon {...props} icon="heart-pulse" />}
+                    left={(props) => (
+                      <List.Icon {...props} icon="heart-pulse" />
+                    )}
                   >
                     <View style={styles.healthAccordionContent}>
                       <Text variant="bodyMedium">{healthEventLabel}</Text>
@@ -1076,14 +1079,22 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   </List.Accordion>
 
                   <List.Accordion
-                    title={t("profile.section_actions")}
-                    left={(props) => <List.Icon {...props} icon="pencil" />}
+                    title={t("profile.charts_title")}
+                    left={(props) => <List.Icon {...props} icon="chart-line" />}
                   >
-                    <Button mode="contained" onPress={formik.submitForm}>
-                      {t("profile.actions_save")}
-                    </Button>
+                    <Charts
+                      data={data}
+                      measurements={measurements}
+                      isPending={isPending}
+                    />
                   </List.Accordion>
                 </List.Section>
+
+                <CardSurface style={styles.saveCard}>
+                  <Button mode="contained" onPress={formik.submitForm}>
+                    {t("profile.actions_save")}
+                  </Button>
+                </CardSurface>
                 <CardSurface style={styles.notesCard}>
                   <Text variant="titleMedium" style={styles.cardTitle}>
                     {t("profile.notes_title")}
@@ -1103,6 +1114,25 @@ const ReptileProfileDetails = ({ route }: Props) => {
                   </View>
                 </CardSurface>
 
+                <QrCodeSection
+                  reptile={
+                    data
+                      ? {
+                          id: data.id,
+                          name: data.name,
+                          species: data.species,
+                          sex: data.sex,
+                          danger_level: data.danger_level,
+                          acquired_date: data.acquired_date,
+                          origin: data.origin,
+                          location: data.location,
+                          diet: data.diet,
+                          temperature_range: data.temperature_range,
+                          humidity_level: data.humidity_level,
+                        }
+                      : null
+                  }
+                />
                 <CardSurface style={styles.sensorCard}>
                   <Text variant="titleMedium" style={styles.cardTitle}>
                     {t("profile.sensor_title")}
@@ -1194,11 +1224,6 @@ const ReptileProfileDetails = ({ route }: Props) => {
                     </Text>
                   )}
                 </CardSurface>
-                <Charts
-                  data={data}
-                  measurements={measurements}
-                  isPending={isPending}
-                />
               </ScrollView>
               <FAB
                 style={{
@@ -1336,6 +1361,10 @@ const styles = StyleSheet.create({
   outlineStyle: {
     borderWidth: 0,
   },
+  dateContent: {
+    fontSize: 13,
+    paddingVertical: 6,
+  },
   pickerInput: {
     borderWidth: 0,
     borderColor: "transparent",
@@ -1431,6 +1460,10 @@ const styles = StyleSheet.create({
   notesCard: {
     marginVertical: 12,
     gap: 8,
+  },
+  saveCard: {
+    marginTop: 8,
+    marginBottom: 4,
   },
   sensorCard: {
     marginVertical: 8,

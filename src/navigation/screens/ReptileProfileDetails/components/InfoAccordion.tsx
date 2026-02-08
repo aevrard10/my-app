@@ -11,6 +11,7 @@ export type InfoField = {
   onChangeText?: (text: string) => void;
   keyboardType?: KeyboardTypeOptions;
   readOnly?: boolean;
+  render?: () => React.ReactNode;
 };
 
 type InfoAccordionProps = {
@@ -36,7 +37,9 @@ const InfoAccordion = ({ title, icon, fields }: InfoAccordionProps) => {
             <Text style={styles.label} variant="bodyMedium">
               {field.label}
             </Text>
-            {readOnly ? (
+            {field.render ? (
+              field.render()
+            ) : readOnly ? (
               <Text variant="bodyMedium" style={styles.value}>
                 {value || "—"}
               </Text>

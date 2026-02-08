@@ -20,6 +20,7 @@ import { useSnackbar } from "@rn-flix/snackbar";
 import { useTheme } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
 import { useI18n } from "@shared/i18n";
+import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 type CardComponentProps = {
   item?: Reptile;
 };
@@ -91,8 +92,8 @@ const CardComponent: FC<CardComponentProps> = (props) => {
             <Text variant="titleMedium">{capitalize(item?.name)}</Text>
             <Text variant="bodySmall" style={styles.subtitle}>
               {(item?.species || t("reptiles.unknown_species")) +
-                (item?.age !== null && item?.age !== undefined
-                  ? ` · ${item.age} ${t("reptiles.age_suffix")}`
+                (item?.birth_date
+                  ? ` · ${formatDDMMYYYY(item.birth_date)}`
                   : "")}
             </Text>
           </View>

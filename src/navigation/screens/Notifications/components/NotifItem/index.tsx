@@ -1,5 +1,5 @@
 import { notificationsMultiFormat } from "@shared/utils/formatedDate";
-import React, { FC, useCallback, memo } from "react";
+import React, { FC, memo } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Icon,
@@ -7,51 +7,42 @@ import {
   useTheme,
   Text,
 } from "react-native-paper";
-import useMarkNotificationAsReadMutationMutation from "../../hooks/mutations/useMarkNotificationAsReadMutation";
-import { useQueryClient } from "@tanstack/react-query";
-import useGetNotificationsQuery from "../../hooks/queries/GetNotificationsQuery";
 import CardSurface from "@shared/components/CardSurface";
-import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 import { useI18n } from "@shared/i18n";
 type NotifItemProps = {
   item: {
+    title?: string;
     message: string;
     read: boolean;
     created_at: string | number;
     id: string;
+    event_type?: string | null;
   };
+  onPress?: () => void;
 };
 
 const NotifItem: FC<NotifItemProps> = (props) => {
-  const { item } = props;
+  const { item, onPress } = props;
   const { colors } = useTheme();
   const { t } = useI18n();
-  const { mutate } = useMarkNotificationAsReadMutationMutation();
-  const queryClient = useQueryClient();
-  const markNotificationAsRead = useCallback(() => {
-    mutate(
-      {
-        id: item?.id,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: useGetNotificationsQuery.queryKey,
-          });
-          queryClient.invalidateQueries({
-            queryKey: useDashboardSummaryQuery.queryKey,
-          });
-        },
-      }
-    );
-  }, [item?.id, mutate, queryClient]);
   const created_at =
     typeof item?.created_at === "number"
       ? item?.created_at * 1000
       : item?.created_at;
+  const type = (item?.event_type || "OTHER").toUpperCase();
+  const iconName =
+    type === "FEEDING"
+      ? "food-fork-drink"
+      : type === "CLEANING"
+        ? "spray-bottle"
+        : type === "MISTING"
+          ? "water"
+          : type === "VET"
+            ? "stethoscope"
+            : "calendar";
   return (
     <TouchableRipple
-      onPress={markNotificationAsRead}
+      onPress={onPress}
       style={styles.touchableRipple}
     >
       <CardSurface
@@ -72,20 +63,20 @@ const NotifItem: FC<NotifItemProps> = (props) => {
                 borderColor: colors.secondary,
               },
             ]}
-          >
-            <View
-              style={[
-                styles.secondImageContainer,
-                {
-                  backgroundColor: item?.read
-                    ? colors.secondary
-                    : colors.primary,
-                },
-              ]}
             >
-              <Icon size={12} source={"calendar"} color="#fff" />
+              <View
+                style={[
+                  styles.secondImageContainer,
+                  {
+                    backgroundColor: item?.read
+                      ? colors.secondary
+                      : colors.primary,
+                  },
+                ]}
+              >
+                <Icon size={12} source={iconName} color="#fff" />
+              </View>
             </View>
-          </View>
           <View style={styles.container}>
             <View style={styles.identifierAndText}>
               <Text
@@ -94,7 +85,7 @@ const NotifItem: FC<NotifItemProps> = (props) => {
                   color: colors.secondary,
                 }}
               >
-                {t("agenda.title")}
+                {item?.title || t("agenda.title")}
               </Text>
               <Text
                 variant="bodyLarge"

@@ -69,7 +69,15 @@ const FeedCard: FC<FoodCardProps> = (props) => {
               />
               <View style={styles.titleBlock}>
                 <View style={styles.titleLine}>
-                  <Text style={styles.title}>{displayName}</Text>
+                  <View style={styles.titleTextWrap}>
+                    <Text
+                      style={styles.title}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {displayName}
+                    </Text>
+                  </View>
                   <Chip
                     icon={() => (
                       <Icon
@@ -233,15 +241,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
+  titleTextWrap: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: 6,
+  },
   title: {
     fontSize: 16,
     fontWeight: "600",
+    flexShrink: 1,
   },
   subtitle: {
     opacity: 0.6,
   },
   chip: {
     marginRight: 8,
+    flexShrink: 0,
   },
   progress: {
     height: 6,

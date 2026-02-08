@@ -17,6 +17,7 @@ enum QueriesKeys {
   GOVEE_DEVICES = "goveeDevices",
   GOVEE_STATE = "goveeState",
   FEED_FORECAST = "feedForecast",
+  LOCAL_NOTIFICATIONS = "localNotifications",
 }
 
 export default QueriesKeys;

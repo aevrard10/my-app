@@ -13,7 +13,7 @@ import * as Notifications from "expo-notifications";
 import { Platform, type ViewStyle } from "react-native";
 import { appTheme } from "@shared/theme";
 import { useFonts } from "expo-font";
-import queryClient from "@shared/graphql/utils/queryClient";
+import queryClient from "@shared/data/queryClient";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "sentry-expo";
 import { runMigrations } from "@shared/local/db";
