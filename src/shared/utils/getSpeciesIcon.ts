@@ -1,6 +1,6 @@
 import { IconSource } from "react-native-paper";
 
-const lizardIcon = require("../../assets/lizard.png");
+const lizardIcon = require("../../../assets/lizard.png");
 
 const getSpeciesIcon = (type?: string | null): IconSource => {
   const normalized = (type || "").toLowerCase();

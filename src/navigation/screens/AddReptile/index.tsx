@@ -7,6 +7,11 @@ import {
   useTheme,
   Icon,
   List,
+  Dialog,
+  Portal,
+  RadioButton,
+  Searchbar,
+  Divider,
 } from "react-native-paper";
 import { Formik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,6 +37,8 @@ import Screen from "@shared/components/Screen";
 import CardSurface from "@shared/components/CardSurface";
 import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 import { useI18n } from "@shared/i18n";
+import { FOOD_ITEMS, getFoodLabel } from "@shared/constants/foodCatalog";
+import useSearchFilter from "@shared/hooks/useSearchFilter";
 
 const initialValues = {
   name: "",
@@ -89,6 +96,15 @@ const AddReptile = () => {
   );
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [showTypePicker, setShowTypePicker] = useState(false);
+  const [dietDialogOpen, setDietDialogOpen] = useState(false);
+  const [dietSearch, setDietSearch] = useState("");
+  const [filteredDietOptions] = useSearchFilter(
+    FOOD_ITEMS,
+    dietSearch,
+    undefined,
+    [(item) => t(item.labelKey)],
+    1,
+  );
 
   const reptileTypeOptions = useMemo(
     () => [
@@ -246,7 +262,9 @@ const AddReptile = () => {
                       dense
                       outlineStyle={[
                         styles.outlineStyle,
-                        { borderColor: colors.outlineVariant ?? colors.outline },
+                        {
+                          borderColor: colors.outlineVariant ?? colors.outline,
+                        },
                       ]}
                       locale={locale}
                       label={t("add_reptile.age")}
@@ -365,12 +383,58 @@ const AddReptile = () => {
                   <Text variant="labelLarge" style={styles.sectionTitle}>
                     {t("add_reptile.section.feeding")}
                   </Text>
-                  <TextInput
-                    placeholder={t("add_reptile.diet")}
-                    value={formik.values.diet}
-                    onChangeText={formik.handleChange("diet")}
-                    onBlur={formik.handleBlur("diet")}
-                  />
+                  <Button
+                    mode="contained"
+                    onPress={() => setDietDialogOpen(true)}
+                  >
+                    {formik.values.diet
+                      ? getFoodLabel(formik.values.diet, t)
+                      : t("add_feed.select_food")}
+                  </Button>
+                  <Portal>
+                    <Dialog
+                      visible={dietDialogOpen}
+                      onDismiss={() => setDietDialogOpen(false)}
+                      style={styles.dialog}
+                    >
+                      <Dialog.Title>{t("add_feed.choose_food")}</Dialog.Title>
+                      <Dialog.Content>
+                        <Searchbar
+                          elevation={0}
+                          mode="bar"
+                          value={dietSearch}
+                          onChangeText={setDietSearch}
+                          placeholder={t("add_feed.search_food")}
+                          clearButtonMode="always"
+                          style={styles.searchbar}
+                          inputStyle={styles.searchInput}
+                        />
+                        <ScrollView style={{ maxHeight: 300 }}>
+                          <RadioButton.Group
+                            onValueChange={(value) => {
+                              formik.setFieldValue("diet", value);
+                              setDietDialogOpen(false);
+                            }}
+                            value={formik.values.diet}
+                          >
+                            {filteredDietOptions.length > 0 ? (
+                              filteredDietOptions.map((item) => (
+                                <RadioButton.Item
+                                  key={item.key}
+                                  label={t(item.labelKey)}
+                                  value={item.key}
+                                />
+                              ))
+                            ) : (
+                              <Text style={styles.emptyText}>
+                                {t("add_feed.no_results")}
+                              </Text>
+                            )}
+                          </RadioButton.Group>
+                        </ScrollView>
+                      </Dialog.Content>
+                    </Dialog>
+                  </Portal>
                   <DatePickerInput
                     mode="outlined"
                     style={[
@@ -523,6 +587,20 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 8,
+  },
+  dialog: {
+    borderRadius: 20,
+  },
+  searchbar: {
+    marginBottom: 12,
+  },
+  searchInput: {
+    fontSize: 14,
+  },
+  emptyText: {
+    opacity: 0.6,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
   },
 });
 export default AddReptile;

@@ -171,7 +171,7 @@ const MyStack = () => {
         component={AddReptile}
         options={{
           title: t("nav.add_reptile"),
-          presentation: "modal",
+          // presentation: "modal",
           keyboardHandlingEnabled: true,
         }}
       />
