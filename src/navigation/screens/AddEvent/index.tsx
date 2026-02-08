@@ -35,6 +35,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import { useI18n } from "@shared/i18n";
 import { useNavigation } from "@react-navigation/native";
+import useDashboardSummaryQuery from "@shared/hooks/queries/useDashboardSummary";
 const NOTIF_KEY = "reptitrack_event_notifs"; // map eventId -> notificationId
 
 const initialValues = {
@@ -231,7 +232,8 @@ const AddEvent = () => {
                 show(t("agenda.add_success"), { label: t("common.ok") });
                 navigation.goBack();
               },
-              onError: () => {
+              onError: (e) => {
+                console.error(e);
                 show(t("agenda.add_error"), { label: t("common.ok") });
               },
             },

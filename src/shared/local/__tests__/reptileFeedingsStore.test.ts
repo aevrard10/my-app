@@ -66,6 +66,17 @@ describe("reptileFeedingsStore", () => {
     expect(feeding.food_name).toBe("mouse_adult");
   });
 
+  it("adds a feeding with optional fields missing", async () => {
+    const feeding = await addReptileFeeding({
+      reptile_id: "r1",
+      fed_at: "2026-02-06",
+    });
+    expect(feeding.food_name).toBeNull();
+    expect(feeding.quantity).toBeNull();
+    expect(feeding.unit).toBeNull();
+    expect(feeding.notes).toBeNull();
+  });
+
   it("lists feedings ordered by fed_at desc with pagination", async () => {
     await addReptileFeeding({
       reptile_id: "stock",
@@ -87,6 +98,19 @@ describe("reptileFeedingsStore", () => {
     const secondPage = await getReptileFeedings("stock", { limit: 1, offset: 1 });
     expect(firstPage[0].food_name).toBe("rat_adult");
     expect(secondPage[0].food_name).toBe("mouse_adult");
+  });
+
+  it("lists feedings with default options when options empty", async () => {
+    await addReptileFeeding({
+      reptile_id: "stock",
+      food_name: "mouse_adult",
+      quantity: 1,
+      unit: "pcs",
+      fed_at: "2026-02-06",
+      notes: null,
+    });
+    const list = await getReptileFeedings("stock", {});
+    expect(list.length).toBe(1);
   });
 
   it("deletes a feeding", async () => {

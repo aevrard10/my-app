@@ -1,7 +1,13 @@
 import React, { FC, useState } from "react";
-import { Alert, Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Avatar, Chip, Text, TouchableRipple, useTheme } from "react-native-paper";
+import {
+  Avatar,
+  Chip,
+  Text,
+  TouchableRipple,
+  useTheme,
+} from "react-native-paper";
 import { LocalReptile } from "@shared/local/reptileStore";
 
 import { addReptilePhotoFromUri } from "@shared/local/reptilePhotosStore";
@@ -9,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import CardSurface from "@shared/components/CardSurface";
 import getSpeciesIcon from "@shared/utils/getSpeciesIcon";
+import useReptilesQuery from "../../../Reptiles/hooks/queries/useReptilesQuery";
 
 type ReptilePictureProps = {
   data: LocalReptile | null | undefined;
@@ -17,7 +24,7 @@ type ReptilePictureProps = {
 const ReptilePicture: FC<ReptilePictureProps> = (props) => {
   const { data } = props;
   const [imageUri, setImageUri] = useState<string | null>(
-    data?.image_url || null
+    data?.image_url || null,
   );
   const { colors } = useTheme();
   const qc = useQueryClient();
@@ -33,7 +40,10 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
           const uri = URL.createObjectURL(file);
           setImageUri(uri);
           await addReptilePhotoFromUri(data.id, uri);
-          qc.invalidateQueries({ queryKey: [QueriesKeys.REPTILE, data.id, "photos"] });
+          qc.invalidateQueries({
+            queryKey: [QueriesKeys.REPTILE, data.id, "photos"],
+          });
+          qc.invalidateQueries({ queryKey: useReptilesQuery.queryKey });
         }
       };
       input.click();
@@ -49,7 +59,9 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
     if (!result.canceled && result.assets?.[0]?.uri && data?.id) {
       setImageUri(result.assets[0].uri);
       await addReptilePhotoFromUri(data.id, result.assets[0].uri);
-      qc.invalidateQueries({ queryKey: [QueriesKeys.REPTILE, data.id, "photos"] });
+      qc.invalidateQueries({
+        queryKey: [QueriesKeys.REPTILE, data.id, "photos"],
+      });
     }
   };
 

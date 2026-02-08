@@ -68,6 +68,16 @@ describe("reptileHealthStore", () => {
     expect(event.event_type).toBe("ACARIEN");
   });
 
+  it("adds a health event with optional fields missing", async () => {
+    const event = await addReptileHealthEvent({
+      reptile_id: "r1",
+      event_type: "ACARIEN",
+      event_date: "2026-02-06",
+    });
+    expect(event.event_time).toBeNull();
+    expect(event.notes).toBeNull();
+  });
+
   it("lists events ordered by date/time with pagination", async () => {
     await addReptileHealthEvent({
       reptile_id: "r1",
@@ -85,6 +95,16 @@ describe("reptileHealthStore", () => {
     });
     const list = await getReptileHealthEvents("r1", { limit: 1, offset: 0 });
     expect(list[0].event_type).toBe("INJURY");
+  });
+
+  it("lists events with default options when options empty", async () => {
+    await addReptileHealthEvent({
+      reptile_id: "r1",
+      event_type: "ACARIEN",
+      event_date: "2026-02-06",
+    });
+    const list = await getReptileHealthEvents("r1", {});
+    expect(list.length).toBe(1);
   });
 
   it("deletes a health event", async () => {

@@ -118,6 +118,15 @@ describe("reptileStore", () => {
     expect(reptile.species).toBe("Pogona vitticeps");
   });
 
+  it("creates a reptile with optional fields missing", async () => {
+    const reptile = await upsertReptile({
+      name: "Gecko",
+      species: "Eublepharis macularius",
+    });
+    expect(reptile.birth_date).toBeNull();
+    expect(reptile.diet).toBeNull();
+  });
+
   it("updates an existing reptile", async () => {
     const reptile = await upsertReptile({
       name: "Pogona",
@@ -145,6 +154,11 @@ describe("reptileStore", () => {
       location: "Rack A",
     });
     expect(updated?.location).toBe("Rack A");
+  });
+
+  it("returns null when updating unknown reptile", async () => {
+    const updated = await updateReptileFields("missing", { location: "X" });
+    expect(updated).toBeNull();
   });
 
   it("deletes a reptile", async () => {

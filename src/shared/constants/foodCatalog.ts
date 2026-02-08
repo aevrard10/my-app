@@ -35,7 +35,12 @@ export const FOOD_ITEMS: FoodItem[] = [
   { key: "mouse_pinkie", labelKey: "food.mouse_pinkie", type: "rodent" },
   { key: "mouse_fuzzy", labelKey: "food.mouse_fuzzy", type: "rodent" },
   { key: "mouse_hopper", labelKey: "food.mouse_hopper", type: "rodent" },
-  { key: "mouse_adult", labelKey: "food.mouse_adult", type: "rodent" },
+  {
+    key: "mouse_adult",
+    labelKey: "food.mouse_adult",
+    type: "rodent",
+    aliases: ["mouse"],
+  },
   { key: "rat_pinkie", labelKey: "food.rat_pinkie", type: "rodent" },
   { key: "rat_fuzzy", labelKey: "food.rat_fuzzy", type: "rodent" },
   { key: "rat_hopper", labelKey: "food.rat_hopper", type: "rodent" },

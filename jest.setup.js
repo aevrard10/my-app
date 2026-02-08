@@ -25,6 +25,29 @@ jest.mock("expo-sqlite", () => ({
   })),
 }));
 
+jest.mock(
+  "expo-sqlite/next",
+  () => ({
+    openDatabaseAsync: jest.fn(async () => ({
+      execAsync: jest.fn(async () => {}),
+      runAsync: jest.fn(async () => {}),
+      getAllAsync: jest.fn(async () => []),
+      getFirstAsync: jest.fn(async () => null),
+    })),
+  }),
+  { virtual: true },
+);
+
+jest.mock("expo-file-system/legacy", () => ({
+  documentDirectory: "file:///tmp/",
+  getInfoAsync: jest.fn(async () => ({ exists: false })),
+  makeDirectoryAsync: jest.fn(async () => {}),
+  copyAsync: jest.fn(async () => {}),
+  writeAsStringAsync: jest.fn(async () => {}),
+  deleteAsync: jest.fn(async () => {}),
+  EncodingType: { Base64: "base64" },
+}));
+
 jest.mock("expo-linear-gradient", () => ({
   LinearGradient: ({ children }) => children,
 }));

@@ -1,6 +1,7 @@
 import {
   upsertReptileEvent,
   getReptileEvent,
+  getReptileEvents,
   deleteReptileEvent,
   excludeReptileEventOccurrence,
 } from "../reptileEventsStore";
@@ -117,6 +118,21 @@ describe("reptileEventsStore", () => {
     expect(created.priority).toBe("NORMAL");
   });
 
+  it("handles invalid numeric values", async () => {
+    const created = await upsertReptileEvent({
+      event_date: "2026-02-06",
+      recurrence_interval: "bad" as any,
+      reminder_minutes: "bad" as any,
+    });
+    expect(created.recurrence_interval).toBe(1);
+    expect(created.reminder_minutes).toBe(0);
+  });
+
+  it("uses default event_date when missing", async () => {
+    const created = await upsertReptileEvent({});
+    expect(created.event_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
   it("updates an existing event", async () => {
     const created = await upsertReptileEvent({
       event_date: "2026-02-06",
@@ -130,6 +146,30 @@ describe("reptileEventsStore", () => {
     expect(updated.notes).toBe("Updated");
   });
 
+  it("lists events", async () => {
+    await upsertReptileEvent({ event_date: "2026-02-06" });
+    const list = await getReptileEvents({ limit: 10, offset: 0 });
+    expect(list.length).toBe(1);
+  });
+
+  it("lists events with default options", async () => {
+    await upsertReptileEvent({ event_date: "2026-02-06" });
+    const list = await getReptileEvents();
+    expect(list.length).toBe(1);
+  });
+
+  it("lists events with partial options", async () => {
+    await upsertReptileEvent({ event_date: "2026-02-06" });
+    const list = await getReptileEvents({ limit: 5 });
+    expect(list.length).toBe(1);
+  });
+
+  it("lists events with offset-only options", async () => {
+    await upsertReptileEvent({ event_date: "2026-02-06" });
+    const list = await getReptileEvents({ offset: 0 });
+    expect(list.length).toBe(1);
+  });
+
   it("excludes an occurrence date", async () => {
     const created = await upsertReptileEvent({
       event_date: "2026-02-06",
@@ -138,6 +178,52 @@ describe("reptileEventsStore", () => {
     await excludeReptileEventOccurrence(created.id, "2026-02-07");
     const fetched = await getReptileEvent(created.id);
     expect(fetched?.excluded_dates).toContain("2026-02-07");
+  });
+
+  it("ignores exclude when date or event missing", async () => {
+    await excludeReptileEventOccurrence("missing", undefined);
+    await excludeReptileEventOccurrence("missing", "2026-02-07");
+    expect(mockStore.size).toBe(0);
+  });
+
+  it("handles invalid excluded_dates JSON", async () => {
+    const created = await upsertReptileEvent({
+      event_date: "2026-02-06",
+      event_name: "Test",
+    });
+    mockStore.set(created.id, { ...created, excluded_dates: "not-json" });
+    await excludeReptileEventOccurrence(created.id, "2026-02-08");
+    const fetched = await getReptileEvent(created.id);
+    expect(fetched?.excluded_dates).toContain("2026-02-08");
+  });
+
+  it("handles non-array excluded_dates JSON", async () => {
+    const created = await upsertReptileEvent({
+      event_date: "2026-02-06",
+      event_name: "Test",
+    });
+    mockStore.set(created.id, {
+      ...created,
+      excluded_dates: JSON.stringify({ bad: true }),
+    });
+    await excludeReptileEventOccurrence(created.id, "2026-02-09");
+    const fetched = await getReptileEvent(created.id);
+    expect(fetched?.excluded_dates).toContain("2026-02-09");
+  });
+
+  it("does not duplicate excluded dates", async () => {
+    const created = await upsertReptileEvent({
+      event_date: "2026-02-06",
+      event_name: "Test",
+    });
+    mockStore.set(created.id, {
+      ...created,
+      excluded_dates: JSON.stringify(["2026-02-10"]),
+    });
+    await excludeReptileEventOccurrence(created.id, "2026-02-10");
+    const fetched = await getReptileEvent(created.id);
+    const parsed = JSON.parse(fetched?.excluded_dates || "[]");
+    expect(parsed).toEqual(["2026-02-10"]);
   });
 
   it("deletes an event", async () => {
