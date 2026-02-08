@@ -224,6 +224,8 @@ const Feed = () => {
             <CardSurface
               style={{ marginTop: 4, marginBottom: 12, padding: 12 }}
             >
+              <HistoryChip navigate={navigate} colors={colors} />
+
               <Text variant="titleLarge">{t("feed.title")}</Text>
               <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
                 {t("feed.subtitle")}
@@ -371,7 +373,6 @@ const Feed = () => {
                 </List.Accordion>
               </List.Section>
             </CardSurface>
-            <HistoryChip navigate={navigate} colors={colors} />
           </>
         }
         contentContainerStyle={{ paddingBottom: 120 }}
