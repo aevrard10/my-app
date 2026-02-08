@@ -69,6 +69,15 @@ const GallerySection = ({
                 </View>
               </TouchableRipple>
             ))}
+            {Array.from({
+              length: Math.max(0, 5 - photos.length),
+            }).map((_, idx) => (
+              <View key={`placeholder-${idx}`} style={styles.placeholder}>
+                <Text variant="labelSmall" style={styles.placeholderText}>
+                  {t("gallery.placeholder")}
+                </Text>
+              </View>
+            ))}
           </View>
         </ScrollView>
       ) : (
@@ -97,6 +106,20 @@ const styles = StyleSheet.create({
   item: {
     borderRadius: 14,
     overflow: "hidden",
+  },
+  placeholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "rgba(0,0,0,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.02)",
+  },
+  placeholderText: {
+    opacity: 0.5,
   },
   image: {
     width: 120,
