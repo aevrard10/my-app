@@ -3,7 +3,6 @@ import { Platform, StyleSheet, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import CardSurface from "@shared/components/CardSurface";
 import { useI18n } from "@shared/i18n";
-import { formatDDMMYYYY } from "@shared/utils/formatedDate";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import { useSnackbar } from "@rn-flix/snackbar";
@@ -32,33 +31,10 @@ const QrCodeSection = ({ reptile }: QrCodeSectionProps) => {
 
   const qrValue = useMemo(() => {
     if (!reptile) {
-      return "ReptiTrack";
+      return "reptitrack://";
     }
-    const lines = [
-      `reptitrack://reptile/${reptile.id}`,
-      `${t("profile.qr_label_name")}: ${reptile.name || "—"}`,
-      `${t("profile.qr_label_species")}: ${reptile.species || "—"}`,
-      `${t("profile.qr_label_sex")}: ${reptile.sex || "—"}`,
-      `${t("profile.qr_label_danger")}: ${
-        reptile.danger_level || t("profile.qr_danger_unknown")
-      }`,
-      `${t("profile.qr_label_acquired")}: ${
-        reptile.acquired_date ? formatDDMMYYYY(reptile.acquired_date) : "—"
-      }`,
-      `${t("profile.qr_label_origin")}: ${reptile.origin || "—"}`,
-      `${t("profile.qr_label_location")}: ${reptile.location || "—"}`,
-      `${t("profile.qr_label_diet")}: ${reptile.diet || "—"}`,
-      `${t("profile.qr_label_temperature")}: ${
-        reptile.temperature_range || "—"
-      }`,
-      `${t("profile.qr_label_humidity")}: ${
-        reptile.humidity_level !== null && reptile.humidity_level !== undefined
-          ? `${reptile.humidity_level}%`
-          : "—"
-      }`,
-    ];
-    return lines.join("\n");
-  }, [reptile, t]);
+    return `reptitrack://reptile/${reptile.id}`;
+  }, [reptile]);
 
   const withQrData = useCallback(async (fn: (data: string) => Promise<void>) => {
     if (!qrRef.current || !qrRef.current.toDataURL) {
