@@ -103,6 +103,8 @@ const AddMesuarements = ({ route }: Props) => {
                     formik.setFieldValue("weight", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
                   }}
                   style={styles.input}
+                  keyboardType="numeric"
+                  inputMode="numeric"
                 />
                 <SegmentedButtons
                   onValueChange={(value) => {
@@ -139,6 +141,8 @@ const AddMesuarements = ({ route }: Props) => {
                     formik.setFieldValue("size", isNaN(number) ? "" : number); // Ne pas permettre un non-nombre
                   }}
                   style={styles.input}
+                  keyboardType="numeric"
+                  inputMode="numeric"
                 />
                 <SegmentedButtons
                   onValueChange={(value) => {

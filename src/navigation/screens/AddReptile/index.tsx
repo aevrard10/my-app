@@ -467,19 +467,23 @@ const AddReptile = () => {
                     placeholder={t("add_reptile.humidity")}
                     value={formik.values.humidity_level?.toString() ?? ""}
                     onChangeText={(text) => {
-                      const number = parseInt(text, 10);
+                      const number = parseFloat(text);
                       formik.setFieldValue(
                         "humidity_level",
                         isNaN(number) ? "" : number,
                       ); // Ne pas permettre un non-nombre
                     }}
                     onBlur={formik.handleBlur("humidity_level")}
+                    keyboardType="numeric"
+                    inputMode="numeric"
                   />
                   <TextInput
                     placeholder={t("add_reptile.temperature")}
                     value={formik.values.temperature_range}
                     onChangeText={formik.handleChange("temperature_range")}
                     onBlur={formik.handleBlur("temperature_range")}
+                    keyboardType="numeric"
+                    inputMode="numeric"
                   />
                   <TextInput
                     placeholder={t("add_reptile.danger_level")}

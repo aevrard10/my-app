@@ -721,7 +721,10 @@ const ReptileProfileDetails = ({ route }: Props) => {
           danger_level: data?.danger_level || "",
           notes: data?.notes || "",
           sex: data?.sex || "",
-          humidity_level: data?.humidity_level?.toString() || "",
+          humidity_level:
+            data?.humidity_level !== null && data?.humidity_level !== undefined
+              ? String(data.humidity_level)
+              : "0",
           temperature_range: data?.temperature_range || "",
         }}
         enableReinitialize
@@ -1008,7 +1011,7 @@ const ReptileProfileDetails = ({ route }: Props) => {
                         value: formik.values.humidity_level,
                         keyboardType: "numeric",
                         onChangeText: (text) => {
-                          const number = parseInt(text, 10);
+                          const number = parseFloat(text);
                           formik.setFieldValue(
                             "humidity_level",
                             Number.isNaN(number) ? "" : number,
