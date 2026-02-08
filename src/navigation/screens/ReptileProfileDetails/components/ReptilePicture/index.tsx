@@ -8,6 +8,7 @@ import { addReptilePhotoFromUri } from "@shared/local/reptilePhotosStore";
 import { useQueryClient } from "@tanstack/react-query";
 import QueriesKeys from "@shared/declarations/queriesKeys";
 import CardSurface from "@shared/components/CardSurface";
+import getSpeciesIcon from "@shared/utils/getSpeciesIcon";
 
 type ReptilePictureProps = {
   data: LocalReptile | null | undefined;
@@ -73,11 +74,7 @@ const ReptilePicture: FC<ReptilePictureProps> = (props) => {
         </Text>
         <View style={styles.chipRow}>
           <Chip
-            icon={
-              data?.sort_of_species === "snake"
-                ? "snake"
-                : require("../../../../../../assets/lizard.png")
-            }
+            icon={getSpeciesIcon(data?.sort_of_species)}
             style={{ backgroundColor: colors.secondaryContainer }}
           >
             {data?.species}
